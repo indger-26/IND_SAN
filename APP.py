@@ -2660,7 +2660,7 @@ def nc_nr(prestadora_sigla, mes):
 
 ##############################################################################################################################################################################################################################
 
-# ELABORAÇÃO DE RELATÓRIO AUTOMATIZADO -IQA E IQE
+# ELABORAÇÃO DE RELATÓRIO AUTOMATIZADO - IQA
 
 def rel_iqa():
 
@@ -3472,19 +3472,14 @@ def rel_iqa():
 
 
 
-
-# 
+  # ELABORAÇÃO DA TABELA DE PONDERAÇÕES
 
   def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo):
-
-    # TAB_REALIZADAS["ID_POND"] = TAB_REALIZADAS["ID_POND"].apply(lambda x: str(int(round(float(x)))) if pd.notna(x) and x != '' else "")
-    # BASE_MUN_TIPO_completo["ID_POND"] = BASE_MUN_TIPO_completo["ID_POND"].apply(lambda x: str(int(round(float(x)))) if pd.notna(x) and x != '' else "")
 
     TAB_REALIZADAS["ID_POND"] = TAB_REALIZADAS["ID_POND"].fillna(0)
 
     BASE_MUN_TIPO_completo["ID_POND"] = BASE_MUN_TIPO_completo["ID_POND"].fillna("").astype(str).str.strip()
 
-    # ── Soma das desconsiderações do plano por ID_POND ────────────────────────
     DESC_POR_ID = (
       BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
       .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
@@ -3500,7 +3495,6 @@ def rel_iqa():
 
     TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
 
-    # ── Separação de expurgos ────────────────────────────────────────────────
     TAB_EXPURGOS = TAB_REALIZADAS_ACEITO[
         TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] == "EXPURGAR"
     ]
@@ -3509,12 +3503,10 @@ def rel_iqa():
         TAB_EXPURGOS["CONFORMIDADE - VI"] == "Conforme"
     ]
 
-    # BASE SEM EXPURGO (ESSENCIAL PRA CORREÇÃO)
     TAB_SEM_EXPURGO = TAB_REALIZADAS_ACEITO[
         TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR"
     ]
 
-    # ── Filtros dos impactos (AGORA CORRETOS) ────────────────────────────────
     TAB_CONF_VI_NAOCONF_ARSAL = TAB_SEM_EXPURGO[
         (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] == "Conforme") &
         (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] != "Conforme") &
@@ -3527,9 +3519,6 @@ def rel_iqa():
         (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] == "Conforme")
     ]
 
-    # ════════════════════════════════════════════════════════════════════════
-    # QUADRO_POND_NCONF
-    # ════════════════════════════════════════════════════════════════════════
     QUADRO_POND_NCONF = TAB_POND.copy()
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.rename(columns={
       QUADRO_POND_NCONF.columns[0]: "ID",
@@ -3538,42 +3527,34 @@ def rel_iqa():
       QUADRO_POND_NCONF.columns[3]: "PONDERAÇÕES (ARSAL)",
     })
 
-    # EXPURGOS
     contagem_exp = TAB_EXPURGOS_CONF.groupby('ID_POND').size().reset_index(name='EXPURGOS')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_exp, left_on='ID', right_on='ID_POND', how='left')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"])
     QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].fillna(0).astype("Int64")
     QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].astype("object").replace(0, "")
 
-    # CONF VI → NÃO CONF ARSAL
     contagem_cv_na = TAB_CONF_VI_NAOCONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: CONFORME → NÃO CONFORME')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_cv_na, left_on='ID', right_on='ID_POND', how='left')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
     QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype("Int64")
     QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].astype("object").replace(0, "")
 
-    # NÃO CONF VI → CONF ARSAL
     contagem_na_cv = TAB_NAOCONF_VI_CONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: NÃO CONFORME → CONFORME')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_na_cv, left_on='ID', right_on='ID_POND', how='left')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
     QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype("Int64")
     QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].astype("object").replace(0, "")
 
-    # Remove linhas sem impacto
     colunas_impacto = ['EXPURGOS', 'CONVERSÃO: CONFORME → NÃO CONFORME', 'CONVERSÃO: NÃO CONFORME → CONFORME']
     QUADRO_POND_NCONF = QUADRO_POND_NCONF[
         QUADRO_POND_NCONF[colunas_impacto].apply(lambda row: any(v != "" for v in row), axis=1)
     ]
 
-    # Remove colunas vazias
     for col in colunas_impacto:
         if col in QUADRO_POND_NCONF.columns:
             if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
                 QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
 
-    # ════════════════════════════════════════════════════════════════════════
-    # QUADRO_POND_REALIZ
-    # ════════════════════════════════════════════════════════════════════════
     if not TAB_EXPURGOS.empty:
 
       QUADRO_POND_REALIZ = TAB_POND.copy()
@@ -3603,19 +3584,11 @@ def rel_iqa():
 
 
 
-
-############################################################################################################################################################################################################################################################################
-
-
-
+  # CONSTRUÇÃO DOS GRÁFICOS
 
   def graf(TAB_MUN_FINAL, TAB_TIPO):
 
     TAB_MUN_FINAL = TAB_MUN_FINAL[:-1]
-    #TAB_TIPO = TAB_TIPO[:-1]
-
-
-    # Remover acento (para melhor ordenamento)
 
     def remove_acentos(txt):
       return ''.join(c for c in unicodedata.normalize('NFD', txt)
@@ -3627,7 +3600,6 @@ def rel_iqa():
     TAB_MUN_FINAL = TAB_MUN_FINAL.drop(columns=['MUNICÍPIO_SORT'])
 
     TAB_TIPO= TAB_TIPO.sort_values(by="ANÁLISE", ascending=False)
-
 
 
     # Plano de amostragem vs análises realizadas por município
@@ -3673,7 +3645,6 @@ def rel_iqa():
     plt.show()
 
 
-
     # Análises realizadas vs Análises conformes por município
 
     espacamento = 1.5
@@ -3707,7 +3678,6 @@ def rel_iqa():
     plt.show()
 
 
-
     # IQA por município
 
     espacamento = 1.5
@@ -3736,7 +3706,6 @@ def rel_iqa():
     plt.show()
 
 
-
     # Plano de amostragem vs análises realizadas por tipo de análise
 
     TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype(int)
@@ -3758,7 +3727,6 @@ def rel_iqa():
 
     ax6.grid(True, linestyle='--', alpha=0.1)
 
-    # Ajustando rótulos do eixo x
     ax6.set_xticks(x)
     ax6.set_xticklabels(TAB_TIPO["ANÁLISE"], rotation=30)
 
@@ -3769,7 +3737,6 @@ def rel_iqa():
     plt.savefig("grafico_plan_realiz_tipo.png", dpi=300, bbox_inches="tight")
 
     plt.show()
-
 
 
     # Análises realizadas vs Análises conformes por tipo de análise
@@ -3803,14 +3770,7 @@ def rel_iqa():
     plt.show()
 
 
-
-
-
-###############################################################################################################################################################################################################################################################################
-
-
-
-
+  # FUNÇÃO PRINCIPAL E EXECUÇÃO - IQA
 
   def MAIN_IQA():
 
@@ -3868,13 +3828,7 @@ def rel_iqa():
     return arquivo_saida
 
 
-
-
   lat_long = pd.read_excel('lat_long.xlsx')
-
-
-
-
 
   url = "https://github.com/carlosfarsal/DASH_ATT/raw/main/modelo_iqa_automatico.docx"
 
@@ -3894,21 +3848,20 @@ def rel_iqa():
         f"URL tentada: {url}\n"
         f"Verifique se o arquivo existe no repositório GitHub."
     )
-    
-  #gdown.download(url, output, quiet=False)
-
-    
-
-
-
-
-
+  
   nome_arq = MAIN_IQA()
 
   return nome_arq
 
+
+##############################################################################################################################################################################################################################
+
+# ELABORAÇÃO DE RELATÓRIO AUTOMATIZADO - IQA E IQE
+
 def rel_iqa_iqe():
 
+  # DEFININDO E AJUSTANDO AS TABELAS BASES - IQA
+  
   def base(PLAN_MUN_TIPO, PLAN_REALIZADAS, PLAN_POND, MES_ANO):
 
     arquivo_saida   = "PLANO_TRATADO.xlsx"
@@ -3916,7 +3869,6 @@ def rel_iqa_iqe():
     coluna_desc     = "DESCONSIDERAÇÕES - ARSAL"
     coluna_id_pond  = "ID_POND"
 
-    #BASE_MUN_TIPO = pd.read_excel(PLAN_MUN_TIPO)
     BASE_MUN_TIPO = PLAN_MUN_TIPO
 
     BASE_MUN_TIPO = BASE_MUN_TIPO.dropna(subset=['PLANO'])
@@ -3950,10 +3902,8 @@ def rel_iqa_iqe():
       lambda x: x if x in parametros_principais else "Demais Parâmetros"
     )
 
-    # Normaliza ID_POND: NaN vira "" para entrar corretamente nas chaves
     BASE_MUN_TIPO[coluna_id_pond] = BASE_MUN_TIPO[coluna_id_pond].fillna("").astype(str).str.strip()
 
-    # ── Agrupamento por (Cidade, Parâmetros, ID_POND) ─────────────────────────
     colunas_chave = ["Cidade", "Parâmetros", coluna_id_pond]
 
     BASE_MUN_TIPO_agrupado = BASE_MUN_TIPO.groupby(
@@ -3965,14 +3915,12 @@ def rel_iqa_iqe():
       }
     )
 
-    # ── Move ID_POND para o final ─────────────────────────────────────────────
     cols = [c for c in BASE_MUN_TIPO_agrupado.columns if c != coluna_id_pond] + [coluna_id_pond]
     BASE_MUN_TIPO_agrupado = BASE_MUN_TIPO_agrupado[cols]
 
     BASE_MUN_TIPO_agrupado.insert(0, "MÊS", mes)
     BASE_MUN_TIPO_agrupado.insert(1, "ANO", ano)
 
-    # ── Completar combinações faltantes (parâmetros principais, sem ID) ────────
     municipios = BASE_MUN_TIPO_agrupado["Cidade"].unique()
     combinacoes_principais = pd.DataFrame(
       list(itertools.product([mes], [ano], municipios, parametros_principais, [""])),
@@ -3986,12 +3934,10 @@ def rel_iqa_iqe():
     BASE_MUN_TIPO_principais[coluna_valor] = BASE_MUN_TIPO_principais[coluna_valor].fillna(0)
     BASE_MUN_TIPO_principais[coluna_desc]  = BASE_MUN_TIPO_principais[coluna_desc].fillna(0)
 
-    # ── Linhas COM ID_POND (já têm sua linha garantida pelo agrupamento) ───────
     BASE_COM_ID = BASE_MUN_TIPO_agrupado[
       BASE_MUN_TIPO_agrupado[coluna_id_pond] != ""
     ]
 
-    # ── Demais Parâmetros (sem ID) ────────────────────────────────────────────
     BASE_MUN_TIPO_demais = BASE_MUN_TIPO_agrupado[
       (BASE_MUN_TIPO_agrupado["Parâmetros"] == "Demais Parâmetros") &
       (BASE_MUN_TIPO_agrupado[coluna_id_pond] == "")
@@ -4002,13 +3948,11 @@ def rel_iqa_iqe():
       ignore_index=True
     )
 
-    # ── Move ID_POND para o final no arquivo de saída ─────────────────────────
     cols = [c for c in BASE_MUN_TIPO_completo.columns if c != coluna_id_pond] + [coluna_id_pond]
     BASE_MUN_TIPO_completo = BASE_MUN_TIPO_completo[cols]
 
     BASE_MUN_TIPO_completo.to_excel(arquivo_saida, index=False)
 
-    # ── BASE_MUN e BASE_TIPO usam só coluna_valor ─────────────────────────────
     BASE_MUN = BASE_MUN_TIPO_agrupado.groupby("Cidade", as_index=False)[coluna_valor].sum()
     BASE_MUN = BASE_MUN.rename(columns={"Cidade": "MUNICÍPIO", "PLANO": "PLANO DE AMOSTRAGEM"})
     BASE_MUN["MUNICÍPIO"] = BASE_MUN["MUNICÍPIO"].str.upper().apply(unidecode)
@@ -4017,7 +3961,6 @@ def rel_iqa_iqe():
     BASE_TIPO = BASE_TIPO.rename(columns={"Parâmetros": "ANÁLISE", "PLANO": "PLANO DE AMOSTRAGEM"})
     BASE_TIPO["ANÁLISE"] = BASE_TIPO["ANÁLISE"].str.upper().apply(unidecode)
 
-    #BASE_REALIZADAS = pd.read_excel(PLAN_REALIZADAS)
     BASE_REALIZADAS = PLAN_REALIZADAS
 
     BASE_REALIZADAS["ANÁLISE"] = BASE_REALIZADAS["ANÁLISE"].replace({
@@ -4030,16 +3973,13 @@ def rel_iqa_iqe():
     BASE_REALIZADAS["CIDADE"] = BASE_REALIZADAS["CIDADE"].str.upper().apply(unidecode)
     BASE_REALIZADAS["ANÁLISE"] = BASE_REALIZADAS["ANÁLISE"].str.upper().apply(unidecode)
 
-    #BASE_POND = pd.read_excel(PLAN_POND)
     BASE_POND = PLAN_POND
 
     return (BASE_MUN, BASE_TIPO, BASE_REALIZADAS, BASE_POND, BASE_MUN_TIPO_completo)
 
 
 
-######################################################################################################################################################################################################################################################################################
-
-
+  # DEFININDO E AJUSTANDO AS TABELAS BASES - IQE
 
   def base_IQE(PLAN_MUN_TIPO_IQE, PLAN_REALIZADAS_IQE, PLAN_POND_IQE, TRIM_ANO):
 
@@ -4048,16 +3988,13 @@ def rel_iqa_iqe():
     coluna_desc    = "DESCONSIDERAÇÕES - ARSAL"
     coluna_id_pond = "ID_POND"
 
-    #BASE_MUN_TIPO_IQE = pd.read_excel(PLAN_MUN_TIPO_IQE)
     BASE_MUN_TIPO_IQE = PLAN_MUN_TIPO_IQE
 
-    # ── Remove linhas sem valor de plano ─────────────────────────────────────
     BASE_MUN_TIPO_IQE = BASE_MUN_TIPO_IQE.dropna(subset=[coluna_valor])
 
     trimestre, ano = TRIM_ANO.split(" - ANO ")
     ano_contratual = ano[:1]
 
-    # ── Normaliza nomes de parâmetros ─────────────────────────────────────────
     BASE_MUN_TIPO_IQE["Parâmetros"] = BASE_MUN_TIPO_IQE["Parâmetros"].replace({
       "DBO - 5 dias"          : "DBO",
       "Óleos e Graxas Totais" : "Óleos e Graxas",
@@ -4078,12 +4015,10 @@ def rel_iqa_iqe():
       lambda x: x if x in parametros_principais else "Demais Parâmetros"
     )
 
-    # ── Normaliza ID_POND: NaN vira "" ────────────────────────────────────────
     BASE_MUN_TIPO_IQE[coluna_id_pond] = (
       BASE_MUN_TIPO_IQE[coluna_id_pond].fillna("").astype(str).str.strip()
     )
 
-    # ── Agrupamento por (Cidade, Parâmetros, ID_POND) ─────────────────────────
     colunas_chave = ["Cidade", "Parâmetros", coluna_id_pond]
 
     BASE_MUN_TIPO_IQE_agrupado = BASE_MUN_TIPO_IQE.groupby(
@@ -4095,14 +4030,12 @@ def rel_iqa_iqe():
       }
     )
 
-    # ── Move ID_POND para o final ─────────────────────────────────────────────
     cols = [c for c in BASE_MUN_TIPO_IQE_agrupado.columns if c != coluna_id_pond] + [coluna_id_pond]
     BASE_MUN_TIPO_IQE_agrupado = BASE_MUN_TIPO_IQE_agrupado[cols]
 
     BASE_MUN_TIPO_IQE_agrupado.insert(0, "TRIMESTRE", trimestre)
     BASE_MUN_TIPO_IQE_agrupado.insert(1, "ANO CONTRATUAL", ano_contratual)
 
-    # ── Completar combinações faltantes (parâmetros principais, sem ID) ────────
     municipios = BASE_MUN_TIPO_IQE_agrupado["Cidade"].unique()
     combinacoes_principais = pd.DataFrame(
       list(itertools.product([trimestre], [ano_contratual], municipios, parametros_principais, [""])),
@@ -4116,12 +4049,10 @@ def rel_iqa_iqe():
     BASE_MUN_TIPO_IQE_principais[coluna_valor] = BASE_MUN_TIPO_IQE_principais[coluna_valor].fillna(0)
     BASE_MUN_TIPO_IQE_principais[coluna_desc]  = BASE_MUN_TIPO_IQE_principais[coluna_desc].fillna(0)
 
-    # ── Linhas COM ID_POND ────────────────────────────────────────────────────
     BASE_COM_ID_IQE = BASE_MUN_TIPO_IQE_agrupado[
       BASE_MUN_TIPO_IQE_agrupado[coluna_id_pond] != ""
     ]
 
-    # ── Demais Parâmetros (sem ID) ────────────────────────────────────────────
     BASE_MUN_TIPO_IQE_demais = BASE_MUN_TIPO_IQE_agrupado[
       (BASE_MUN_TIPO_IQE_agrupado["Parâmetros"] == "Demais Parâmetros") &
       (BASE_MUN_TIPO_IQE_agrupado[coluna_id_pond] == "")
@@ -4132,13 +4063,11 @@ def rel_iqa_iqe():
       ignore_index=True
     )
 
-    # ── Move ID_POND para o final no arquivo de saída ─────────────────────────
     cols = [c for c in BASE_MUN_TIPO_IQE_completo.columns if c != coluna_id_pond] + [coluna_id_pond]
     BASE_MUN_TIPO_IQE_completo = BASE_MUN_TIPO_IQE_completo[cols]
 
     BASE_MUN_TIPO_IQE_completo.to_excel(arquivo_saida, index=False)
 
-    # ── BASE_MUN e BASE_TIPO usam só coluna_valor ─────────────────────────────
     BASE_MUN_IQE = BASE_MUN_TIPO_IQE_agrupado.groupby("Cidade", as_index=False)[coluna_valor].sum()
     BASE_MUN_IQE = BASE_MUN_IQE.rename(columns={"Cidade": "MUNICÍPIO", "PLANO": "PLANO DE AMOSTRAGEM"})
     BASE_MUN_IQE["MUNICÍPIO"] = BASE_MUN_IQE["MUNICÍPIO"].str.upper().apply(unidecode)
@@ -4147,9 +4076,6 @@ def rel_iqa_iqe():
     BASE_TIPO_IQE = BASE_TIPO_IQE.rename(columns={"Parâmetros": "ANÁLISE", "PLANO": "PLANO DE AMOSTRAGEM"})
     BASE_TIPO_IQE["ANÁLISE"] = BASE_TIPO_IQE["ANÁLISE"].str.upper().apply(unidecode)
 
-    # ── Realizadas: normaliza parâmetros igual ao IQA ─────────────────────────
-
-    #BASE_REALIZADAS_IQE = pd.read_excel(PLAN_REALIZADAS_IQE)
     BASE_REALIZADAS_IQE = PLAN_REALIZADAS_IQE
 
     BASE_REALIZADAS_IQE["ANÁLISE"] = BASE_REALIZADAS_IQE["ANÁLISE"].replace({
@@ -4161,18 +4087,14 @@ def rel_iqa_iqe():
     BASE_REALIZADAS_IQE["CIDADE"]  = BASE_REALIZADAS_IQE["CIDADE"].str.upper().apply(unidecode)
     BASE_REALIZADAS_IQE["ANÁLISE"] = BASE_REALIZADAS_IQE["ANÁLISE"].str.upper().apply(unidecode)
 
-    #BASE_POND_IQE = pd.read_excel(PLAN_POND_IQE)
     BASE_POND_IQE = PLAN_POND_IQE
 
     return (BASE_MUN_IQE, BASE_TIPO_IQE, BASE_REALIZADAS_IQE, BASE_POND_IQE, BASE_MUN_TIPO_IQE_completo)
 
 
 
-
-#################################################################################################################################################################################################################################################################################
-
-
-
+  # COLETANDO AS INFORMAÇÕES GERAIS
+  
   def infos_gerais (TAB_INFO):
 
     mes_ing = TAB_INFO["INFORMAÇÃO"][3]
@@ -4197,7 +4119,6 @@ def rel_iqa_iqe():
     MES_ANO = mes + '-' + str(ano)
     mes_min = mes.lower()
 
-
     trimestre = TAB_INFO["INFORMAÇÃO"][4]
     ANO_CONTRAT = TAB_INFO["INFORMAÇÃO"][2]
 
@@ -4214,7 +4135,6 @@ def rel_iqa_iqe():
       PRESTADORA = "Conasa Águas do Sertão"
     else:
       PRESTADORA = "Verde Ambiental Alagoas"
-
 
     META = TAB_INFO ["INFORMAÇÃO"][11]
 
@@ -4274,11 +4194,7 @@ def rel_iqa_iqe():
 
 
 
-
-#################################################################################################################################################################################################################################################################################
-
-
-
+# DEFINIÇÃO DO CONJUNTO DE VARIÁVEIS A SEREM INSERIDAS NO RELATÓRIO
 
   def var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE):
 
@@ -4304,14 +4220,11 @@ def rel_iqa_iqe():
     def validar(valor):
       return valor if valor is not None else ""
 
-
     def formata_milhar(x):
       try:
           return f"{int(float(x)):,}".replace(",", ".")
       except:
           return "-"
-
-
 
     NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
     NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
@@ -4328,8 +4241,6 @@ def rel_iqa_iqe():
     print(IQE_ARSAL_TXT)
     print(IQE_VI)
 
-
-
     if (IQE_VI).strip() == (IQE_ARSAL_TXT).strip():
       IS_SATISF_IQE = "satisfatório"
 
@@ -4344,8 +4255,6 @@ def rel_iqa_iqe():
 
     def validar(valor):
       return valor if valor is not None else ""
-
-
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
@@ -4425,17 +4334,10 @@ def rel_iqa_iqe():
 
 
 
-
-###################################################################################################################################################################################################################################################################################
-
-
-
+  # CONVERSÃO DE DATAFRAME PARA TABELA EDITÁVEL NO RELATÓRIO
 
   def df_para_tabela_word(doc, df, cor_cabecalho="BFBFBF", cor_par="FFFFFF", cor_impar="FFFFFF"):
-    """
-    Converte um DataFrame em tabela Word e retorna o elemento XML (_tbl).
-    Uso: '$QUADRO_NREA_OBS': df_para_tabela_word(doc, df_nrea)
-    """
+    
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
     from docx.shared import Pt, RGBColor, Cm
@@ -4455,15 +4357,15 @@ def rel_iqa_iqe():
       tcBorders = OxmlElement("w:tcBorders")
       for lado in ("top", "left", "bottom", "right"):
           border = OxmlElement(f"w:{lado}")
-          border.set(qn("w:val"),   "single")  # estilo da linha: single, double, dashed...
-          border.set(qn("w:sz"),    tamanho)   # espessura: 4=0.5pt, 8=1pt, 12=1.5pt
+          border.set(qn("w:val"),   "single")
+          border.set(qn("w:sz"),    tamanho)
           border.set(qn("w:space"), "0")
-          border.set(qn("w:color"), cor)       # cor em hex sem #
+          border.set(qn("w:color"), cor)
           tcBorders.append(border)
       tcPr.append(tcBorders)
 
     def set_col_widths(tabela, larguras_cm):
-        """Define largura das colunas diretamente no XML."""
+        
         tbl = tabela._tbl
         tblGrid = tbl.find(qn("w:tblGrid"))
         if tblGrid is None:
@@ -4489,7 +4391,6 @@ def rel_iqa_iqe():
                 tcW.set(qn("w:w"),    str(int(larguras_cm[i] / 635)))
                 tcW.set(qn("w:type"), "dxa")
 
-    # +1 linha para o cabeçalho do DataFrame
     tabela = doc.add_table(rows=len(df) + 1, cols=len(df.columns))
     tabela.style = "Normal Table"
     tabela.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -4497,45 +4398,44 @@ def rel_iqa_iqe():
     num_cols = len(df.columns)
     larguras = []
 
-    MUNICIPIO_ANALISE = Cm(5.5)   # coluna de texto (1ª coluna)
+    MUNICIPIO_ANALISE = Cm(5.5)
     EX_LARGA          = Cm(7.0)
-    LARGA             = Cm(3.2)   # colunas de texto longo (ponderações, etc.)
-    MEDIA             = Cm(2.5)   # colunas numéricas normais
-    ESTREITA          = Cm(1.6)   # colunas numéricas simples (ID, expurgos, etc.)
-    CONVERSAO         = Cm(3.0)   # colunas "CONF VI → NÃO CONF ARSAL" e vice-versa
+    LARGA             = Cm(3.2)
+    MEDIA             = Cm(2.5)
+    ESTREITA          = Cm(1.6)
+    CONVERSAO         = Cm(3.0)
 
     for c in range(num_cols):
         col_name = df.columns[c]
 
         if c == 0:
-            # Primeira coluna: município/análise/ID
+
             if col_name in ("MUNICÍPIO", "ANÁLISE"):
                 larguras.append(MUNICIPIO_ANALISE)
             else:
-                larguras.append(ESTREITA)  # ID numérico
+                larguras.append(ESTREITA)
         else:
-            # Colunas de conversão (novas)
+
             if col_name in ("CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL",
                             "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME"):
                 larguras.append(CONVERSAO)
-            # Colunas de texto longo (ponderações)
+  
             elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"):
                 larguras.append(EX_LARGA)
-            # Colunas numéricas médias
+    
             elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
                               "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO",
                               "ANALISES REALIZADAS", "ANALISES CONFORMES", "ANALISES NÃO CONFORMES",
                               "EXPURGOS TOTAIS", "EXPURGOS CONFORMES", "EXPURGOS NAO CONFORMES",
                               "NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)"):
                 larguras.append(MEDIA)
-            # Demais colunas numéricas simples
+    
             else:
                 larguras.append(ESTREITA)
 
 
     set_col_widths(tabela, larguras)
 
-    # Cabeçalho
     for c, col in enumerate(df.columns):
         cell = tabela.rows[0].cells[c]
 
@@ -4547,8 +4447,8 @@ def rel_iqa_iqe():
         p = cell.paragraphs[0]
         p.clear()
 
-        p.paragraph_format.space_after = Pt(0)   # ← AQUI
-        p.paragraph_format.space_before = Pt(0)  # ← AQUI
+        p.paragraph_format.space_after = Pt(0)
+        p.paragraph_format.space_before = Pt(0)
 
         run = p.add_run(str(col))
         run.bold = True
@@ -4557,8 +4457,6 @@ def rel_iqa_iqe():
         run.font.size = Pt(9.0)
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-
-    # Dados
     for r, (_, linha) in enumerate(df.iterrows()):
         cor = cor_par if r % 2 == 0 else cor_impar
         is_ultima_linha = (df.columns[-1] in ("NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)")) and (r == len(df) - 1)
@@ -4572,8 +4470,8 @@ def rel_iqa_iqe():
             p = cell.paragraphs[0]
             p.clear()
 
-            p.paragraph_format.space_after = Pt(0)   # ← AQUI
-            p.paragraph_format.space_before = Pt(0)  # ← AQUI
+            p.paragraph_format.space_after = Pt(0)
+            p.paragraph_format.space_before = Pt(0)
 
             run = p.add_run(str(valor) if valor is not None else "")
 
@@ -4588,12 +4486,7 @@ def rel_iqa_iqe():
 
 
 
-
-##################################################################################################################################################################################################################################################################################
-
-
-
-
+# ALIMENTANDO INFORMAÇÕES AO MODELO DE RELATÓRIO
 
   def substituir_var(documento, var_dic):
     doc = Document(documento)
@@ -4605,15 +4498,14 @@ def rel_iqa_iqe():
             for key, value in var_dic.items():
                 if key in full_text:
                     if isinstance(value, pd.DataFrame):
-                        # É tabela → insere no lugar do parágrafo e sai
+                        
                         tbl = df_para_tabela_word(doc, value)
                         paragraph._element.addprevious(tbl)
-                        #paragraph._element.getparent().remove(paragraph._element)
 
                         for run in paragraph.runs:
                             run.text = ""
 
-                        return  # parágrafo foi removido, para aqui
+                        return
                     else:
                         full_text = full_text.replace(key, value)
 
@@ -4624,7 +4516,6 @@ def rel_iqa_iqe():
     for p in doc.paragraphs:
         process_paragraph(p)
 
-    # Substitui dentro das tabelas
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
@@ -4634,9 +4525,9 @@ def rel_iqa_iqe():
     def replace_placeholder_with_image(doc, placeholder, image_path, width_inches):
       for paragraph in doc.paragraphs:
           if placeholder in paragraph.text:
-              # Limpa todo o parágrafo
+              
               paragraph.clear()
-              # Adiciona a imagem
+              
               paragraph.add_run().add_picture(image_path, width=Inches(width_inches))
 
     placeholders = [
@@ -4661,23 +4552,16 @@ def rel_iqa_iqe():
     for ph, img, width in placeholders:
       replace_placeholder_with_image(doc, ph, img, width)
 
-
     return doc
 
+  
 
-
-
-################################################################################################################################################################################################################################################################################
-
-
-
+  # ANÁLISE POR MUNICÍPIO
 
   def analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo):
 
+    # IQA
 
-    #IQA
-
-    # ── Desconsiderações do plano por município ───────────────────────────────
     BASE_MUN_TIPO_completo["Cidade"] = BASE_MUN_TIPO_completo["Cidade"].str.upper().apply(unidecode)
 
     DESC_MUN = (
@@ -4694,7 +4578,6 @@ def rel_iqa_iqe():
     TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
     TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
 
-    # ── Segregando as análises realizadas ────────────────────────────────────
     TAB_REALIZADAS_ACEITO          = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF     = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_CONF_VI     = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - VI"] == "Conforme"]
@@ -4705,8 +4588,6 @@ def rel_iqa_iqe():
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP = TAB_REALIZADAS_ACEITO_NAOCONF[TAB_REALIZADAS["EXPURGOS - ARSAL"] == "EXPURGAR"]
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI = TAB_REALIZADAS_ACEITO_NAOCONF_VI[TAB_REALIZADAS["EXPURGOS - ARSAL"] == "EXPURGAR"]
 
-
-
     CONF_VI_NAOCONF_ARSAL = TAB_REALIZADAS_ACEITO[
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - VI"] == "Conforme") &
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - ARSAL"] != "Conforme") &
@@ -4714,7 +4595,6 @@ def rel_iqa_iqe():
         (TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR")
     ]
 
-    # ── Não Conforme no VI, mas Conforme no ARSAL (por Município) ────────────
     NAOCONF_VI_CONF_ARSAL = TAB_REALIZADAS_ACEITO[
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - VI"] != "Conforme") &
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - VI"].notna()) &
@@ -4740,50 +4620,37 @@ def rel_iqa_iqe():
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
     TAB_MUN["NÃO CONF VI → CONF ARSAL"] = TAB_MUN["NÃO CONF VI → CONF ARSAL"].fillna(0).astype(int)
 
-
-
-    # Criando coluna de análises realizadas
     contagem_tot = TAB_REALIZADAS_ACEITO.groupby('CIDADE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_MUN = TAB_MUN.merge(contagem_tot, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
 
-    # Criando coluna de análises conformes
     contagem_conf = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('CIDADE').size().reset_index(name='ANALISES CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_conf, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
 
-    # Criando coluna de análises não conformes
     contagem_naoconf = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('CIDADE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_naoconf, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
     TAB_MUN['ANALISES NÃO CONFORMES'] = TAB_MUN['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos conformes
     contagem_conf_exp = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('CIDADE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_conf_exp, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
     TAB_MUN['EXPURGOS CONFORMES'] = TAB_MUN['EXPURGOS CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos não conformes
     contagem_naoconf_exp = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('CIDADE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_naoconf_exp, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
     TAB_MUN['EXPURGOS NAO CONFORMES'] = TAB_MUN['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos totais
     TAB_MUN['EXPURGOS TOTAIS'] = TAB_MUN['EXPURGOS NAO CONFORMES'] + TAB_MUN['EXPURGOS CONFORMES']
 
-    # Criando coluna do "Nam Realiz"
     TAB_MUN["NAM REALIZ"] = (np.maximum(TAB_MUN['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'].fillna(0), TAB_MUN['ANALISES REALIZADAS'].fillna(0)) - TAB_MUN['EXPURGOS TOTAIS'].fillna(0)).astype(int)
 
-    # Criando coluna do "Nam Conf"
     TAB_MUN["NAM CONF"] = (TAB_MUN['ANALISES CONFORMES'].fillna(0) - TAB_MUN['EXPURGOS CONFORMES'].fillna(0) + TAB_MUN['NÃO CONF VI → CONF ARSAL'].fillna(0) - TAB_MUN['CONF VI → NÃO CONF ARSAL'].fillna(0)).astype(int)
 
-
-    # Calculando o IQA
     TAB_MUN["IQA (%)"] = (((TAB_MUN["NAM CONF"]) / (TAB_MUN["NAM REALIZ"])) * 100).round(1)
 
-    # ── Gerando a tabela final (com novas colunas) ────────────────────────────
     TAB_MUN_FINAL = TAB_MUN[[
       "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -4796,8 +4663,6 @@ def rel_iqa_iqe():
 
     desc_plano = int(TAB_MUN_FINAL["DESCONSIDERAÇÕES DO PLANO"].iloc[-1])
 
-
-
     TAB_MUN_NCONF = TAB_MUN[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF"]]
     TAB_MUN_NCONF_VI = TAB_MUN[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES"]]
 
@@ -4809,9 +4674,6 @@ def rel_iqa_iqe():
     TAB_MUN_NCONF = add_total(TAB_MUN_NCONF)
     TAB_MUN_NCONF_VI = add_total(TAB_MUN_NCONF_VI)
 
-
-
-    # ── Gerando a tabela resumida ─────────────────────────────────────────────
     TAB_MUN_RESUMIDA = TAB_MUN_FINAL[[
       "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -4835,13 +4697,10 @@ def rel_iqa_iqe():
     TAB_MUN_RESUMIDA_VI.loc['Total'] = TAB_MUN_RESUMIDA_VI.sum()
     TAB_MUN_RESUMIDA_VI.iloc[-1, TAB_MUN_RESUMIDA_VI.columns.get_loc("MUNICÍPIO")] = "TOTAL"
 
+    
 
-    #############
+    # IQE
 
-
-    #IQE
-
-    # ── Desconsiderações do plano por município ───────────────────────────────
     BASE_MUN_TIPO_IQE_completo["Cidade"] = BASE_MUN_TIPO_IQE_completo["Cidade"].str.upper().apply(unidecode)
 
     DESC_MUN = (
@@ -4858,7 +4717,6 @@ def rel_iqa_iqe():
     TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
     TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN_IQE["PLANO DE AMOSTRAGEM"] - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
 
-    # ── Segregando as análises realizadas ────────────────────────────────────
     TAB_REALIZADAS_ACEITO_IQE          = TAB_REALIZADAS_IQE[TAB_REALIZADAS_IQE["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF_IQE     = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_IQE["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_CONF_VI_IQE     = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_IQE["CONFORMIDADE - VI"] == "Conforme"]
@@ -4869,8 +4727,6 @@ def rel_iqa_iqe():
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_IQE[TAB_REALIZADAS_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"]
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE[TAB_REALIZADAS_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"]
 
-
-
     CONF_VI_NAOCONF_ARSAL_IQE = TAB_REALIZADAS_ACEITO_IQE[
         (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"] == "Conforme") &
         (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"] != "Conforme") &
@@ -4878,7 +4734,6 @@ def rel_iqa_iqe():
         (TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] != "EXPURGAR")
     ]
 
-    # ── Não Conforme no VI, mas Conforme no ARSAL (por Município) ────────────
     NAOCONF_VI_CONF_ARSAL_IQE = TAB_REALIZADAS_ACEITO_IQE[
         (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"] != "Conforme") &
         (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"].notna()) &
@@ -4904,53 +4759,39 @@ def rel_iqa_iqe():
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
     TAB_MUN_IQE["NÃO CONF VI → CONF ARSAL"] = TAB_MUN_IQE["NÃO CONF VI → CONF ARSAL"].fillna(0).astype(int)
 
-
-
-    # Criando coluna de análises realizadas
     contagem_tot_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('CIDADE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_tot_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
 
-    # Criando coluna de análises conformes
     contagem_conf_IQE = TAB_REALIZADAS_ACEITO_CONF_VI_IQE.groupby('CIDADE').size().reset_index(name='ANALISES CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_conf_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
 
-    # Criando coluna de análises não conformes
     contagem_naoconf_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE.groupby('CIDADE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_naoconf_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
     TAB_MUN_IQE['ANALISES NÃO CONFORMES'] = TAB_MUN_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos conformes
     contagem_conf_exp_IQE = TAB_REALIZADAS_ACEITO_CONF_EXP_VI_IQE.groupby('CIDADE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_conf_exp_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
     TAB_MUN_IQE['EXPURGOS CONFORMES'] = TAB_MUN_IQE['EXPURGOS CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos não conformes
     contagem_naoconf_exp_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI_IQE.groupby('CIDADE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_naoconf_exp_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
     TAB_MUN_IQE['EXPURGOS NAO CONFORMES'] = TAB_MUN_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos totais
     TAB_MUN_IQE['EXPURGOS TOTAIS'] = TAB_MUN_IQE['EXPURGOS NAO CONFORMES'] + TAB_MUN_IQE['EXPURGOS CONFORMES']
 
-    # Criando coluna do "Nam Realiz"
     TAB_MUN_IQE["NAM REALIZ"] = (np.maximum(TAB_MUN_IQE['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_MUN_IQE['ANALISES REALIZADAS']) - TAB_MUN_IQE['EXPURGOS TOTAIS']).astype(int)
-
-    # Criando coluna do "Nam Conf"
 
     TAB_MUN_IQE = TAB_MUN_IQE.fillna(0)
 
     TAB_MUN_IQE["NAM CONF"] = (TAB_MUN_IQE['ANALISES CONFORMES'] - TAB_MUN_IQE['EXPURGOS CONFORMES'] + TAB_MUN_IQE['NÃO CONF VI → CONF ARSAL'] - TAB_MUN_IQE['CONF VI → NÃO CONF ARSAL']).astype(int)
 
-
-    # Calculando o IQA
     TAB_MUN_IQE["IQE (%)"] = (((TAB_MUN_IQE["NAM CONF"]) / (TAB_MUN_IQE["NAM REALIZ"])) * 100).round(1)
 
-    # ── Gerando a tabela final (com novas colunas) ────────────────────────────
     TAB_MUN_FINAL_IQE = TAB_MUN_IQE[[
       "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -4963,8 +4804,6 @@ def rel_iqa_iqe():
 
     desc_plano_IQE = int(TAB_MUN_FINAL_IQE["DESCONSIDERAÇÕES DO PLANO"].iloc[-1])
 
-
-
     TAB_MUN_NCONF_IQE = TAB_MUN_IQE[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF"]]
     TAB_MUN_NCONF_VI_IQE = TAB_MUN_IQE[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES"]]
 
@@ -4976,9 +4815,6 @@ def rel_iqa_iqe():
     TAB_MUN_NCONF_IQE = add_total(TAB_MUN_NCONF_IQE)
     TAB_MUN_NCONF_VI_IQE = add_total(TAB_MUN_NCONF_VI_IQE)
 
-
-
-    # ── Gerando a tabela resumida ─────────────────────────────────────────────
     TAB_MUN_RESUMIDA_IQE = TAB_MUN_FINAL_IQE[[
       "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -5002,28 +4838,15 @@ def rel_iqa_iqe():
     TAB_MUN_RESUMIDA_VI_IQE.loc['Total'] = TAB_MUN_RESUMIDA_VI_IQE.sum()
     TAB_MUN_RESUMIDA_VI_IQE.iloc[-1, TAB_MUN_RESUMIDA_VI_IQE.columns.get_loc("MUNICÍPIO")] = "TOTAL"
 
-
-
     return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_RESUMIDA_IQE, TAB_MUN_RESUMIDA_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE
 
 
 
-
-
-#################################################################################################################################################################################################################################################################################
-
-
-
-
-
+  # ANÁLISE POR PARÂMETRO
 
   def analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo):
 
-
     # IQA
-
-
-    # ── Desconsiderações do plano por parâmetro ───────────────────────────────
 
     mapa_parametros = {
       "Turbidez":            "TURBIDEZ",
@@ -5050,7 +4873,6 @@ def rel_iqa_iqe():
     TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
     TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
 
-    # ── Segregando as análises realizadas ────────────────────────────────────
     TAB_REALIZADAS = TAB_REALIZADAS.replace("CLORO", "CLORO RESIDUAL LIVRE")
 
     TAB_REALIZADAS['ANÁLISE'] = np.where(
@@ -5058,14 +4880,10 @@ def rel_iqa_iqe():
       TAB_REALIZADAS['ANÁLISE'], 'DEMAIS PARAMETROS'
     )
 
-
     TAB_TIPO_VI = TAB_TIPO
-
 
     TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
 
-
-    # Conforme no VI, mas Não Conforme no ARSAL
     CONF_VI_NAOCONF_ARSAL = TAB_REALIZADAS_ACEITO[
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - VI"] == "Conforme") &
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - ARSAL"] != "Conforme") &
@@ -5073,7 +4891,6 @@ def rel_iqa_iqe():
         (TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR")
     ]
 
-    # Não Conforme no VI, mas Conforme no ARSAL
     NAOCONF_VI_CONF_ARSAL = TAB_REALIZADAS_ACEITO[
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - VI"] != "Conforme") &
         (TAB_REALIZADAS_ACEITO["CONFORMIDADE - VI"].notna()) &
@@ -5081,7 +4898,6 @@ def rel_iqa_iqe():
         (TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR")
     ]
 
-    # Contagem por parâmetro
     contagem_conf_vi_naoconf_arsal = (
         CONF_VI_NAOCONF_ARSAL.groupby("ANÁLISE").size()
         .reset_index(name="CONVERSÃO: CONFORME → NÃO CONFORME")
@@ -5092,13 +4908,11 @@ def rel_iqa_iqe():
         .reset_index(name="CONVERSÃO: NÃO CONFORME → CONFORME")
     )
 
-    # Adicionando ao TAB_TIPO
     TAB_TIPO = TAB_TIPO.merge(contagem_conf_vi_naoconf_arsal, on="ANÁLISE", how="left")
     TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype(int)
 
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf_vi_conf_arsal, on="ANÁLISE", how="left")
     TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype(int)
-
 
     TAB_REALIZADAS_ACEITO_CONF = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_CONF_VI = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - VI"] == "Conforme"]
@@ -5133,8 +4947,6 @@ def rel_iqa_iqe():
     print("\nTOTAL NÃO CONFORMES VI:")
     print(len(TAB_REALIZADAS_ACEITO_NAOCONF_VI))
 
-
-    # Criando coluna de análises realizadas
     contagem_tot = TAB_REALIZADAS_ACEITO.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO = TAB_TIPO.merge(contagem_tot, on='ANÁLISE', how='left')
 
@@ -5142,40 +4954,31 @@ def rel_iqa_iqe():
 
     TAB_TIPO['ANALISES REALIZADAS'] = TAB_TIPO['ANALISES REALIZADAS'].astype(int)
 
-    # Criando coluna de análises conformes
     contagem_conf = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_conf, on='ANÁLISE', how='left')
 
-    # Criando coluna de análises não conformes
     contagem_naoconf = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf, on='ANÁLISE', how='left')
     TAB_TIPO['ANALISES NÃO CONFORMES'] = TAB_TIPO['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos conformes
     contagem_conf_exp = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_conf_exp, on='ANÁLISE', how='left')
     TAB_TIPO['EXPURGOS CONFORMES'] = TAB_TIPO['EXPURGOS CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos não conformes
     contagem_naoconf_exp = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf_exp, on='ANÁLISE', how='left')
     TAB_TIPO['EXPURGOS NAO CONFORMES'] = TAB_TIPO['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos totais
     TAB_TIPO['EXPURGOS TOTAIS'] = TAB_TIPO['EXPURGOS NAO CONFORMES'] + TAB_TIPO['EXPURGOS CONFORMES']
 
-    # Criando coluna do "Nam Realiz"
     TAB_TIPO["NAM REALIZ"] = (np.maximum(TAB_TIPO['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO['ANALISES REALIZADAS']) - TAB_TIPO['EXPURGOS TOTAIS']).astype(int)
 
     TAB_TIPO = TAB_TIPO.fillna(0)
 
-    # Criando coluna do "Nam Conf"
     TAB_TIPO["NAM CONF"] = (TAB_TIPO['ANALISES CONFORMES'] - TAB_TIPO['EXPURGOS CONFORMES'] + TAB_TIPO['CONVERSÃO: NÃO CONFORME → CONFORME'] - TAB_TIPO['CONVERSÃO: CONFORME → NÃO CONFORME']).astype(int)
 
-    # Calculando o IQA
     TAB_TIPO["IQA (%)"] = (((TAB_TIPO["NAM CONF"]) / (TAB_TIPO["NAM REALIZ"])) * 100).round(1)
 
-    # ── Gerando a tabela final ────────────────────────────────────────────────
     TAB_TIPO_FINAL = TAB_TIPO[[
       "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -5193,54 +4996,40 @@ def rel_iqa_iqe():
 
     TAB_TIPO_FINAL_RESUMIDA = TAB_TIPO_FINAL[["ANÁLISE", "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME", "NAM CONF"]]
 
-
-
-    # REPLICANDO TABELA DO VI
-
     TAB_REALIZADAS_ACEITO_CONF_VI = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - VI"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_NAOCONF_VI = TAB_REALIZADAS_ACEITO[(TAB_REALIZADAS["CONFORMIDADE - VI"] != "Conforme") & (TAB_REALIZADAS["CONFORMIDADE - VI"].notna())]
     TAB_REALIZADAS_ACEITO_CONF_EXP_VI = TAB_REALIZADAS_ACEITO_CONF_VI[TAB_REALIZADAS["EXPURGOS - ARSAL"] == "EXPURGAR"]
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI = TAB_REALIZADAS_ACEITO_NAOCONF_VI[TAB_REALIZADAS["EXPURGOS - ARSAL"] == "EXPURGAR"]
 
-    # Criando coluna de análises realizadas
     contagem_tot_VI = TAB_REALIZADAS_ACEITO.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_tot_VI, on='ANÁLISE', how='left')
     TAB_TIPO_VI = TAB_TIPO_VI.fillna(0)
     TAB_TIPO_VI['ANALISES REALIZADAS'] = TAB_TIPO_VI['ANALISES REALIZADAS'].astype(int)
 
-    # Criando coluna de análises conformes
     contagem_conf_VI = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_conf_VI, on='ANÁLISE', how='left')
 
-    # Criando coluna de análises não conformes
     contagem_naoconf_VI = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_naoconf_VI, on='ANÁLISE', how='left')
     TAB_TIPO_VI['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos conformes
     contagem_conf_exp_VI = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_conf_exp_VI, on='ANÁLISE', how='left')
     TAB_TIPO_VI['EXPURGOS CONFORMES'] = TAB_TIPO_VI['EXPURGOS CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos não conformes
     contagem_naoconf_exp_VI = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_naoconf_exp_VI, on='ANÁLISE', how='left')
     TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
 
-    # Criando coluna de expurgos totais
     TAB_TIPO_VI['EXPURGOS TOTAIS'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] + TAB_TIPO_VI['EXPURGOS CONFORMES']
 
-    # Criando coluna do "Nam Realiz"
     TAB_TIPO_VI["NAM REALIZ"] = (np.maximum(TAB_TIPO_VI['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_VI['ANALISES REALIZADAS']) - TAB_TIPO_VI['EXPURGOS TOTAIS']).astype(int)
 
-    # Criando coluna do "Nam Conf"
     TAB_TIPO_VI = TAB_TIPO_VI.fillna(0)
     TAB_TIPO_VI["NAM CONF"] = (TAB_TIPO_VI['ANALISES CONFORMES'] - TAB_TIPO_VI['EXPURGOS CONFORMES']).astype(int)
 
-    # Calculando o IQA
     TAB_TIPO_VI["IQA (%)"] = (((TAB_TIPO_VI["NAM CONF"]) / (TAB_TIPO_VI["NAM REALIZ"])) * 100).round(1)
 
-    # ── Gerando a tabela final ────────────────────────────────────────────────
     TAB_TIPO_FINAL_VI = TAB_TIPO_VI[[
       "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -5254,10 +5043,8 @@ def rel_iqa_iqe():
     TAB_TIPO_RESUMIDA_VI["NAM CONF (VI)"] = TAB_TIPO_RESUMIDA_VI["ANALISES CONFORMES"]
 
 
-
     # IQE
 
-    # ── Desconsiderações do plano por parâmetro ───────────────────────────────
     mapa_parametros_IQE = {
       "DBO":                 "DBO",
       "DQO":                 "DQO",
@@ -5285,7 +5072,6 @@ def rel_iqa_iqe():
       TAB_TIPO_IQE["PLANO DE AMOSTRAGEM"] - TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"]
     ).astype(int)
 
-    # ── Segregando as análises realizadas ─────────────────────────────────────
     TAB_REALIZADAS_IQE['ANÁLISE'] = np.where(
       TAB_REALIZADAS_IQE['ANÁLISE'].isin(['DBO', 'DQO', 'PH', 'MATERIAIS FLUTUANTES', 'OLEOS E GRAXAS', 'TEMPERATURA']),
       TAB_REALIZADAS_IQE['ANÁLISE'], 'DEMAIS PARAMETROS'
@@ -5295,7 +5081,6 @@ def rel_iqa_iqe():
 
     TAB_REALIZADAS_ACEITO_IQE = TAB_REALIZADAS_IQE[TAB_REALIZADAS_IQE["ACEITO?"] == "Validado"]
 
-    # ── Conversões de conformidade (ARSAL vs VI) ───────────────────────────────
     CONF_VI_NAOCONF_ARSAL_IQE = TAB_REALIZADAS_ACEITO_IQE[
       (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"]    == "Conforme") &
       (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"] != "Conforme") &
@@ -5325,19 +5110,16 @@ def rel_iqa_iqe():
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_naoconf_vi_conf_arsal_IQE, on="ANÁLISE", how="left")
     TAB_TIPO_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype(int)
 
-    # ── Subconjuntos de conformidade (ARSAL) ──────────────────────────────────
     TAB_REALIZADAS_ACEITO_CONF_IQE       = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_NAOCONF_IQE    = TAB_REALIZADAS_ACEITO_IQE[(TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"] != "Conforme") & (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"].notna())]
     TAB_REALIZADAS_ACEITO_CONF_EXP_IQE   = TAB_REALIZADAS_ACEITO_CONF_IQE[TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"]
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_IQE[TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"]
 
-    # ── Subconjuntos de conformidade (VI) ─────────────────────────────────────
     TAB_REALIZADAS_ACEITO_CONF_VI_IQE       = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE    = TAB_REALIZADAS_ACEITO_IQE[(TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"] != "Conforme") & (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - VI"].notna())]
     TAB_REALIZADAS_ACEITO_CONF_EXP_VI_IQE   = TAB_REALIZADAS_ACEITO_CONF_VI_IQE[TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"]
     TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE[TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"]
 
-    # ── Colunas calculadas (ARSAL) ─────────────────────────────────────────────
     contagem_tot_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_tot_IQE, on='ANÁLISE', how='left')
     TAB_TIPO_IQE['ANALISES REALIZADAS'] = TAB_TIPO_IQE['ANALISES REALIZADAS'].astype(int)
@@ -5377,7 +5159,6 @@ def rel_iqa_iqe():
       (TAB_TIPO_IQE["NAM CONF"] / TAB_TIPO_IQE["NAM REALIZ"]) * 100
     ).round(1)
 
-    # ── Tabela final ARSAL ─────────────────────────────────────────────────────
     TAB_TIPO_FINAL_IQE = TAB_TIPO_IQE[[
       "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -5395,7 +5176,6 @@ def rel_iqa_iqe():
       "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME", "NAM CONF"
     ]]
 
-    # ── Tabela VI (sem conversões) ─────────────────────────────────────────────
     contagem_tot_VI_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_tot_VI_IQE, on='ANÁLISE', how='left')
     TAB_TIPO_VI_IQE['ANALISES REALIZADAS'] = TAB_TIPO_VI_IQE['ANALISES REALIZADAS'].astype(int)
@@ -5436,7 +5216,6 @@ def rel_iqa_iqe():
       (TAB_TIPO_VI_IQE["NAM CONF"] / TAB_TIPO_VI_IQE["NAM REALIZ"]) * 100
     ).round(1)
 
-    # ── Tabela final VI ────────────────────────────────────────────────────────
     TAB_TIPO_FINAL_VI_IQE = TAB_TIPO_VI_IQE[[
       "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
@@ -5448,31 +5227,13 @@ def rel_iqa_iqe():
     TAB_TIPO_RESUMIDA_VI_IQE = TAB_TIPO_FINAL_VI_IQE[["ANÁLISE", "ANALISES REALIZADAS", "ANALISES CONFORMES"]]
     TAB_TIPO_RESUMIDA_VI_IQE["NAM CONF (VI)"] = TAB_TIPO_RESUMIDA_VI_IQE["ANALISES CONFORMES"]
 
-
-
     return TAB_TIPO, TAB_TIPO_FINAL_RESUMIDA, TAB_TIPO_RESUMIDA_VI,  total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, TAB_TIPO_IQE, TAB_TIPO_FINAL_RESUMIDA_IQE, TAB_TIPO_RESUMIDA_VI_IQE,  total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE
 
 
 
-
-
-#################################################################################################################################################################################################################################################################################
-
-
-
-
+# ELABORAÇÃO DA TABELA DE PONDERAÇÕES
 
   def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo):
-
-    # TAB_REALIZADAS["ID_POND"] = TAB_REALIZADAS["ID_POND"].apply(lambda x: str(int(round(float(x)))) if pd.notna(x) and x != '' else "")
-    # BASE_MUN_TIPO_completo["ID_POND"] = BASE_MUN_TIPO_completo["ID_POND"].apply(lambda x: str(int(round(float(x)))) if pd.notna(x) and x != '' else "")
-    # TAB_REALIZADAS_IQE["ID_POND"] = TAB_REALIZADAS_IQE["ID_POND"].apply(lambda x: str(int(round(float(x)))) if pd.notna(x) and x != '' else "")
-    # BASE_MUN_TIPO_IQE_completo["ID_POND"] = BASE_MUN_TIPO_IQE_completo["ID_POND"].apply(lambda x: str(int(round(float(x)))) if pd.notna(x) and x != '' else "")
-
-    # print(TAB_POND)
-    # print(TAB_REALIZADAS) #float
-    # print(BASE_MUN_TIPO_completo) #float
-
 
     # IQA
 
@@ -5480,7 +5241,6 @@ def rel_iqa_iqe():
 
     BASE_MUN_TIPO_completo["ID_POND"] = BASE_MUN_TIPO_completo["ID_POND"].fillna("").astype(str).str.strip()
 
-    # ── Soma das desconsiderações do plano por ID_POND ────────────────────────
     DESC_POR_ID = (
       BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
       .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
@@ -5496,7 +5256,6 @@ def rel_iqa_iqe():
 
     TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
 
-    # ── Separação de expurgos ────────────────────────────────────────────────
     TAB_EXPURGOS = TAB_REALIZADAS_ACEITO[
         TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] == "EXPURGAR"
     ]
@@ -5505,12 +5264,10 @@ def rel_iqa_iqe():
         TAB_EXPURGOS["CONFORMIDADE - VI"] == "Conforme"
     ]
 
-    # BASE SEM EXPURGO (ESSENCIAL PRA CORREÇÃO)
     TAB_SEM_EXPURGO = TAB_REALIZADAS_ACEITO[
         TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR"
     ]
 
-    # ── Filtros dos impactos (AGORA CORRETOS) ────────────────────────────────
     TAB_CONF_VI_NAOCONF_ARSAL = TAB_SEM_EXPURGO[
         (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] == "Conforme") &
         (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] != "Conforme") &
@@ -5523,9 +5280,6 @@ def rel_iqa_iqe():
         (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] == "Conforme")
     ]
 
-    # ════════════════════════════════════════════════════════════════════════
-    # QUADRO_POND_NCONF
-    # ════════════════════════════════════════════════════════════════════════
     QUADRO_POND_NCONF = TAB_POND.copy()
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.rename(columns={
       QUADRO_POND_NCONF.columns[0]: "ID",
@@ -5534,42 +5288,34 @@ def rel_iqa_iqe():
       QUADRO_POND_NCONF.columns[3]: "PONDERAÇÕES (ARSAL)",
     })
 
-    # EXPURGOS
     contagem_exp = TAB_EXPURGOS_CONF.groupby('ID_POND').size().reset_index(name='EXPURGOS')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_exp, left_on='ID', right_on='ID_POND', how='left')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"])
     QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].fillna(0).astype("Int64")
     QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].astype("object").replace(0, "")
 
-    # CONF VI → NÃO CONF ARSAL
     contagem_cv_na = TAB_CONF_VI_NAOCONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: CONFORME → NÃO CONFORME')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_cv_na, left_on='ID', right_on='ID_POND', how='left')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
     QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype("Int64")
     QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].astype("object").replace(0, "")
 
-    # NÃO CONF VI → CONF ARSAL
     contagem_na_cv = TAB_NAOCONF_VI_CONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: NÃO CONFORME → CONFORME')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_na_cv, left_on='ID', right_on='ID_POND', how='left')
     QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
     QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype("Int64")
     QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].astype("object").replace(0, "")
 
-    # Remove linhas sem impacto
     colunas_impacto = ['EXPURGOS', 'CONVERSÃO: CONFORME → NÃO CONFORME', 'CONVERSÃO: NÃO CONFORME → CONFORME']
     QUADRO_POND_NCONF = QUADRO_POND_NCONF[
         QUADRO_POND_NCONF[colunas_impacto].apply(lambda row: any(v != "" for v in row), axis=1)
     ]
 
-    # Remove colunas vazias
     for col in colunas_impacto:
         if col in QUADRO_POND_NCONF.columns:
             if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
                 QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
 
-    # ════════════════════════════════════════════════════════════════════════
-    # QUADRO_POND_REALIZ
-    # ════════════════════════════════════════════════════════════════════════
     QUADRO_POND_REALIZ = TAB_POND.copy()
 
     QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
@@ -5579,7 +5325,6 @@ def rel_iqa_iqe():
       QUADRO_POND_REALIZ.columns[3]: "PONDERAÇÕES (ARSAL)",
     })
 
-    # EXPURGOS (mesmo que não exista nenhum)
     contagem = TAB_EXPURGOS.groupby('ID_POND').size().reset_index(name='EXPURGOS')
 
     QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
@@ -5594,7 +5339,6 @@ def rel_iqa_iqe():
         .replace(0, "")
     )
 
-    # DESCONSIDERAÇÕES (sempre calcular)
     QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
         DESC_POR_ID, left_on='ID', right_on='ID_POND', how='left'
     ).drop(columns=["ID_POND"], errors="ignore")
@@ -5615,12 +5359,8 @@ def rel_iqa_iqe():
         QUADRO_POND_REALIZ = "SEM IMPACTOS"
 
 
-
-    ############
-
-
+    
     # IQE
-
 
     TAB_REALIZADAS_IQE["ID_POND"] = TAB_REALIZADAS_IQE["ID_POND"].fillna(0)
 
@@ -5710,7 +5450,6 @@ def rel_iqa_iqe():
       QUADRO_POND_REALIZ_IQE.columns[3]: "PONDERAÇÕES (ARSAL)",
     })
 
-    # EXPURGOS (mesmo se vazio)
     contagem_IQE = TAB_EXPURGOS_IQE.groupby('ID_POND').size().reset_index(name='EXPURGOS')
 
     QUADRO_POND_REALIZ_IQE = QUADRO_POND_REALIZ_IQE.merge(
@@ -5724,8 +5463,6 @@ def rel_iqa_iqe():
         .astype("object")
         .replace(0, "")
     )
-
-    # DESCONSIDERAÇÕES (sempre calcular)
 
     QUADRO_POND_REALIZ_IQE = QUADRO_POND_REALIZ_IQE.merge(
         DESC_POR_ID_IQE, left_on='ID', right_on='ID_POND', how='left'
@@ -5746,32 +5483,18 @@ def rel_iqa_iqe():
     if QUADRO_POND_REALIZ_IQE[["EXPURGOS", "DESCONSIDERAÇÕES (PLANO)"]].replace("", pd.NA).isna().all().all():
       QUADRO_POND_REALIZ_IQE = "SEM IMPACTOS"
 
-
     return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
 
 
 
-
-
-###############################################################################################################################################################################################################################################################################
-
-
-
-
-
+# CONSTRUÇÃO DOS GRÁFICOS
 
   def graf(TAB_MUN_FINAL, TAB_TIPO, TAB_MUN_FINAL_IQE, TAB_TIPO_IQE):
 
-
-    #IQA
-
+    # IQA
 
     TAB_MUN_FINAL = TAB_MUN_FINAL[:-1]
-    #TAB_TIPO = TAB_TIPO[:-1]
-
-
-    # Remover acento (para melhor ordenamento)
-
+    
     def remove_acentos(txt):
       return ''.join(c for c in unicodedata.normalize('NFD', txt)
                     if unicodedata.category(c) != 'Mn')
@@ -5784,12 +5507,12 @@ def rel_iqa_iqe():
     TAB_TIPO= TAB_TIPO.sort_values(by="ANÁLISE", ascending=False)
 
 
-
+    
     # Plano de amostragem vs análises realizadas por município
 
     espacamento = 1.5
     y = np.arange(len(TAB_MUN_FINAL["MUNICÍPIO"])) * espacamento
-    largura = 0.4  # menor para caber 3 barras separadas
+    largura = 0.4
 
     fig, ax3 = plt.subplots(figsize=(12, len(TAB_MUN_FINAL["MUNICÍPIO"]) * 0.4 * espacamento))
 
@@ -5913,7 +5636,6 @@ def rel_iqa_iqe():
 
     ax6.grid(True, linestyle='--', alpha=0.1)
 
-    # Ajustando rótulos do eixo x
     ax6.set_xticks(x)
     ax6.set_xticklabels(TAB_TIPO["ANÁLISE"], rotation=30)
 
@@ -5957,18 +5679,9 @@ def rel_iqa_iqe():
 
 
 
-    ###########
-
-
-
-    #IQE
-
+    # IQE
 
     TAB_MUN_FINAL_IQE = TAB_MUN_FINAL_IQE[:-1]
-    #TAB_TIPO_IQE = TAB_TIPO_IQE[:-1]
-
-
-    # Remover acento (para melhor ordenamento)
 
     def remove_acentos(txt_IQE):
       return ''.join(c for c in unicodedata.normalize('NFD', txt_IQE)
@@ -5987,7 +5700,7 @@ def rel_iqa_iqe():
 
     espacamento = 1.5
     y = np.arange(len(TAB_MUN_FINAL_IQE["MUNICÍPIO"])) * espacamento
-    largura = 0.4  # menor para caber 3 barras separadas
+    largura = 0.4
 
     fig, ax3 = plt.subplots(figsize=(12, len(TAB_MUN_FINAL_IQE["MUNICÍPIO"]) * 0.4 * espacamento))
 
@@ -6111,7 +5824,6 @@ def rel_iqa_iqe():
 
     ax6.grid(True, linestyle='--', alpha=0.1)
 
-    # Ajustando rótulos do eixo x
     ax6.set_xticks(x)
     ax6.set_xticklabels(TAB_TIPO_IQE["ANÁLISE"], rotation=30)
 
@@ -6153,21 +5865,12 @@ def rel_iqa_iqe():
 
     plt.savefig("grafico_conf_realiz_tipo_IQE.png", dpi=300, bbox_inches="tight")
 
-
-
-
     plt.show()
 
 
 
 
-
-##################################################################################################################################################################################################################################################################################
-
-
-
-
-
+# FUNÇÃO PRINCIPAL E EXECUÇÃO - IQA
 
   def MAIN_IQA_IQE():
 
@@ -6193,14 +5896,7 @@ def rel_iqa_iqe():
     'id_pond': 'ID_POND'
     })
 
-    #print (AMOSTRAS_REALIZADAS)
-    #print (PLAN_MUN_TIPO)
-
-
-
     PONDERACOES = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PONDERACOES')
-
-    #print (PONDERACOES)
 
     PLAN_MUN_TIPO_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_PLANO')
 
@@ -6237,30 +5933,15 @@ def rel_iqa_iqe():
     AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.fillna(0)
     PONDERACOES_IQE = PONDERACOES_IQE.fillna(0)
 
-
-    # print(AMOSTRAS_REALIZADAS)
-    # print(AMOSTRAS_REALIZADAS_IQE)
-
-
     TAB_MUN, TAB_TIPO, TAB_REALIZADAS, TAB_POND, BASE_MUN_TIPO_completo = base(PLAN_MUN_TIPO, AMOSTRAS_REALIZADAS, PONDERACOES, MES_ANO)
 
     TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = base_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
-
-    # print(TAB_MUN)
-    # print(TAB_REALIZADAS)
-
 
     TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, AN_TIPO_IQE, TAB_TIPO_FINAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
-
-    # print(TAB_MUN_FINAL)
-    # print(AN_TIPO)
-    # print(TAB_MUN_FINAL_IQE)
-    # print(AN_TIPO_IQE)
-
 
     graf(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
 
@@ -6276,23 +5957,21 @@ def rel_iqa_iqe():
 
     return arquivo_saida
 
-
-
-
-
-
+  
   url = "https://github.com/carlosfarsal/DASH_ATT/raw/main/modelo_iqa_iqe_automatico.docx"
 
   output = "modelo_iqa_iqe_automatico.docx"
 
   gdown.download(url, output, quiet=False)
 
-
   nome_arq = MAIN_IQA_IQE()
 
   return nome_arq
 
-# 6. MAIN
+
+#############################################################################################################################################################################################################################
+
+# FUNÇÃO PRINCIPAL DO APP
 
 def MAIN ():
 
@@ -6342,10 +6021,10 @@ def MAIN ():
 
     return nome_arq
 
-#MAIN ()
 
+#############################################################################################################################################################################################################################
 
-# 7. INTERFACE
+# INTERFACE
 
 st.set_page_config(
     page_title="ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - IQA/IQE",
@@ -6370,13 +6049,11 @@ header {
     visibility: hidden;
 }
 
-
 /* Fundo geral */
 
 .stApp {
     background-color: #E8F4F8;
 }
-
 
 /* CABEÇALHO - Faixa branca com logo e título */
 
@@ -6422,7 +6099,6 @@ header {
     font-size: 14px;
 }
 
-
 /* Container principal com fundo azul claro */
 
 .main-content {
@@ -6430,7 +6106,6 @@ header {
     padding: 30px;
     margin-top: 0;
 }
-
 
 #/* Título */
 
@@ -6442,8 +6117,6 @@ header {
 #     color: #17365D;
 # }
 
-
-
 /* Título do cabeçalho */
 
 .header-title {
@@ -6453,7 +6126,6 @@ header {
     font-weight: 700;
 }
 
-
 /* Texto abaixo do título */
 
 .header-subtitle {
@@ -6461,9 +6133,6 @@ header {
     margin-top: 12px;
     font-size: 20px;
 }
-
-
-
 
 /* Botões */
 
@@ -6484,7 +6153,6 @@ header {
     background-color: #0F243E;
 }
 
-
 /* Caixa de conteúdo */
 
 .card {
@@ -6494,7 +6162,6 @@ header {
     box-shadow: 0px 3px 12px rgba(0,0,0,0.12);
     margin-bottom: 20px;
 }
-
 
 /* Adicione isto: */
 .card h3 {
@@ -6509,7 +6176,6 @@ header {
     margin: 0;
 }
 
-
 /* Texto */
 
 .texto {
@@ -6517,7 +6183,6 @@ header {
     color: #555;
     font-size: 17px;
 }
-
 
 /* RODAPÉ - Faixa azul escuro */
 
@@ -6549,7 +6214,6 @@ header {
     color: #BDD9E8;
 }
 
-
 </style>
 
 """, unsafe_allow_html=True)
@@ -6558,28 +6222,6 @@ CAMINHO_IMAGEM = os.path.join(
     os.path.dirname(__file__),
     "arsal_cover.png"
 )
-
-#col_header_logo, col_header_title = st.columns([1, 4])
-
-#with col_header_logo:
-#    if os.path.exists(CAMINHO_IMAGEM):
-#        st.image(CAMINHO_IMAGEM, width=120)
-#    else:
-#        st.warning("Logo não encontrada")
-
-#with col_header_title:
-#    st.markdown(
-#        """
-#        <div style="padding-top: 15px;">
-#            <h1 style="margin: 0; font-size: 32px;">ATUALIZAÇÃO DE BANCO DE DADOS - IQA</h1>
-#            <p style="color: #555; margin-top: 10px; font-size: 14px;">Sistema de processamento e atualização mensal dos indicadores de qualidade da água.</p>
-#        </div>
-#        """,
-#        unsafe_allow_html=True
-#    )
-
-#st.divider()
-
 
 header_style = """
 <div style="
@@ -6628,11 +6270,6 @@ with col_texto:
     </p>
     """, unsafe_allow_html=True)
 
-
-
-
-
-
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
 
 st.markdown(
@@ -6654,13 +6291,11 @@ Selecione a planilha mensal para atualização do banco de dados e elaboração 
 unsafe_allow_html=True
 )
 
-
 arquivo = st.file_uploader(
     "Selecione a planilha IQA/IQE",
     type=["xlsx", "xls"],
     label_visibility="collapsed"
 )
-
 
 if arquivo is not None:
 
@@ -6670,21 +6305,14 @@ if arquivo is not None:
 
     st.divider()
 
-
-    # Guarda o estado da confirmação
     if "confirmar_envio" not in st.session_state:
         st.session_state.confirmar_envio = False
 
-
-    # Botão enviar arquivo
     if st.button("📤 Enviar arquivo"):
 
         st.session_state.confirmar_envio = True
 
-
-    # Tela de confirmação
     if st.session_state.confirmar_envio:
-
 
         st.markdown("""
         <div style="
@@ -6700,37 +6328,28 @@ if arquivo is not None:
         </div>
         """, unsafe_allow_html=True)
 
-
         col1, col2 = st.columns(2)
-
 
         with col1:
 
             if st.button("✅ Confirmar"):
 
-
                 novo_nome = "ATT_SQL.xlsx"
-
 
                 caminho = os.path.join(
                     os.path.dirname(__file__),
                     novo_nome
                 )
 
-
-                # Salva arquivo recebido
                 with open(caminho, "wb") as f:
 
                     f.write(
                         arquivo.getbuffer()
                     )
 
-
-
                 if os.path.exists(caminho):
 
                     try:
-
 
                         with st.spinner("Processando dados e atualizando banco..."):
 
@@ -6738,9 +6357,6 @@ if arquivo is not None:
 
                         st.success("Arquivo processado com sucesso!")
                         st.divider()
-
-                        # ===== DOWNLOAD DO ARQUIVO GERADO =====
-                        ARQUIVO_GERADO = "XXX"  # 👈 SUBSTITUA PELO NOME REAL
 
                         if os.path.exists(nome_arq):
                             with open(nome_arq, "rb") as file:
@@ -6752,13 +6368,9 @@ if arquivo is not None:
                                     use_container_width=True
                                 )
 
-
-                        # limpa estado após concluir
                         st.session_state.confirmar_envio = False
 
-
                     except Exception as e:
-
 
                         st.error(
                             "Erro durante atualização:"
@@ -6766,28 +6378,21 @@ if arquivo is not None:
 
                         st.exception(e)
 
-
-
                 else:
 
                     st.error(
                         "Arquivo ATT_SQL.xlsx não foi encontrado."
                     )
 
-
-
         with col2:
 
             if st.button("❌ Cancelar"):
 
-
                 st.session_state.confirmar_envio = False
-
 
                 st.info(
                     "Envio cancelado."
                 )
-
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -6799,53 +6404,3 @@ footer_html = """
 """
 
 st.markdown(footer_html, unsafe_allow_html=True)
-
-#fim
-
-# st.set_page_config(
-#     page_title="ATUALIZAÇÃO DE BANCO DE DADOS - IQA",
-#     layout="centered"
-# )
-
-# st.image("arsal_cover.png", width=180)
-
-# st.title("ATUALIZAÇÃO DE BANCO DE DADOS - IQA")
-
-# st.markdown("""
-# Insira a planilha e clique em **Enviar** para iniciar o processamento.
-# """)
-
-# st.divider()
-
-# arquivo = st.file_uploader(
-#     "Adicione a planilha",
-#     type=["xlsx", "xls"]
-# )
-
-# if arquivo is not None:
-
-#     st.success(f"Arquivo selecionado: {arquivo.name}")
-
-#     if st.button("Enviar"):
-
-#         st.warning("Confirma o envio do arquivo?")
-
-#         col1, col2 = st.columns(2)
-
-#         with col1:
-#             if st.button("✅ Confirmar"):
-
-#                 novo_nome = "ATT_SQL.xlsx"
-#                 caminho = os.path.join("/content", novo_nome)
-
-#                 with open(caminho, "wb") as f:
-#                     f.write(arquivo.getbuffer())
-
-#                 st.success("Arquivo salvo com sucesso!")
-
-#                 # Executa o processamento
-#                 MAIN()
-
-#         with col2:
-#             if st.button("❌ Cancelar"):
-#                 st.info("Envio cancelado.")
