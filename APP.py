@@ -1556,13 +1556,14 @@ def graf_iqa_iqe (prestadora_sigla, mes):
   nome_tabela_iqa = prestadora_sigla + "_IQA"
   nome_tabela_iqe = prestadora_sigla + "_IQE"
   col_prest = 'iqa_' + prestadora_sigla.lower()
+  col_prest_iqe = 'iqe_' + prestadora_sigla.lower()
 
   # IQA
 
   try:
 
     response = supabase.table(nome_tabela_iqa).select(
-        "mes, ano, col_prest, iqa_vi, iqa"
+        "mes, ano, {col_prest}, iqa_vi, iqa"
     ).execute()
 
     df = pd.DataFrame(response.data)
@@ -1712,7 +1713,7 @@ def graf_iqa_iqe (prestadora_sigla, mes):
     width = 0.25
 
     col_prest = pd.to_numeric(
-        df_filtrado['col_prest'],
+        df_filtrado[col_prest],
         errors='coerce'
     ).fillna(0)
 
@@ -1882,7 +1883,7 @@ def graf_iqa_iqe (prestadora_sigla, mes):
 
     try:
       response = supabase.table(nome_tabela_iqe).select(
-          "trimestre, ano_contratual, iqe_ads, iqe_vi, iqe"
+          "trimestre, ano_contratual, {col_prest_iqe}, iqe_vi, iqe"
       ).execute()
 
       df = pd.DataFrame(response.data)
@@ -1947,8 +1948,8 @@ def graf_iqa_iqe (prestadora_sigla, mes):
 
       width = 0.25
 
-      iqe_ads = pd.to_numeric(
-          df_filtrado['iqe_ads'],
+      col_prest_iqe = pd.to_numeric(
+          df_filtrado[col_prest_iqe],
           errors='coerce'
       ).fillna(0)
 
@@ -1968,7 +1969,7 @@ def graf_iqa_iqe (prestadora_sigla, mes):
 
       barras1 = ax.bar(
           x - width,
-          iqe_ads,
+          col_prest_iqe,
           width,
           label='IQE - ADS',
           color='#9A9D17',
