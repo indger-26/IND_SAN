@@ -1563,7 +1563,7 @@ def graf_iqa_iqe (prestadora_sigla, mes):
   try:
 
     response = supabase.table(nome_tabela_iqa).select(
-        "mes, ano, {col_prest}, iqa_vi, iqa"
+        f"mes, ano, {col_prest}, iqa_vi, iqa"
     ).execute()
 
     df = pd.DataFrame(response.data)
@@ -1883,7 +1883,7 @@ def graf_iqa_iqe (prestadora_sigla, mes):
 
     try:
       response = supabase.table(nome_tabela_iqe).select(
-          "trimestre, ano_contratual, {col_prest_iqe}, iqe_vi, iqe"
+          f"trimestre, ano_contratual, {col_prest_iqe}, iqe_vi, iqe"
       ).execute()
 
       df = pd.DataFrame(response.data)
