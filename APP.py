@@ -6027,8 +6027,8 @@ def MAIN ():
     realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2)
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual)
     backup_bd ()
-    graf_iqa_iqe (prestadora_sigla)
-    nc_nr (prestadora_sigla)
+    graf_iqa_iqe (prestadora_sigla, mes)
+    nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa()
 
     return nome_arq
