@@ -250,7 +250,7 @@ def ler_ajustar_arquivo ():
 
   else:
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2
 
 
 
