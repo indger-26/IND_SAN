@@ -2880,7 +2880,7 @@ def rel_iqa():
     NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
     NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
     IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
-    IQA_ARSAL_TXT = "100%" if IQA_ARSAL == 100 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
+    IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
     if (IQA_VI).strip() == (IQA_ARSAL_TXT).strip():
       IS_SATISF = "satisfatório"
@@ -4214,7 +4214,7 @@ def rel_iqa_iqe():
     NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
     NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
     IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
-    IQA_ARSAL_TXT = "100%" if IQA_ARSAL == 100 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
+    IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
     if (IQA_VI).strip() == (IQA_ARSAL_TXT).strip():
       IS_SATISF = "satisfatório"
@@ -4242,7 +4242,7 @@ def rel_iqa_iqe():
     NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype(int)
     NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
     IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
-    IQE_ARSAL_TXT = "100%" if IQE_ARSAL == 100 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
+    IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
 
     print ("####################################################")
 
