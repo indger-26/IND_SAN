@@ -5975,7 +5975,15 @@ def rel_iqa_iqe():
 
 def MAIN ():
 
-  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2 = ler_ajustar_arquivo ()
+  if mes == "November" or mes == "February" or mes == "May" or mes == "August":
+    
+      prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2 = ler_ajustar_arquivo ()
+
+  if mes != "November" or mes != "February" or mes != "May" or mes != "August":
+    
+      prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros = ler_ajustar_arquivo ()
+  
+  
   print (plano_iqe_totais_parametros)
 
   if mes == "November" or mes == "February" or mes == "May" or mes == "August":
