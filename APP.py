@@ -164,6 +164,15 @@ def ler_ajustar_arquivo ():
 
   plano_totais_saa = (plano_completo.groupby("SAA", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum())
 
+  iqe_prest = "x"
+  iqe_vi = "x"
+  iqe_meta = "x"
+  iqe_detalhado = "x"
+  plano_iqe_completo = "x"
+  plano_iqe_totais_municipio = "x"
+  plano_iqe_totais_parametros = "x"
+  iqe_detalhado2 = "x"
+
 
 
   # TRATAMENTO - IQE
@@ -5975,14 +5984,9 @@ def rel_iqa_iqe():
 
 def MAIN ():
 
-  if mes == "November" or mes == "February" or mes == "May" or mes == "August":
     
-      prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2 = ler_ajustar_arquivo ()
-
-  if mes != "November" or mes != "February" or mes != "May" or mes != "August":
+  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2 = ler_ajustar_arquivo ()
     
-      prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros = ler_ajustar_arquivo ()
-  
   
   print (plano_iqe_totais_parametros)
 
