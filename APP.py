@@ -1392,63 +1392,117 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
 
 load_dotenv()
 
-def backup_bd ():
+def backup_bd (prestadora_sigla):
 
   PASTA_BACKUP = os.getenv("PASTA_BACKUP", "./backups")
 
   os.makedirs(PASTA_BACKUP, exist_ok=True)
 
-  TABELAS = [
+  if prestadora_sigla == "BRK":
+
+    TABELAS = [
 
       "BRK_IQA_DETALHADO",
-      "ADS_IQA_DETALHADO",
-      "VAA_IQA_DETALHADO",
-
       "BRK_IQA_REALIZADOS",
-      "ADS_IQA_REALIZADOS",
-      "VAA_IQA_REALIZADOS",
-
       "BRK_IQA_PARAMETROS",
-      "ADS_IQA_PARAMETROS",
-      "VAA_IQA_PARAMETROS",
-
       "BRK_IQA_MUN",
-      "ADS_IQA_MUN",
-      "VAA_IQA_MUN",
-
       "BRK_IQA_PLANO",
-      "ADS_IQA_PLANO",
-      "VAA_IQA_PLANO",
-
       "BRK_IQA",
-      "ADS_IQA",
-      "VAA_IQA",
-
       "BRK_IQE_DETALHADO",
-      "ADS_IQE_DETALHADO",
-      "VAA_IQE_DETALHADO",
-
       "BRK_IQE_REALIZADOS",
-      "ADS_IQE_REALIZADOS",
-      "VAA_IQE_REALIZADOS",
-
       "BRK_IQE_PARAMETROS",
-      "ADS_IQE_PARAMETROS",
-      "VAA_IQE_PARAMETROS",
-
       "BRK_IQE_MUN",
-      "ADS_IQE_MUN",
-      "VAA_IQE_MUN",
-
       "BRK_IQE_PLANO",
-      "ADS_IQE_PLANO",
-      "VAA_IQE_PLANO",
-
       "BRK_IQE",
-      "ADS_IQE",
-      "VAA_IQE",
+    ]
 
-  ]
+  if prestadora_sigla == "ADS":
+
+    TABELAS = [
+
+      "ADS_IQA_DETALHADO",
+      "ADS_IQA_REALIZADOS",
+      "ADS_IQA_PARAMETROS",
+      "ADS_IQA_MUN",
+      "ADS_IQA_PLANO",
+      "ADS_IQA",
+      "ADS_IQE_DETALHADO",
+      "ADS_IQE_REALIZADOS",
+      "ADS_IQE_PARAMETROS",
+      "ADS_IQE_MUN",
+      "ADS_IQE_PLANO",
+      "ADS_IQE",
+    ]
+
+  if prestadora_sigla == "VAA":
+
+    TABELAS = [
+
+      "VAA_IQA_DETALHADO",
+      "VAA_IQA_REALIZADOS",
+      "VAA_IQA_PARAMETROS",
+      "VAA_IQA_MUN",
+      "VAA_IQA_PLANO",
+      "VAA_IQA",
+      "VAA_IQE_DETALHADO",
+      "VAA_IQE_REALIZADOS",
+      "VAA_IQE_PARAMETROS",
+      "VAA_IQE_MUN",
+      "VAA_IQE_PLANO",
+      "VAA_IQE",
+    ]
+
+  # TABELAS = [
+
+  #     "BRK_IQA_DETALHADO",
+  #     "ADS_IQA_DETALHADO",
+  #     "VAA_IQA_DETALHADO",
+
+  #     "BRK_IQA_REALIZADOS",
+  #     "ADS_IQA_REALIZADOS",
+  #     "VAA_IQA_REALIZADOS",
+
+  #     "BRK_IQA_PARAMETROS",
+  #     "ADS_IQA_PARAMETROS",
+  #     "VAA_IQA_PARAMETROS",
+
+  #     "BRK_IQA_MUN",
+  #     "ADS_IQA_MUN",
+  #     "VAA_IQA_MUN",
+
+  #     "BRK_IQA_PLANO",
+  #     "ADS_IQA_PLANO",
+  #     "VAA_IQA_PLANO",
+
+  #     "BRK_IQA",
+  #     "ADS_IQA",
+  #     "VAA_IQA",
+
+  #     "BRK_IQE_DETALHADO",
+  #     "ADS_IQE_DETALHADO",
+  #     "VAA_IQE_DETALHADO",
+
+  #     "BRK_IQE_REALIZADOS",
+  #     "ADS_IQE_REALIZADOS",
+  #     "VAA_IQE_REALIZADOS",
+
+  #     "BRK_IQE_PARAMETROS",
+  #     "ADS_IQE_PARAMETROS",
+  #     "VAA_IQE_PARAMETROS",
+
+  #     "BRK_IQE_MUN",
+  #     "ADS_IQE_MUN",
+  #     "VAA_IQE_MUN",
+
+  #     "BRK_IQE_PLANO",
+  #     "ADS_IQE_PLANO",
+  #     "VAA_IQE_PLANO",
+
+  #     "BRK_IQE",
+  #     "ADS_IQE",
+  #     "VAA_IQE",
+
+  # ]
 
     
   for tabela in TABELAS:
@@ -6003,11 +6057,10 @@ def MAIN ():
     print (iqa_final)
 
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual)
-    #backup_bd ()
+    backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes)
     nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa_iqe()
-    backup_bd ()
 
     return nome_arq
 
@@ -6029,11 +6082,10 @@ def MAIN ():
 
     realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2)
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual)
-    #backup_bd ()
+    backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes)
     nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa()
-    backup_bd ()
 
     return nome_arq
 
