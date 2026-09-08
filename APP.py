@@ -85,7 +85,7 @@ def ler_ajustar_arquivo ():
   
   # TRATAMENTO - IQA
 
-  pos = iqa_detalhado.columns.get_loc("data_coleta")
+  pos = iqa_detalhado.columns.get_loc("valor")
   iqa_detalhado.insert(pos + 1, "mes", mes)
   iqa_detalhado.insert(pos + 2, "ano", ano)
 
