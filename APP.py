@@ -5246,6 +5246,7 @@ def rel_iqa_iqe():
 
     contagem_tot_VI_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_tot_VI_IQE, on='ANÁLISE', how='left')
+    TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.fillna(0)
     TAB_TIPO_VI_IQE['ANALISES REALIZADAS'] = TAB_TIPO_VI_IQE['ANALISES REALIZADAS'].astype(int)
 
     contagem_conf_VI_IQE = TAB_REALIZADAS_ACEITO_CONF_VI_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
