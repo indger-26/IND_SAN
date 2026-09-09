@@ -164,14 +164,16 @@ def ler_ajustar_arquivo ():
 
   plano_totais_saa = (plano_completo.groupby("SAA", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum())
 
-  iqe_prest = "x"
-  iqe_vi = "x"
-  iqe_meta = "x"
-  iqe_detalhado = "x"
-  plano_iqe_completo = "x"
-  plano_iqe_totais_municipio = "x"
-  plano_iqe_totais_parametros = "x"
-  iqe_detalhado2 = "x"
+  if mes != "November" and mes != "February" and mes != "May" and mes != "August":
+
+    iqe_prest = "x"
+    iqe_vi = "x"
+    iqe_meta = "x"
+    iqe_detalhado = "x"
+    plano_iqe_completo = "x"
+    plano_iqe_totais_municipio = "x"
+    plano_iqe_totais_parametros = "x"
+    iqe_detalhado2 = "x"
 
 
 
