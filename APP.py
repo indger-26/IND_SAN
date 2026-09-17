@@ -2873,14 +2873,14 @@ def rel_iqa():
     BASE_MUN_TIPO["Parâmetros"] = BASE_MUN_TIPO["Parâmetros"].replace({
       "Cor": "Cor Aparente", "Residual de Cloro Livre": "Cloro residual livre",
       "Residual de cloro livre": "Cloro residual livre", "Cor aparente": "Cor Aparente",
-      "Cloro": "Cloro residual livre", "Coliformes Totais": "Coliformes totais",
-      "Escherichia coli": "Escherichia Coli", "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
+      "Cloro": "Cloro residual livre",
+      "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
       "Cloro Livre": "Cloro residual livre", "Cloro livre": "Cloro residual livre", "PH": "pH", "ph": "pH", "Ph": "pH"
     })
 
     parametros_principais = [
       "Turbidez", "Cor Aparente", "pH",
-      "Cloro residual livre", "Coliformes totais", "Escherichia Coli"
+      "Cloro residual livre", "Coliformes Totais", "Escherichia coli"
     ]
 
     BASE_MUN_TIPO["Parâmetros"] = BASE_MUN_TIPO["Parâmetros"].apply(
@@ -2951,8 +2951,8 @@ def rel_iqa():
     BASE_REALIZADAS["ANÁLISE"] = BASE_REALIZADAS["ANÁLISE"].replace({
       "Cor": "Cor Aparente", "Residual de Cloro Livre": "Cloro residual livre",
       "Residual de cloro livre": "Cloro residual livre", "Cor aparente": "Cor Aparente",
-      "Cloro": "Cloro residual livre", "Coliformes Totais": "Coliformes totais",
-      "Escherichia coli": "Escherichia Coli", "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
+      "Cloro": "Cloro residual livre",
+      "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
       "Cloro Livre": "Cloro residual livre", "Cloro livre": "Cloro residual livre", "PH": "pH", "ph": "pH", "Ph": "pH"})
 
     BASE_REALIZADAS["CIDADE"] = BASE_REALIZADAS["CIDADE"].str.upper().apply(unidecode)
@@ -3488,8 +3488,8 @@ def rel_iqa():
       "Cor Aparente":        "COR APARENTE",
       "pH":                  "PH",
       "Cloro residual livre": "CLORO RESIDUAL LIVRE",
-      "Coliformes totais":   "COLIFORMES TOTAIS",
-      "Escherichia Coli":    "ESCHERICHIA COLI",
+      "Coliformes Totais":   "COLIFORMES TOTAIS",
+      "Escherichia coli":    "ESCHERICHIA COLI",
       "Demais Parâmetros":   "DEMAIS PARAMETROS",
     }
 
@@ -4137,14 +4137,14 @@ def rel_iqa_iqe():
     BASE_MUN_TIPO["Parâmetros"] = BASE_MUN_TIPO["Parâmetros"].replace({
       "Cor": "Cor Aparente", "Residual de Cloro Livre": "Cloro residual livre",
       "Residual de cloro livre": "Cloro residual livre", "Cor aparente": "Cor Aparente",
-      "Cloro": "Cloro residual livre", "Coliformes Totais": "Coliformes totais",
-      "Escherichia coli": "Escherichia Coli", "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
+      "Cloro": "Cloro residual livre",
+      "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
       "Cloro Livre": "Cloro residual livre", "Cloro livre": "Cloro residual livre", "PH": "pH", "ph": "pH", "Ph": "pH"
     })
 
     parametros_principais = [
       "Turbidez", "Cor Aparente", "pH",
-      "Cloro residual livre", "Coliformes totais", "Escherichia Coli"
+      "Cloro residual livre", "Coliformes Totais", "Escherichia coli"
     ]
 
     BASE_MUN_TIPO["Parâmetros"] = BASE_MUN_TIPO["Parâmetros"].apply(
@@ -4215,8 +4215,8 @@ def rel_iqa_iqe():
     BASE_REALIZADAS["ANÁLISE"] = BASE_REALIZADAS["ANÁLISE"].replace({
       "Cor": "Cor Aparente", "Residual de Cloro Livre": "Cloro residual livre",
       "Residual de cloro livre": "Cloro residual livre", "Cor aparente": "Cor Aparente",
-      "Cloro": "Cloro residual livre", "Coliformes Totais": "Coliformes totais",
-      "Escherichia coli": "Escherichia Coli", "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
+      "Cloro": "Cloro residual livre",
+      "Cloro Residual Livre": "Cloro residual livre", "Cloro Residual livre": "Cloro residual livre", "Cloro residual Livre": "Cloro residual livre",
       "Cloro Livre": "Cloro residual livre", "Cloro livre": "Cloro residual livre", "PH": "pH", "ph": "pH", "Ph": "pH"})
 
     BASE_REALIZADAS["CIDADE"] = BASE_REALIZADAS["CIDADE"].str.upper().apply(unidecode)
@@ -5104,8 +5104,8 @@ def rel_iqa_iqe():
       "Cor Aparente":        "COR APARENTE",
       "pH":                  "PH",
       "Cloro residual livre": "CLORO RESIDUAL LIVRE",
-      "Coliformes totais":   "COLIFORMES TOTAIS",
-      "Escherichia Coli":    "ESCHERICHIA COLI",
+      "Coliformes Totais":   "COLIFORMES TOTAIS",
+      "Escherichia coli":    "ESCHERICHIA COLI",
       "Demais Parâmetros":   "DEMAIS PARAMETROS",
     }
 
