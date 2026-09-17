@@ -49,6 +49,120 @@ def ler_ajustar_arquivo ():
   iqe_detalhado = pd.read_excel("ATT_SQL.xlsx", sheet_name="IQE_DETALHADO")
   plano_iqe = pd.read_excel("ATT_SQL.xlsx", sheet_name="IQE_PLANO")
 
+  
+  ########################### NOVO #################################################
+
+
+  saa_padrao = pd.read_excel("CODE.xlsx", sheet_name="SAA")
+  ete_padrao = pd.read_excel("CODE.xlsx", sheet_name="ETE")
+  tipo_iqa_padrao = pd.read_excel("CODE.xlsx", sheet_name="TIPO_ANALISE_IQA")
+  tipo_iqe_padrao = pd.read_excel("CODE.xlsx", sheet_name="TIPO_ANALISE_IQE")
+  municipio_padrao = pd.read_excel("CODE.xlsx", sheet_name="MUNICIPIO")
+
+  mapa_saa_padrao = dict(zip(saa_padrao["CÓDIGO"], saa_padrao["SISTEMA"]))
+  mapa_ete_padrao = dict(zip(ete_padrao["CÓDIGO"], ete_padrao["ETE"]))
+  mapa_iqa_padrao = dict(zip(tipo_iqa_padrao["CÓDIGO"], tipo_iqa_padrao["ANÁLISE"]))
+  mapa_iqe_padrao = dict(zip(tipo_iqe_padrao["CÓDIGO"], tipo_iqe_padrao["ANÁLISE"]))
+  mapa_municipio_padrao = dict(zip(municipio_padrao["CÓDIGO"], municipio_padrao["MUNICÍPIO"]))
+
+  
+  # Ajustar numecleturas do iqa_detalhado
+
+  iqa_detalhado["municipio"] = (
+    iqa_detalhado["municipio_code"]
+    .map(mapa_municipio_padrao)
+    .fillna(iqa_detalhado["municipio"])
+  )
+
+  iqa_detalhado["saa"] = (
+      iqa_detalhado["saa_code"]
+      .map(mapa_saa_padrao)
+      .fillna(iqa_detalhado["saa"])
+  )
+
+  iqa_detalhado["analise"] = (
+      iqa_detalhado["analise_code"]
+      .map(mapa_iqa_padrao)
+      .fillna(iqa_detalhado["analise"])
+  )
+
+
+  # Ajustar numecleturas do iqe_detalhado
+
+  iqe_detalhado["cidade"] = (
+    iqe_detalhado["cidade_code"]
+    .map(mapa_municipio_padrao)
+    .fillna(iqe_detalhado["cidade"])
+  )
+
+  iqe_detalhado["ETE"] = (
+      iqe_detalhado["ete_code"]
+      .map(mapa_ete_padrao)
+      .fillna(iqe_detalhado["ETE"])
+  )
+
+  iqe_detalhado["analise"] = (
+      iqe_detalhado["analise_code"]
+      .map(mapa_iqe_padrao)
+      .fillna(iqe_detalhado["analise"])
+  )
+
+
+  # Ajustar numecleturas do plano
+
+  plano["Cidade"] = (
+    plano["cidade_code"]
+    .map(mapa_municipio_padrao)
+    .fillna(plano["Cidade"])
+  )
+
+  plano["SAA"] = (
+      plano["saa_code"]
+      .map(mapa_saa_padrao)
+      .fillna(plano["SAA"])
+  )
+
+  plano["Parâmetros"] = (
+      plano["parametros_code"]
+      .map(mapa_iqa_padrao)
+      .fillna(plano["Parâmetros"])
+  )
+
+
+  # Ajustar numecleturas do plano_iqe
+
+  plano_iqe["cidade"] = (
+    plano_iqe["cidade_code"]
+    .map(mapa_municipio_padrao)
+    .fillna(plano_iqe["cidade"])
+  )
+
+  plano_iqe["ETE"] = (
+      plano_iqe["ete_code"]
+      .map(mapa_ete_padrao)
+      .fillna(plano_iqe["ETE"])
+  )
+
+
+  plano_iqe["parametros"] = (
+      plano_iqe["parametros_code"]
+      .map(mapa_iqe_padrao)
+      .fillna(plano_iqe["parametros"])
+  )
+
+
+  # Apagar colunas codificadas e outras colunas para os posteriores processamentos
+
+  iqa_detalhado = iqa_detalhado.drop(columns=["analise_code", "municipio_code", "saa_code"])
+  iqe_detalhado = iqe_detalhado.drop(columns=["analise_code", "cidade_code", "ete_code"])
+
+  plano = plano.drop(columns=["parametros_code", "cidade_code", "saa_code"])
+  plano_iqe = plano_iqe.drop(columns=["parametros_code", "cidade_code", "ete_code"])
+
+
+  ########################### NOVO #################################################
+
+  
   iqa_detalhado = iqa_detalhado.drop('id_pond', axis=1)
   iqa_detalhado = iqa_detalhado.drop('conformidade_vi', axis=1)
   iqe_detalhado = iqe_detalhado.drop('id_pond', axis=1)
@@ -3843,14 +3957,82 @@ def rel_iqa():
 
     arquivo_gerais = pd.read_excel('ATT_SQL.xlsx', sheet_name='GERAIS')
 
+    PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
+
+    AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
+
+    
+    ########################### NOVO #################################################
+
+
+    saa_padrao = pd.read_excel("CODE.xlsx", sheet_name="SAA")
+    tipo_iqa_padrao = pd.read_excel("CODE.xlsx", sheet_name="TIPO_ANALISE_IQA")
+    municipio_padrao = pd.read_excel("CODE.xlsx", sheet_name="MUNICIPIO")
+
+    mapa_saa_padrao = dict(zip(saa_padrao["CÓDIGO"], saa_padrao["SISTEMA"]))
+    mapa_iqa_padrao = dict(zip(tipo_iqa_padrao["CÓDIGO"], tipo_iqa_padrao["ANÁLISE"]))
+    mapa_municipio_padrao = dict(zip(municipio_padrao["CÓDIGO"], municipio_padrao["MUNICÍPIO"]))
+
+    # Ajustar numecleturas do iqa_detalhado
+
+    AMOSTRAS_REALIZADAS["municipio"] = (
+      AMOSTRAS_REALIZADAS["municipio_code"]
+      .map(mapa_municipio_padrao)
+      .fillna(AMOSTRAS_REALIZADAS["municipio"])
+    )
+
+    AMOSTRAS_REALIZADAS["saa"] = (
+        AMOSTRAS_REALIZADAS["saa_code"]
+        .map(mapa_saa_padrao)
+        .fillna(AMOSTRAS_REALIZADAS["saa"])
+    )
+
+    AMOSTRAS_REALIZADAS["analise"] = (
+        AMOSTRAS_REALIZADAS["analise_code"]
+        .map(mapa_iqa_padrao)
+        .fillna(AMOSTRAS_REALIZADAS["analise"])
+    )
+
+
+    # Ajustar numecleturas do plano
+
+    PLAN_MUN_TIPO["Cidade"] = (
+      PLAN_MUN_TIPO["cidade_code"]
+      .map(mapa_municipio_padrao)
+      .fillna(PLAN_MUN_TIPO["Cidade"])
+    )
+
+    PLAN_MUN_TIPO["SAA"] = (
+        PLAN_MUN_TIPO["saa_code"]
+        .map(mapa_saa_padrao)
+        .fillna(PLAN_MUN_TIPO["SAA"])
+    )
+
+    PLAN_MUN_TIPO["Parâmetros"] = (
+        PLAN_MUN_TIPO["parametros_code"]
+        .map(mapa_iqa_padrao)
+        .fillna(PLAN_MUN_TIPO["Parâmetros"])
+    )
+
+
+    # Apagar colunas codificadas e outras colunas para os posteriores processamentos
+
+    AMOSTRAS_REALIZADAS = AMOSTRAS_REALIZADAS.drop(columns=["analise_code", "municipio_code", "saa_code"])
+
+    PLAN_MUN_TIPO = PLAN_MUN_TIPO.drop(columns=["parametros_code", "cidade_code", "saa_code"])
+
+
+    ########################### NOVO #################################################
+
+    
     MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, MESMIN_ANO = infos_gerais (arquivo_gerais)
 
 
-    PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
+    #PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
     PLAN_MUN_TIPO = PLAN_MUN_TIPO.rename(columns={'DESCONSIDERACOES - ARSAL' : 'DESCONSIDERAÇÕES - ARSAL'})
 
-    AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
+    # AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
 
     AMOSTRAS_REALIZADAS = AMOSTRAS_REALIZADAS.rename(columns={
     'id_amostra': 'ID_AMOSTRA',
@@ -5950,13 +6132,81 @@ def rel_iqa_iqe():
 
     arquivo_gerais = pd.read_excel('ATT_SQL.xlsx', sheet_name='GERAIS')
 
+    PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
+
+    AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
+
+
+    ########################### NOVO #################################################
+
+
+    saa_padrao = pd.read_excel("CODE.xlsx", sheet_name="SAA")
+    tipo_iqa_padrao = pd.read_excel("CODE.xlsx", sheet_name="TIPO_ANALISE_IQA")
+    municipio_padrao = pd.read_excel("CODE.xlsx", sheet_name="MUNICIPIO")
+
+    mapa_saa_padrao = dict(zip(saa_padrao["CÓDIGO"], saa_padrao["SISTEMA"]))
+    mapa_iqa_padrao = dict(zip(tipo_iqa_padrao["CÓDIGO"], tipo_iqa_padrao["ANÁLISE"]))
+    mapa_municipio_padrao = dict(zip(municipio_padrao["CÓDIGO"], municipio_padrao["MUNICÍPIO"]))
+
+    # Ajustar numecleturas do iqa_detalhado
+
+    AMOSTRAS_REALIZADAS["municipio"] = (
+      AMOSTRAS_REALIZADAS["municipio_code"]
+      .map(mapa_municipio_padrao)
+      .fillna(AMOSTRAS_REALIZADAS["municipio"])
+    )
+
+    AMOSTRAS_REALIZADAS["saa"] = (
+        AMOSTRAS_REALIZADAS["saa_code"]
+        .map(mapa_saa_padrao)
+        .fillna(AMOSTRAS_REALIZADAS["saa"])
+    )
+
+    AMOSTRAS_REALIZADAS["analise"] = (
+        AMOSTRAS_REALIZADAS["analise_code"]
+        .map(mapa_iqa_padrao)
+        .fillna(AMOSTRAS_REALIZADAS["analise"])
+    )
+
+
+    # Ajustar numecleturas do plano
+
+    PLAN_MUN_TIPO["Cidade"] = (
+      PLAN_MUN_TIPO["cidade_code"]
+      .map(mapa_municipio_padrao)
+      .fillna(PLAN_MUN_TIPO["Cidade"])
+    )
+
+    PLAN_MUN_TIPO["SAA"] = (
+        PLAN_MUN_TIPO["saa_code"]
+        .map(mapa_saa_padrao)
+        .fillna(PLAN_MUN_TIPO["SAA"])
+    )
+
+    PLAN_MUN_TIPO["Parâmetros"] = (
+        PLAN_MUN_TIPO["parametros_code"]
+        .map(mapa_iqa_padrao)
+        .fillna(PLAN_MUN_TIPO["Parâmetros"])
+    )
+
+
+    # Apagar colunas codificadas e outras colunas para os posteriores processamentos
+
+    AMOSTRAS_REALIZADAS = AMOSTRAS_REALIZADAS.drop(columns=["analise_code", "municipio_code", "saa_code"])
+
+    PLAN_MUN_TIPO = PLAN_MUN_TIPO.drop(columns=["parametros_code", "cidade_code", "saa_code"])
+
+
+    ########################### NOVO #################################################
+
+
     MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, MESMIN_ANO = infos_gerais (arquivo_gerais)
 
-    PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
+    # PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
     PLAN_MUN_TIPO = PLAN_MUN_TIPO.rename(columns={'DESCONSIDERACOES - ARSAL' : 'DESCONSIDERAÇÕES - ARSAL'})
 
-    AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
+    # AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
 
     AMOSTRAS_REALIZADAS = AMOSTRAS_REALIZADAS.rename(columns={
     'id_amostra': 'ID_AMOSTRA',
@@ -5974,6 +6224,72 @@ def rel_iqa_iqe():
 
     PLAN_MUN_TIPO_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_PLANO')
 
+    AMOSTRAS_REALIZADAS_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_DETALHADO')
+
+    
+    ########################### NOVO #################################################
+
+    
+    ete_padrao = pd.read_excel("CODE.xlsx", sheet_name="ETE")
+    tipo_iqe_padrao = pd.read_excel("CODE.xlsx", sheet_name="TIPO_ANALISE_IQE")
+    municipio_padrao = pd.read_excel("CODE.xlsx", sheet_name="MUNICIPIO")
+
+    mapa_ete_padrao = dict(zip(ete_padrao["CÓDIGO"], ete_padrao["ETE"]))
+    mapa_iqe_padrao = dict(zip(tipo_iqe_padrao["CÓDIGO"], tipo_iqe_padrao["ANÁLISE"]))
+    mapa_municipio_padrao = dict(zip(municipio_padrao["CÓDIGO"], municipio_padrao["MUNICÍPIO"]))
+
+    # Ajustar numecleturas do iqe_detalhado
+
+    AMOSTRAS_REALIZADAS_IQE["cidade"] = (
+      AMOSTRAS_REALIZADAS_IQE["cidade_code"]
+      .map(mapa_municipio_padrao)
+      .fillna(AMOSTRAS_REALIZADAS_IQE["cidade"])
+    )
+
+    AMOSTRAS_REALIZADAS_IQE["ETE"] = (
+        AMOSTRAS_REALIZADAS_IQE["ete_code"]
+        .map(mapa_ete_padrao)
+        .fillna(AMOSTRAS_REALIZADAS_IQE["ETE"])
+    )
+
+    AMOSTRAS_REALIZADAS_IQE["analise"] = (
+        AMOSTRAS_REALIZADAS_IQE["analise_code"]
+        .map(mapa_iqe_padrao)
+        .fillna(AMOSTRAS_REALIZADAS_IQE["analise"])
+    )
+
+
+    # Ajustar numecleturas do plano
+
+    PLAN_MUN_TIPO_IQE["cidade"] = (
+      PLAN_MUN_TIPO_IQE["cidade_code"]
+      .map(mapa_municipio_padrao)
+      .fillna(PLAN_MUN_TIPO_IQE["cidade"])
+    )
+
+    PLAN_MUN_TIPO_IQE["ETE"] = (
+        PLAN_MUN_TIPO_IQE["ete_code"]
+        .map(mapa_ete_padrao)
+        .fillna(PLAN_MUN_TIPO_IQE["ETE"])
+    )
+
+    PLAN_MUN_TIPO_IQE["parametros"] = (
+        PLAN_MUN_TIPO_IQE["parametros_code"]
+        .map(mapa_iqe_padrao)
+        .fillna(PLAN_MUN_TIPO_IQE["parametros"])
+    )
+
+
+    # Apagar colunas codificadas e outras colunas para os posteriores processamentos
+
+    AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.drop(columns=["analise_code", "cidade_code", "ete_code"])
+
+    PLAN_MUN_TIPO_IQE = PLAN_MUN_TIPO_IQE.drop(columns=["parametros_code", "cidade_code", "ete_code"])
+
+
+    ########################### NOVO #################################################
+    
+
     PLAN_MUN_TIPO_IQE = PLAN_MUN_TIPO_IQE.rename(columns={
     'desconsideracoes_arsal': 'DESCONSIDERAÇÕES - ARSAL',
     'id_pond': 'ID_POND',
@@ -5983,7 +6299,7 @@ def rel_iqa_iqe():
     'cidade': 'Cidade'
     })
 
-    AMOSTRAS_REALIZADAS_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_DETALHADO')
+    # AMOSTRAS_REALIZADAS_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_DETALHADO')
 
     AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.rename(columns={
     'id_amostra': 'ID_AMOSTRA',
