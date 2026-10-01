@@ -29,6 +29,8 @@ from docx.oxml import OxmlElement
 from docx.enum.table import WD_ALIGN_VERTICAL
 import streamlit as st
 from dotenv import load_dotenv
+import psycopg2
+from psycopg2 import sql
 
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
@@ -1311,6 +1313,22 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
       .execute()
   )
 
+  def vacuum_full_tabelas(tabelas):
+    conn = psycopg2.connect(os.environ["SUPABASE_DB_URL"])
+    conn.autocommit = True
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SET statement_timeout = 0")
+            for tabela in tabelas:
+                cur.execute(
+                    sql.SQL("VACUUM (FULL, ANALYZE) public.{}").format(
+                        sql.Identifier(tabela)
+                    )
+                )
+    finally:
+        conn.close()
+
   if resposta.data:
 
       (
@@ -1326,7 +1344,7 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
           .table(prestadora_realizados)
           .delete()
           .eq("ano", ano)
-          .eq("ano", mes)
+          .eq("mes", mes)
           .execute()
       )
       (
@@ -1375,6 +1393,13 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
       supabase.table(prestadora_mun).insert(mun.to_dict(orient="records")).execute()
       supabase.table(prestadora_plano).insert(plano_final.to_dict(orient="records")).execute()
       supabase.table(prestadora_iqa).insert(iqa_final.to_dict(orient="records")).execute()
+      
+      vacuum_full_tabelas([
+          prestadora_detalhado,
+          prestadora_plano,
+      ])
+
+      
 
   else:
 
@@ -1482,6 +1507,11 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
         supabase.table(prestadora_mun_iqe).insert(mun_iqe.to_dict(orient="records")).execute()
         supabase.table(prestadora_plano_iqe).insert(plano_final_iqe.to_dict(orient="records")).execute()
         supabase.table(prestadora_iqe).insert(iqe_final.to_dict(orient="records")).execute()
+
+        vacuum_full_tabelas([
+          prestadora_detalhado_iqe,
+          prestadora_plano_iqe,
+        ])
 
 
     else:
