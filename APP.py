@@ -1656,19 +1656,20 @@ def backup_bd (prestadora_sigla):
 
           arquivo = os.path.join(
               PASTA_BACKUP,
-              f"{tabela}.csv"
+              f"{tabela}.csv.gz"
           )
 
           df.to_csv(
               arquivo,
               index=False,
-              encoding="utf-8-sig"
+              encoding="utf-8-sig",
+              compression="gzip"
           )
 
-          data_backup = datetime.now().strftime("%Y-%m-%d")
+          data_backup = prestadora_sigla ##########
 
           caminho_storage = (
-                f"{data_backup}/{tabela}.csv"
+                f"{data_backup}/{tabela}.csv.gz"
           )
 
 
@@ -1679,7 +1680,7 @@ def backup_bd (prestadora_sigla):
 
 
           st.success(
-                f"Backup enviado: {tabela}.csv"
+                f"Backup enviado: {tabela}.csv.gz"
           )
 
           print(f"✅ {tabela}: {len(df)} registros exportados.")
