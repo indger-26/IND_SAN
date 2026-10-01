@@ -1314,7 +1314,7 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
   )
 
   def vacuum_full_tabelas(tabelas):
-    conn = psycopg2.connect(os.environ["SUPABASE_DB_URL"])
+    conn = psycopg2.connect(st.secrets["SUPABASE_DB_URL"])
     conn.autocommit = True
 
     try:
