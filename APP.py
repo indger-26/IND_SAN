@@ -48,8 +48,12 @@ def ler_ajustar_arquivo ():
   iqa_detalhado = pd.read_excel("ATT_SQL.xlsx", sheet_name="IQA_DETALHADO")
   plano = pd.read_excel("ATT_SQL.xlsx", sheet_name="IQA_PLANO")
 
+  iqa_detalhado = iqa_detalhado[iqa_detalhado["parecer"] == "Validado"]
+
   iqe_detalhado = pd.read_excel("ATT_SQL.xlsx", sheet_name="IQE_DETALHADO")
   plano_iqe = pd.read_excel("ATT_SQL.xlsx", sheet_name="IQE_PLANO")
+
+  iqe_detalhado = iqe_detalhado[iqe_detalhado["aceito?"] == "Validado"]
 
   
   ########################### NOVO #################################################
