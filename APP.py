@@ -200,7 +200,8 @@ def ler_ajustar_arquivo ():
   
   df = iqa_detalhado.merge(
       vmps[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
-      on="PARAMETRO",
+      left_on="analise",
+      right_on="PARAMETRO",
       how="left",
       indicator=True
   )
@@ -237,7 +238,7 @@ def ler_ajustar_arquivo ():
   
       # Remove colunas auxiliares e salva
   
-  df_conferido = df.drop(columns=["V_MIN", "V_MAX", "_merge"])
+  df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])
 
   iqa_detalhado = df_conferido.drop(columns=["alterado"])
   # buffer = BytesIO()
