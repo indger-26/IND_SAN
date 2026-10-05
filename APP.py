@@ -31,6 +31,7 @@ import streamlit as st
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import sql
+from io import BytesIO
 
 url = st.secrets["SUPABASE_URL"]
 key = st.secrets["SUPABASE_KEY"]
@@ -173,6 +174,81 @@ def ler_ajustar_arquivo ():
   iqa_detalhado = iqa_detalhado.drop('conformidade_vi', axis=1)
   iqe_detalhado = iqe_detalhado.drop('id_pond', axis=1)
   iqe_detalhado = iqe_detalhado.drop('conformidade_vi', axis=1)
+
+
+
+
+  
+
+  # Conferência dos valores com os VMPs
+  
+  vmps = pd.read_excel("VMPS.xlsx")
+
+  
+      # Limpeza do VMPS: SV vira NaN (sem limite)
+  
+  for col in ["V_MIN", "V_MAX"]:
+      vmps[col] = (
+          vmps[col].astype(str).str.strip()
+          .str.replace(",", ".", regex=False)
+          .replace({"SV": None, "sv": None, "nan": None, "": None})
+      )
+      vmps[col] = pd.to_numeric(vmps[col], errors="coerce")
+
+  
+      # Merge com indicator para saber quais parâmetros existem no VMPS
+  
+  df = iqa_detalhado.merge(
+      vmps[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
+      on="PARAMETRO",
+      how="left",
+      indicator=True
+  )
+
+  
+      # Valor numérico usado na comparação (a coluna original não é alterada ainda)
+  
+  df["valor"] = pd.to_numeric(
+      df["resultado"].astype(str).str.strip().str.replace(",", ".", regex=False),
+      errors="coerce"
+  )
+
+  
+      # Quais linhas devem ser conferidas
+  
+  conferir = (df["_merge"] == "both") & df["valor"].notna()
+
+  
+      # Regra: SV (NaN) = sem limite naquele lado
+  
+  atende_min = df["V_MIN"].isna() | (df["valor"] >= df["V_MIN"])
+  atende_max = df["V_MAX"].isna() | (df["valor"] <= df["V_MAX"])
+  conforme = atende_min & atende_max
+  
+  df["alterado"] = conferir
+
+  
+      # Escreve na coluna resultado apenas onde há conferência
+  
+  df["resultado"] = df["resultado"].astype(object)
+  df.loc[conferir & conforme, "resultado"] = "Conforme"
+  df.loc[conferir & ~conforme, "resultado"] = "Não Conforme"
+
+  
+      # Remove colunas auxiliares e salva
+  
+  df_conferido = df.drop(columns=["V_MIN", "V_MAX", "_merge"])
+
+  iqa_detalhado = df_conferido.drop(columns=["alterado"])
+  # buffer = BytesIO()
+  # with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+  #     df.to_excel(writer, index=False, sheet_name="Conferido")
+  # buffer.seek(0)
+
+
+
+  
+  
 
   prestadora_sigla = infos_gerais.iloc[0, 1]
 
@@ -368,11 +444,11 @@ def ler_ajustar_arquivo ():
     plano_iqe_totais_ete = (plano_iqe_completo.groupby("ETE", as_index=False)[["plano", "desconsideracoes_arsal"]].sum())
 
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido
 
   else:
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido
 
 
 
@@ -6401,7 +6477,7 @@ def rel_iqa_iqe():
 def MAIN ():
 
     
-  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2 = ler_ajustar_arquivo ()
+  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido = ler_ajustar_arquivo ()
     
   
   print (plano_iqe_totais_parametros)
@@ -6422,7 +6498,7 @@ def MAIN ():
     nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa_iqe()
 
-    return nome_arq
+    return nome_arq, df_conferido
 
 
   else:
@@ -6447,12 +6523,14 @@ def MAIN ():
     nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa()
 
-    return nome_arq
+    return nome_arq, df_conferido
 
 
 #############################################################################################################################################################################################################################
 
 # INTERFACE
+
+nome_arq, df_conferido
 
 st.set_page_config(
     page_title="ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - IQA/IQE",
@@ -6781,7 +6859,7 @@ if arquivo is not None:
 
                         with st.spinner("Processando dados e atualizando banco..."):
 
-                            nome_arq = MAIN()
+                            nome_arq, df_conferido  = MAIN()
 
                         st.success("Arquivo processado com sucesso!")
                         st.divider()
@@ -6795,6 +6873,16 @@ if arquivo is not None:
                                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     use_container_width=True
                                 )
+
+                        if df_conferido is not None and not df_conferido.empty:
+                            st.download_button(
+                                label="📥 Baixar Planilha Conferida",
+                                data=df_para_excel(df_conferido),
+                                file_name="AMOSTRAS_REALIZADAS_conferido.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                use_container_width=True,
+                                key="download_conferido"
+                            )
 
                         st.session_state.confirmar_envio = False
 
