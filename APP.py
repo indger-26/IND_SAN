@@ -6530,8 +6530,6 @@ def MAIN ():
 
 # INTERFACE
 
-nome_arq, df_conferido
-
 st.set_page_config(
     page_title="ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - IQA/IQE",
     page_icon="💧",
