@@ -6531,6 +6531,14 @@ def MAIN ():
 
 # INTERFACE
 
+
+def df_para_excel(df: pd.DataFrame) -> bytes:
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Conferido")
+    return buffer.getvalue()
+
+
 st.set_page_config(
     page_title="ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - IQA/IQE",
     page_icon="💧",
