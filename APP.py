@@ -402,12 +402,75 @@ def ler_ajustar_arquivo ():
     plano_iqe_totais_municipio = "x"
     plano_iqe_totais_parametros = "x"
     iqe_detalhado2 = "x"
+    df_conferido_iqe = "x"
 
 
 
   # TRATAMENTO - IQE
 
   if mes == "November" or mes == "February" or mes == "May" or mes == "August":
+
+
+
+
+    # Conferência dos valores com os VMPs - IQE
+
+    vmps_iqe = pd.read_excel("VMPS.xlsx", sheet_name="IQE")
+    
+    # Limpeza do VMPS: SV vira NaN (sem limite)
+    for col in ["V_MIN", "V_MAX"]:
+        vmps[col] = (
+            vmps[col].astype(str).str.strip()
+            .str.replace(",", ".", regex=False)
+            .replace({"SV": None, "sv": None, "nan": None, "": None})
+        )
+        vmps_iqe[col] = pd.to_numeric(vmps_iqe[col], errors="coerce")
+    
+    # Merge com indicator para saber quais parâmetros existem no VMPS
+    df_iqe = iqe_detalhado.merge(
+        vmps_iqe[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
+        left_on="analise",
+        right_on="PARAMETRO",
+        how="left",
+        indicator=True
+    )
+    
+    # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
+    val_num_iqe = pd.to_numeric(df_iqe["valor"], errors="coerce")
+    
+    # >>> NOVO: só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
+    # (ignora espaços e maiúsculas/minúsculas; vazio/NaN também é conferido)
+    nao_expurgar_iqe = df_iqe["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
+    
+    # ---------- Parâmetros numéricos (VMPS) ----------
+    conferir_iqe = (df_iqe["_merge"] == "both") & val_num_iqe.notna() & nao_expurgar_iqe
+    
+    # Regra: SV (NaN) = sem limite naquele lado
+    atende_min_iqe = df_iqe["V_MIN"].isna() | (val_num_iqe >= df_iqe["V_MIN"])
+    atende_max_iqe = df_iqe["V_MAX"].isna() | (val_num_iqe <= df_iqe["V_MAX"])
+    conforme_iqe = atende_min_iqe & atende_max_iqe
+    
+    # ---------- Escrita na coluna resultado ----------
+    df_iqe["resultado"] = df_iqe["resultado"].astype(object)
+    resultado_original_iqe = df_iqe["resultado"].copy()
+    
+    df_iqe.loc[conferir_iqe & conforme_iqe, "resultado"] = "Conforme"
+    df_iqe.loc[conferir_iqe & ~conforme_iqe, "resultado"] = "Não Conforme"
+    
+    # alterado: True só onde o resultado realmente mudou
+    df_iqe["alterado"] = ~(
+        (df_iqe["resultado"] == resultado_original_iqe)
+        | (df_iqe["resultado"].isna() & resultado_original_iqe.isna())
+    )
+    
+    # Remove colunas auxiliares e salva
+    df_conferido_iqe = df_iqe.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
+    
+    iqa_detalhado_iqe = df_conferido_iqe.drop(columns=["alterado"])
+
+
+    
+
 
     pos_iqe = iqe_detalhado.columns.get_loc("id_amostra")
 
@@ -476,11 +539,11 @@ def ler_ajustar_arquivo ():
     plano_iqe_totais_ete = (plano_iqe_completo.groupby("ETE", as_index=False)[["plano", "desconsideracoes_arsal"]].sum())
 
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe
 
   else:
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe
 
 
 
@@ -6509,7 +6572,7 @@ def rel_iqa_iqe():
 def MAIN ():
 
     
-  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido = ler_ajustar_arquivo ()
+  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe = ler_ajustar_arquivo ()
     
   
   print (plano_iqe_totais_parametros)
@@ -6555,7 +6618,7 @@ def MAIN ():
     nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa()
 
-    return nome_arq, df_conferido
+    return nome_arq, df_conferido, df_conferido_iqe
 
 
 #############################################################################################################################################################################################################################
@@ -6897,7 +6960,7 @@ if arquivo is not None:
 
                         with st.spinner("Processando dados e atualizando banco..."):
 
-                            nome_arq, df_conferido  = MAIN()
+                            nome_arq, df_conferido, df_conferido_iqe  = MAIN()
 
                         st.success("Arquivo processado com sucesso!")
                         st.divider()
@@ -6914,13 +6977,25 @@ if arquivo is not None:
 
                         if df_conferido is not None and not df_conferido.empty:
                             st.download_button(
-                                label="📥 Baixar Planilha Conferida",
+                                label="📥 Baixar Planilha Conferida - IQA",
                                 data=df_para_excel(df_conferido),
-                                file_name="AMOSTRAS_REALIZADAS_conferido.xlsx",
+                                file_name="AMOSTRAS_REALIZADAS_conferido_iqa.xlsx",
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                 use_container_width=True,
                                 key="download_conferido"
                             )
+
+                      
+                        if isinstance(df_conferido_iqe, pd.DataFrame) and not df_conferido_iqe.empty:
+                            st.download_button(
+                                label="📥 Baixar Planilha Conferida - IQE",
+                                data=df_para_excel(df_conferido_iqe),
+                                file_name="AMOSTRAS_REALIZADAS_conferido_iqe.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                use_container_width=True,
+                                key="download_conferido_iqe"
+                            )
+                      
 
                         st.session_state.confirmar_envio = False
 
