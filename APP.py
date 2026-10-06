@@ -6593,7 +6593,7 @@ def MAIN ():
     nc_nr (prestadora_sigla, mes)
     nome_arq = rel_iqa_iqe()
 
-    return nome_arq, df_conferido
+    return nome_arq, df_conferido, df_conferido_iqe
 
 
   else:
