@@ -419,8 +419,8 @@ def ler_ajustar_arquivo ():
     
     # Limpeza do VMPS: SV vira NaN (sem limite)
     for col in ["V_MIN", "V_MAX"]:
-        vmps[col] = (
-            vmps[col].astype(str).str.strip()
+        vmps_iqe[col] = (                                   # >>> CORRIGIDO: era vmps[col]
+            vmps_iqe[col].astype(str).str.strip()           # >>> CORRIGIDO: era vmps[col]
             .str.replace(",", ".", regex=False)
             .replace({"SV": None, "sv": None, "nan": None, "": None})
         )
@@ -438,12 +438,28 @@ def ler_ajustar_arquivo ():
     # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
     val_num_iqe = pd.to_numeric(df_iqe["valor"], errors="coerce")
     
-    # >>> NOVO: só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
-    # (ignora espaços e maiúsculas/minúsculas; vazio/NaN também é conferido)
+    # Só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
     nao_expurgar_iqe = df_iqe["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
     
+    # >>> NOVO: só confere linhas onde entrada_saida seja JUSANTE ou SAIDA
+    # (ignora espaços e maiúsculas/minúsculas)
+
+    def sem_acento(s):
+        return "".join(
+            c for c in unicodedata.normalize("NFKD", str(s))
+            if not unicodedata.combining(c)
+        )
+    
+    jusante_saida_iqe = (df_iqe["entrada_saida"].map(sem_acento).str.strip().str.upper().isin(["JUSANTE", "SAIDA"]))
+    
     # ---------- Parâmetros numéricos (VMPS) ----------
-    conferir_iqe = (df_iqe["_merge"] == "both") & val_num_iqe.notna() & nao_expurgar_iqe
+    # >>> ALTERADO: acrescentado o filtro jusante_saida_iqe
+    conferir_iqe = (
+        (df_iqe["_merge"] == "both")
+        & val_num_iqe.notna()
+        & nao_expurgar_iqe
+        & jusante_saida_iqe
+    )
     
     # Regra: SV (NaN) = sem limite naquele lado
     atende_min_iqe = df_iqe["V_MIN"].isna() | (val_num_iqe >= df_iqe["V_MIN"])
