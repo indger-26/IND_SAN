@@ -180,13 +180,11 @@ def ler_ajustar_arquivo ():
 
   
 
-  # Conferência dos valores com os VMPs
-  
-  vmps = pd.read_excel("VMPS.xlsx")
+  # Conferência dos valores com os VMPs - IQA
 
+  vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
   
-      # Limpeza do VMPS: SV vira NaN (sem limite)
-  
+  # Limpeza do VMPS: SV vira NaN (sem limite)
   for col in ["V_MIN", "V_MAX"]:
       vmps[col] = (
           vmps[col].astype(str).str.strip()
@@ -194,10 +192,8 @@ def ler_ajustar_arquivo ():
           .replace({"SV": None, "sv": None, "nan": None, "": None})
       )
       vmps[col] = pd.to_numeric(vmps[col], errors="coerce")
-
   
-      # Merge com indicator para saber quais parâmetros existem no VMPS
-  
+  # Merge com indicator para saber quais parâmetros existem no VMPS
   df = iqa_detalhado.merge(
       vmps[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
       left_on="analise",
@@ -205,41 +201,53 @@ def ler_ajustar_arquivo ():
       how="left",
       indicator=True
   )
-
   
-      # Valor numérico usado na comparação (a coluna original não é alterada ainda)
+  # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
+  val_num = pd.to_numeric(df["valor"], errors="coerce")
   
-  df["valor"] = pd.to_numeric(
-      df["resultado"].astype(str).str.strip().str.replace(",", ".", regex=False),
-      errors="coerce"
+  # ---------- Coliformes / E. coli ----------
+  eh_coli = df["analise"].astype(str).str.contains(
+      r"coliformes?\s+totais|\be\.?\s*coli\b|escherichia", case=False, regex=True, na=False
   )
-
   
-      # Quais linhas devem ser conferidas
+  res_txt = df["resultado"].astype(str).str.strip().str.lower()
+  res_num = pd.to_numeric(res_txt.str.replace(",", ".", regex=False), errors="coerce")
   
-  conferir = (df["_merge"] == "both") & df["valor"].notna()
-
+  # unidade vazia (NaN, "", espaços, "nan" ou "none")
+  sem_unidade = (
+      df["unidade"].isna()
+      | df["unidade"].astype(str).str.strip().str.lower().isin(["", "nan", "none"])
+  )
   
-      # Regra: SV (NaN) = sem limite naquele lado
+  ausente = res_txt.isin(["ausente", "ausentes"])
+  zero = (res_num == 0) | (val_num == 0)
   
-  atende_min = df["V_MIN"].isna() | (df["valor"] >= df["V_MIN"])
-  atende_max = df["V_MAX"].isna() | (df["valor"] <= df["V_MAX"])
+  # Regra: "Ausente"/"Ausentes" ou 0 sem unidade = Conforme; caso contrário, Não Conforme
+  conforme_coli = ausente | (zero & sem_unidade)
+  
+  # ---------- Demais parâmetros numéricos (VMPS) ----------
+  # Quais linhas devem ser conferidas (coliformes/E. coli têm regra própria)
+  conferir = (df["_merge"] == "both") & val_num.notna() & ~eh_coli
+  
+  # Regra: SV (NaN) = sem limite naquele lado
+  atende_min = df["V_MIN"].isna() | (val_num >= df["V_MIN"])
+  atende_max = df["V_MAX"].isna() | (val_num <= df["V_MAX"])
   conforme = atende_min & atende_max
   
-  df["alterado"] = conferir
-
+  df["alterado"] = conferir | eh_coli
   
-      # Escreve na coluna resultado apenas onde há conferência
-  
+  # ---------- Escrita na coluna resultado ----------
   df["resultado"] = df["resultado"].astype(object)
+  
   df.loc[conferir & conforme, "resultado"] = "Conforme"
   df.loc[conferir & ~conforme, "resultado"] = "Não Conforme"
-
   
-      # Remove colunas auxiliares e salva
+  df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
+  df.loc[eh_coli & ~conforme_coli, "resultado"] = "Não Conforme"
   
+  # Remove colunas auxiliares e salva
   df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])
-
+  
   iqa_detalhado = df_conferido.drop(columns=["alterado"])
   # buffer = BytesIO()
   # with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
