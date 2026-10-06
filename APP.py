@@ -183,7 +183,7 @@ def ler_ajustar_arquivo ():
   # Conferência dos valores com os VMPs - IQA
 
   vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
-  
+
   # Limpeza do VMPS: SV vira NaN (sem limite)
   for col in ["V_MIN", "V_MAX"]:
       vmps[col] = (
@@ -205,7 +205,7 @@ def ler_ajustar_arquivo ():
   # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
   val_num = pd.to_numeric(df["valor"], errors="coerce")
   
-  # ---------- Coliformes / E. coli ----------
+  # ---------- Coliformes totais / E. coli ----------
   eh_coli = df["analise"].astype(str).str.contains(
       r"coliformes?\s+totais|\be\.?\s*coli\b|escherichia", case=False, regex=True, na=False
   )
@@ -234,10 +234,11 @@ def ler_ajustar_arquivo ():
   atende_max = df["V_MAX"].isna() | (val_num <= df["V_MAX"])
   conforme = atende_min & atende_max
   
-  df["alterado"] = conferir | eh_coli
-  
   # ---------- Escrita na coluna resultado ----------
   df["resultado"] = df["resultado"].astype(object)
+  
+  # >>> ALTERAÇÃO 1: guarda o resultado original antes de sobrescrever
+  resultado_original = df["resultado"].copy()
   
   df.loc[conferir & conforme, "resultado"] = "Conforme"
   df.loc[conferir & ~conforme, "resultado"] = "Não Conforme"
@@ -245,8 +246,15 @@ def ler_ajustar_arquivo ():
   df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
   df.loc[eh_coli & ~conforme_coli, "resultado"] = "Não Conforme"
   
+  # >>> ALTERAÇÃO 2: "alterado" agora é calculado DEPOIS da escrita, comparando
+  # o resultado novo com o original (a linha antiga df["alterado"] = conferir | eh_coli foi removida)
+  df["alterado"] = ~(
+      (df["resultado"] == resultado_original)
+      | (df["resultado"].isna() & resultado_original.isna())
+  )
+  
   # Remove colunas auxiliares e salva
-  df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])
+  df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
   
   iqa_detalhado = df_conferido.drop(columns=["alterado"])
   # buffer = BytesIO()
