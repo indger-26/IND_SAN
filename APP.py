@@ -6936,7 +6936,9 @@ if arquivo is not None:
     if st.button("📤 Enviar arquivo"):
 
         st.session_state.confirmar_envio = True
+        st.session_state.pop("resultado", None)
 
+  
     if st.session_state.confirmar_envio:
 
         st.markdown("""
@@ -6967,79 +6969,90 @@ if arquivo is not None:
                 )
 
                 with open(caminho, "wb") as f:
-
-                    f.write(
-                        arquivo.getbuffer()
-                    )
+                    f.write(arquivo.getbuffer())
 
                 if os.path.exists(caminho):
 
                     try:
 
                         with st.spinner("Processando dados e atualizando banco..."):
+                            nome_arq, df_conferido, df_conferido_iqe = MAIN()
 
-                            nome_arq, df_conferido, df_conferido_iqe  = MAIN()
-
-                        st.success("Arquivo processado com sucesso!")
-                        st.divider()
-
+                        # Lê o arquivo final em bytes
+                        arquivo_final = None
                         if os.path.exists(nome_arq):
                             with open(nome_arq, "rb") as file:
-                                st.download_button(
-                                    label="📥 Baixar Arquivo",
-                                    data=file.read(),
-                                    file_name=nome_arq,
-                                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                    use_container_width=True
-                                )
+                                arquivo_final = file.read()
 
-                        if df_conferido is not None and not df_conferido.empty:
-                            st.download_button(
-                                label="📥 Baixar Planilha Conferida - IQA",
-                                data=df_para_excel(df_conferido),
-                                file_name="AMOSTRAS_REALIZADAS_conferido_iqa.xlsx",
-                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                use_container_width=True,
-                                key="download_conferido"
-                            )
-
-                      
-                        if isinstance(df_conferido_iqe, pd.DataFrame) and not df_conferido_iqe.empty:
-                            st.download_button(
-                                label="📥 Baixar Planilha Conferida - IQE",
-                                data=df_para_excel(df_conferido_iqe),
-                                file_name="AMOSTRAS_REALIZADAS_conferido_iqe.xlsx",
-                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                use_container_width=True,
-                                key="download_conferido_iqe"
-                            )
-                      
+                        # Guarda tudo no session_state
+                        st.session_state.resultado = {
+                            "nome_arq": nome_arq,
+                            "arquivo_final": arquivo_final,
+                            "xlsx_iqa": df_para_excel(df_conferido)
+                                if isinstance(df_conferido, pd.DataFrame) and not df_conferido.empty else None,
+                            "xlsx_iqe": df_para_excel(df_conferido_iqe)
+                                if isinstance(df_conferido_iqe, pd.DataFrame) and not df_conferido_iqe.empty else None,
+                        }
 
                         st.session_state.confirmar_envio = False
 
                     except Exception as e:
 
-                        st.error(
-                            "Erro durante atualização:"
-                        )
-
+                        st.error("Erro durante atualização:")
                         st.exception(e)
 
                 else:
 
-                    st.error(
-                        "Arquivo ATT_SQL.xlsx não foi encontrado."
-                    )
+                    st.error("Arquivo ATT_SQL.xlsx não foi encontrado.")
 
         with col2:
 
             if st.button("❌ Cancelar"):
 
                 st.session_state.confirmar_envio = False
+                st.session_state.pop("resultado", None)
 
                 st.info(
                     "Envio cancelado."
                 )
+
+
+if "resultado" in st.session_state:
+    res = st.session_state.resultado
+
+    st.success("Arquivo processado com sucesso!")
+    st.divider()
+
+    if res["arquivo_final"] is not None:
+        st.download_button(
+            label="📥 Baixar Arquivo",
+            data=res["arquivo_final"],
+            file_name=res["nome_arq"],
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+            key="download_arquivo"
+        )
+
+    if res["xlsx_iqa"] is not None:
+        st.download_button(
+            label="📥 Baixar Planilha Conferida - IQA",
+            data=res["xlsx_iqa"],
+            file_name="AMOSTRAS_REALIZADAS_conferido_iqa.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+            key="download_conferido"
+        )
+
+    if res["xlsx_iqe"] is not None:
+        st.download_button(
+            label="📥 Baixar Planilha Conferida - IQE",
+            data=res["xlsx_iqe"],
+            file_name="AMOSTRAS_REALIZADAS_conferido_iqe.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
+            key="download_conferido_iqe"
+        )
+
 
 st.markdown('</div>', unsafe_allow_html=True)
 
