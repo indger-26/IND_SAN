@@ -183,7 +183,7 @@ def ler_ajustar_arquivo ():
   # Conferência dos valores com os VMPs - IQA
 
   vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
-
+  
   # Limpeza do VMPS: SV vira NaN (sem limite)
   for col in ["V_MIN", "V_MAX"]:
       vmps[col] = (
@@ -205,6 +205,10 @@ def ler_ajustar_arquivo ():
   # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
   val_num = pd.to_numeric(df["valor"], errors="coerce")
   
+  # >>> NOVO: só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
+  # (ignora espaços e maiúsculas/minúsculas; vazio/NaN também é conferido)
+  nao_expurgar = df["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
+  
   # ---------- Coliformes totais / E. coli ----------
   eh_coli = df["analise"].astype(str).str.contains(
       r"coliformes?\s+totais|\be\.?\s*coli\b|escherichia", case=False, regex=True, na=False
@@ -213,21 +217,34 @@ def ler_ajustar_arquivo ():
   res_txt = df["resultado"].astype(str).str.strip().str.lower()
   res_num = pd.to_numeric(res_txt.str.replace(",", ".", regex=False), errors="coerce")
   
+  # >>> NOVO: texto da coluna "valor" (para detectar Presente/Ausente também nela)
+  val_txt = df["valor"].astype(str).str.strip().str.lower()
+  
   # unidade vazia (NaN, "", espaços, "nan" ou "none")
   sem_unidade = (
       df["unidade"].isna()
       | df["unidade"].astype(str).str.strip().str.lower().isin(["", "nan", "none"])
   )
   
-  ausente = res_txt.isin(["ausente", "ausentes"])
+  ausente = res_txt.isin(["ausente", "ausentes"]) | val_txt.isin(["ausente", "ausentes"])
   zero = (res_num == 0) | (val_num == 0)
   
-  # Regra: "Ausente"/"Ausentes" ou 0 sem unidade = Conforme; caso contrário, Não Conforme
+  # >>> NOVO: regra de "Não Conforme"
+  presente = res_txt.isin(["presente", "presentes"]) | val_txt.isin(["presente", "presentes"])
+  um = (res_num == 1) | (val_num == 1)
+  
+  # Conforme: "Ausente"/"Ausentes" ou 0 sem unidade
   conforme_coli = ausente | (zero & sem_unidade)
   
+  # Não Conforme: "Presente"/"Presentes" ou 1 sem unidade
+  nao_conforme_coli = presente | (um & sem_unidade)
+  
+  # >>> ALTERADO: aplica o filtro de expurgos
+  eh_coli = eh_coli & nao_expurgar
+  
   # ---------- Demais parâmetros numéricos (VMPS) ----------
-  # Quais linhas devem ser conferidas (coliformes/E. coli têm regra própria)
-  conferir = (df["_merge"] == "both") & val_num.notna() & ~eh_coli
+  # >>> ALTERADO: aplica o filtro de expurgos
+  conferir = (df["_merge"] == "both") & val_num.notna() & ~eh_coli & nao_expurgar
   
   # Regra: SV (NaN) = sem limite naquele lado
   atende_min = df["V_MIN"].isna() | (val_num >= df["V_MIN"])
@@ -236,18 +253,16 @@ def ler_ajustar_arquivo ():
   
   # ---------- Escrita na coluna resultado ----------
   df["resultado"] = df["resultado"].astype(object)
-  
-  # >>> ALTERAÇÃO 1: guarda o resultado original antes de sobrescrever
   resultado_original = df["resultado"].copy()
   
   df.loc[conferir & conforme, "resultado"] = "Conforme"
   df.loc[conferir & ~conforme, "resultado"] = "Não Conforme"
   
+  # >>> ALTERADO: regras explícitas para coliformes totais / E. coli
   df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
-  df.loc[eh_coli & ~conforme_coli, "resultado"] = "Não Conforme"
+  df.loc[eh_coli & nao_conforme_coli, "resultado"] = "Não Conforme"
   
-  # >>> ALTERAÇÃO 2: "alterado" agora é calculado DEPOIS da escrita, comparando
-  # o resultado novo com o original (a linha antiga df["alterado"] = conferir | eh_coli foi removida)
+  # alterado: True só onde o resultado realmente mudou
   df["alterado"] = ~(
       (df["resultado"] == resultado_original)
       | (df["resultado"].isna() & resultado_original.isna())
