@@ -482,7 +482,7 @@ def ler_ajustar_arquivo ():
     # Remove colunas auxiliares e salva
     df_conferido_iqe = df_iqe.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
     
-    iqa_detalhado_iqe = df_conferido_iqe.drop(columns=["alterado"])
+    iqe_detalhado = df_conferido_iqe.drop(columns=["alterado", "entrada_saida"])
 
 
     
@@ -6447,6 +6447,8 @@ def rel_iqa_iqe():
     PLAN_MUN_TIPO_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_PLANO')
 
     AMOSTRAS_REALIZADAS_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_DETALHADO')
+
+    AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.drop(columns=["entrada_saida"])
 
     
     ########################### NOVO #################################################
