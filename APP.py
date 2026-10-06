@@ -257,6 +257,13 @@ def ler_ajustar_arquivo ():
   
   df.loc[conferir & conforme, "resultado"] = "Conforme"
   df.loc[conferir & ~conforme, "resultado"] = "Não Conforme"
+
+
+  # >>> NOVO: análises que não constam no VMPS = Conforme
+  
+  fora_vmps = (df["_merge"] == "left_only") & nao_expurgar
+  df.loc[fora_vmps, "resultado"] = "Conforme"
+
   
   # >>> ALTERADO: regras explícitas para coliformes totais / E. coli
   df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
@@ -542,6 +549,11 @@ def ler_ajustar_arquivo ():
     df_iqe.loc[conferir_iqe & conforme_iqe, "resultado"] = "Conforme"
     df_iqe.loc[conferir_iqe & ~conforme_iqe, "resultado"] = "Não Conforme"
 
+
+    # >>> NOVO: análises que não constam no VMPS = Conforme
+
+    fora_vmps_iqe = (df_iqe["_merge"] == "left_only") & nao_expurgar_iqe
+    df_iqe.loc[fora_vmps_iqe, "resultado"] = "Conforme"
     
 
     # >>> NOVO: remoção de DBO
