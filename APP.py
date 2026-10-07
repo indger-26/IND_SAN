@@ -6744,7 +6744,7 @@ def rel_iqa_iqe():
 
     AMOSTRAS_REALIZADAS_IQE = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQE_DETALHADO')
 
-    AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.drop(columns=["entrada_saida"])
+    # AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.drop(columns=["entrada_saida"])
 
     
     ########################### NOVO #################################################
