@@ -4346,7 +4346,7 @@ def rel_iqa():
         vmps[col] = pd.to_numeric(vmps[col], errors="coerce")
     
     # Merge com indicator para saber quais parâmetros existem no VMPS
-    df = iqa_detalhado.merge(
+    df = AMOSTRAS_REALIZADAS.merge(
         vmps[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
         left_on="analise",
         right_on="PARAMETRO",
@@ -4430,7 +4430,7 @@ def rel_iqa():
     # Remove colunas auxiliares e salva
     df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
     
-    iqa_detalhado = df_conferido.drop(columns=["alterado"])
+    AMOSTRAS_REALIZADAS = df_conferido.drop(columns=["alterado"])
 
 
     
@@ -6625,7 +6625,7 @@ def rel_iqa_iqe():
         vmps[col] = pd.to_numeric(vmps[col], errors="coerce")
     
     # Merge com indicator para saber quais parâmetros existem no VMPS
-    df = iqa_detalhado.merge(
+    df = AMOSTRAS_REALIZADAS.merge(
         vmps[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
         left_on="analise",
         right_on="PARAMETRO",
@@ -6709,90 +6709,10 @@ def rel_iqa_iqe():
     # Remove colunas auxiliares e salva
     df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
     
-    iqa_detalhado = df_conferido.drop(columns=["alterado"])
-
-
-
-
-
-    vmps_iqe = pd.read_excel("VMPS.xlsx", sheet_name="IQE")
-    
-    # Limpeza do VMPS: SV vira NaN (sem limite)
-    for col in ["V_MIN", "V_MAX"]:
-        vmps_iqe[col] = (                                   # >>> CORRIGIDO: era vmps[col]
-            vmps_iqe[col].astype(str).str.strip()           # >>> CORRIGIDO: era vmps[col]
-            .str.replace(",", ".", regex=False)
-            .replace({"SV": None, "sv": None, "nan": None, "": None})
-        )
-        vmps_iqe[col] = pd.to_numeric(vmps_iqe[col], errors="coerce")
-    
-    # Merge com indicator para saber quais parâmetros existem no VMPS
-    df_iqe = iqe_detalhado.merge(
-        vmps_iqe[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
-        left_on="analise",
-        right_on="PARAMETRO",
-        how="left",
-        indicator=True
-    )
-    
-    # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
-    val_num_iqe = pd.to_numeric(df_iqe["valor"], errors="coerce")
-    
-    # Só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
-    nao_expurgar_iqe = df_iqe["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
-    
-    # >>> NOVO: só confere linhas onde entrada_saida seja JUSANTE ou SAIDA
-    # (ignora espaços e maiúsculas/minúsculas)
-    
-    jusante_saida_iqe = (df_iqe["entrada_saida"].map(sem_acento).str.strip().str.upper().isin(["JUSANTE", "SAIDA"]))
-    
-    # ---------- Parâmetros numéricos (VMPS) ----------
-    # >>> ALTERADO: acrescentado o filtro jusante_saida_iqe
-    conferir_iqe = (
-        (df_iqe["_merge"] == "both")
-        & val_num_iqe.notna()
-        & nao_expurgar_iqe
-        & jusante_saida_iqe
-    )
-    
-    # Regra: SV (NaN) = sem limite naquele lado
-    atende_min_iqe = df_iqe["V_MIN"].isna() | (val_num_iqe >= df_iqe["V_MIN"])
-    atende_max_iqe = df_iqe["V_MAX"].isna() | (val_num_iqe <= df_iqe["V_MAX"])
-    conforme_iqe = atende_min_iqe & atende_max_iqe
-    
-    # ---------- Escrita na coluna resultado ----------
-    df_iqe["resultado"] = df_iqe["resultado"].astype(object)
-    resultado_original_iqe = df_iqe["resultado"].copy()
-    
-    df_iqe.loc[conferir_iqe & conforme_iqe, "resultado"] = "Conforme"
-    df_iqe.loc[conferir_iqe & ~conforme_iqe, "resultado"] = "Não Conforme"
-
-
-    # >>> NOVO: análises que não constam no VMPS = Conforme
-
-    fora_vmps_iqe = (df_iqe["_merge"] == "left_only") & nao_expurgar_iqe
-    df_iqe.loc[fora_vmps_iqe, "resultado"] = "Conforme"
-    
-
-    # >>> NOVO: remoção de DBO
-    df_iqe = aplicar_remocao_dbo(df_iqe)
-    
-
-    
-    # alterado: True só onde o resultado realmente mudou
-    df_iqe["alterado"] = ~(
-        (df_iqe["resultado"] == resultado_original_iqe)
-        | (df_iqe["resultado"].isna() & resultado_original_iqe.isna())
-    )
-    
-    # Remove colunas auxiliares e salva
-    df_conferido_iqe = df_iqe.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
-    
-    iqe_detalhado = df_conferido_iqe.drop(columns=["alterado", "entrada_saida"])
+    AMOSTRAS_REALIZADAS = df_conferido.drop(columns=["alterado"])
     
     
 
-    
 
 
     ########################### NOVO #################################################
@@ -6885,6 +6805,89 @@ def rel_iqa_iqe():
     AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.drop(columns=["analise_code", "cidade_code", "ete_code"])
 
     PLAN_MUN_TIPO_IQE = PLAN_MUN_TIPO_IQE.drop(columns=["parametros_code", "cidade_code", "ete_code"])
+
+
+
+
+
+    vmps_iqe = pd.read_excel("VMPS.xlsx", sheet_name="IQE")
+    
+    # Limpeza do VMPS: SV vira NaN (sem limite)
+    for col in ["V_MIN", "V_MAX"]:
+        vmps_iqe[col] = (                                   # >>> CORRIGIDO: era vmps[col]
+            vmps_iqe[col].astype(str).str.strip()           # >>> CORRIGIDO: era vmps[col]
+            .str.replace(",", ".", regex=False)
+            .replace({"SV": None, "sv": None, "nan": None, "": None})
+        )
+        vmps_iqe[col] = pd.to_numeric(vmps_iqe[col], errors="coerce")
+    
+    # Merge com indicator para saber quais parâmetros existem no VMPS
+    df_iqe = AMOSTRAS_REALIZADAS_IQE.merge(
+        vmps_iqe[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
+        left_on="analise",
+        right_on="PARAMETRO",
+        how="left",
+        indicator=True
+    )
+    
+    # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
+    val_num_iqe = pd.to_numeric(df_iqe["valor"], errors="coerce")
+    
+    # Só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
+    nao_expurgar_iqe = df_iqe["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
+    
+    # >>> NOVO: só confere linhas onde entrada_saida seja JUSANTE ou SAIDA
+    # (ignora espaços e maiúsculas/minúsculas)
+    
+    jusante_saida_iqe = (df_iqe["entrada_saida"].map(sem_acento).str.strip().str.upper().isin(["JUSANTE", "SAIDA"]))
+    
+    # ---------- Parâmetros numéricos (VMPS) ----------
+    # >>> ALTERADO: acrescentado o filtro jusante_saida_iqe
+    conferir_iqe = (
+        (df_iqe["_merge"] == "both")
+        & val_num_iqe.notna()
+        & nao_expurgar_iqe
+        & jusante_saida_iqe
+    )
+    
+    # Regra: SV (NaN) = sem limite naquele lado
+    atende_min_iqe = df_iqe["V_MIN"].isna() | (val_num_iqe >= df_iqe["V_MIN"])
+    atende_max_iqe = df_iqe["V_MAX"].isna() | (val_num_iqe <= df_iqe["V_MAX"])
+    conforme_iqe = atende_min_iqe & atende_max_iqe
+    
+    # ---------- Escrita na coluna resultado ----------
+    df_iqe["resultado"] = df_iqe["resultado"].astype(object)
+    resultado_original_iqe = df_iqe["resultado"].copy()
+    
+    df_iqe.loc[conferir_iqe & conforme_iqe, "resultado"] = "Conforme"
+    df_iqe.loc[conferir_iqe & ~conforme_iqe, "resultado"] = "Não Conforme"
+
+
+    # >>> NOVO: análises que não constam no VMPS = Conforme
+
+    fora_vmps_iqe = (df_iqe["_merge"] == "left_only") & nao_expurgar_iqe
+    df_iqe.loc[fora_vmps_iqe, "resultado"] = "Conforme"
+    
+
+    # >>> NOVO: remoção de DBO
+    df_iqe = aplicar_remocao_dbo(df_iqe)
+    
+
+    
+    # alterado: True só onde o resultado realmente mudou
+    df_iqe["alterado"] = ~(
+        (df_iqe["resultado"] == resultado_original_iqe)
+        | (df_iqe["resultado"].isna() & resultado_original_iqe.isna())
+    )
+    
+    # Remove colunas auxiliares e salva
+    df_conferido_iqe = df_iqe.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
+    
+    AMOSTRAS_REALIZADAS_IQE = df_conferido_iqe.drop(columns=["alterado", "entrada_saida"])
+
+
+
+    
 
 
     ########################### NOVO #################################################
