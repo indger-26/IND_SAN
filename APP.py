@@ -6810,6 +6810,80 @@ def rel_iqa_iqe():
 
 
 
+    def sem_acento(s):
+        return "".join(
+            c for c in unicodedata.normalize("NFKD", str(s))
+            if not unicodedata.combining(c)
+        )
+    
+    
+    def aplicar_remocao_dbo(
+        df,
+        col_analise="analise",
+        col_ete="ETE",
+        col_es="entrada_saida",
+        col_valor="valor",
+        col_expurgos="expurgos",
+        chaves_extras=None,        # ex.: ["data_coleta"] para parear entrada/saída da mesma coleta
+        limite_saida=120,          # só aplica se DBO de saída for superior a este valor
+        remocao_minima=0.60,       # 60%
+    ):
+        """
+        Para cada ETE, calcula a remoção de DBO = (entrada - saída) / entrada.
+        Se a DBO de saída for > 120, a linha de SAÍDA recebe:
+          - "Conforme" se remoção >= 60%
+          - "Não Conforme" caso contrário
+        Retorna o df com a coluna 'resultado' atualizada.
+        """
+        df = df.copy()
+        df["resultado"] = df["resultado"].astype(object)
+    
+        chaves = [col_ete] + (chaves_extras or [])
+    
+        # Identificações (ignora acento e caixa)
+        analise_norm = df[col_analise].map(sem_acento).str.strip().str.upper()
+        es_norm = df[col_es].map(sem_acento).str.strip().str.upper()
+    
+        eh_dbo = analise_norm.str.contains(r"\bDBO|DEMANDA BIOQUIMICA", regex=True, na=False)
+        val = pd.to_numeric(df[col_valor], errors="coerce")
+        nao_expurgar = df[col_expurgos].astype(str).str.strip().str.upper() != "EXPURGAR"
+    
+        base = eh_dbo & val.notna() & nao_expurgar
+        eh_entrada = base & (es_norm == "ENTRADA")
+        eh_saida = base & (es_norm == "SAIDA")
+    
+        # DBO de entrada por ETE (média, caso haja mais de uma linha)
+        entrada = (
+            df.loc[eh_entrada, chaves]
+            .assign(dbo_entrada=val[eh_entrada])
+            .groupby(chaves, dropna=False, as_index=False)["dbo_entrada"].mean()
+        )
+    
+        # Traz a DBO de entrada para cada linha (alinhado pelo índice original)
+        dbo_entrada = df[chaves].merge(entrada, on=chaves, how="left")["dbo_entrada"]
+        dbo_entrada.index = df.index
+    
+        # Remoção
+        remocao = (dbo_entrada - val) / dbo_entrada
+    
+        # Linhas de saída onde a regra vale
+        aplicar = (
+            eh_saida
+            & (val > limite_saida)
+            & dbo_entrada.notna()
+            & (dbo_entrada > 0)
+        )
+    
+        df.loc[aplicar & (remocao >= remocao_minima), "resultado"] = "Conforme"
+        df.loc[aplicar & (remocao < remocao_minima), "resultado"] = "Não Conforme"
+    
+        return df
+
+
+
+
+
+
     vmps_iqe = pd.read_excel("VMPS.xlsx", sheet_name="IQE")
     
     # Limpeza do VMPS: SV vira NaN (sem limite)
