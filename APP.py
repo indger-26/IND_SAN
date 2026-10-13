@@ -399,6 +399,8 @@ def ler_ajustar_arquivo ():
 
   plano_totais_saa = (plano_completo.groupby("SAA", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum())
 
+  
+
   if mes != "November" and mes != "February" and mes != "May" and mes != "August":
 
     iqe_prest = "x"
@@ -410,6 +412,8 @@ def ler_ajustar_arquivo ():
     plano_iqe_totais_parametros = "x"
     iqe_detalhado2 = "x"
     df_conferido_iqe = "x"
+    iua_iue_economias = "x"
+    iua_iue_evte = "x"
 
 
 
@@ -643,11 +647,31 @@ def ler_ajustar_arquivo ():
     plano_iqe_totais_ete = (plano_iqe_completo.groupby("ETE", as_index=False)[["plano", "desconsideracoes_arsal"]].sum())
 
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe
+    # IUA - IUE
+
+    if mes == "August":
+
+      iua_iue_economias = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_ECONOMIAS")
+      iua_iue_evte = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_EVTE")
+    
+      iua_iue_economias["Municipio"] = (
+        iua_iue_economias["municipio_code"]
+        .map(mapa_municipio_padrao)
+        .fillna(iua_iue_economias["Municipio"])
+      )
+    
+      iua_iue_evte["Municipio"] = (
+        iua_iue_economias["municipio_code"]
+        .map(mapa_municipio_padrao)
+        .fillna(iua_iue_economias["Municipio"])
+      )
+
+
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte
 
   else:
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte
 
 
 
@@ -655,7 +679,7 @@ def ler_ajustar_arquivo ():
 
 # ELABORAÇÃO DAS TABELAS ALIMENTADAS AO BANCO DE DADOS
 
-def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2):
+def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte):
 
 
   # IQA
@@ -1557,7 +1581,99 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
     axis=1
     )
 
-    return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final
+
+    iua_iue_analise = "x"
+
+
+    # IUA - IUE
+
+    if mes == "August":
+
+      # Padronizar os status (evita problemas com acento, espaço e caixa)
+      
+      status_validos = ["ATIVA", "DISPONIVEL", "INATIVA"]
+      
+      def padroniza(s):
+          return (s.astype(str)
+                   .str.strip()
+                   .str.upper()
+                   .str.normalize("NFKD")
+                   .str.encode("ascii", errors="ignore")
+                   .str.decode("utf-8"))
+      
+      df = iua_iue_economias.copy()
+      df["UA_pad"] = padroniza(df["UA"])
+      df["UE_pad"] = padroniza(df["UE"])
+      df["Municipio"] = padroniza(df["Municipio"])
+
+      
+      # Garantir que N Economias seja numérico
+      
+      df["N Economias"] = pd.to_numeric(df["N Economias"], errors="coerce").fillna(0)
+
+      
+      # E potencial por município
+      
+      df = df[padroniza(df["Integra_area_concessao?"]).isin(["SIM", "S", "TRUE", "1"])]
+      
+      pot_agua = (df[df["UA_pad"].isin(status_validos)]
+                  .groupby("Municipio", as_index=False)["N Economias"]
+                  .sum()
+                  .rename(columns={"N Economias": "E potencial agua"}))
+      
+      pot_esgoto = (df[df["UE_pad"].isin(status_validos)]
+                    .groupby("Municipio", as_index=False)["N Economias"]
+                    .sum()
+                    .rename(columns={"N Economias": "E potencial esgoto"}))
+      
+      potenciais = pot_agua.merge(pot_esgoto, on="Municipio", how="outer")
+
+      
+      # Preparar EVTE
+      
+      evte = iau_iue_evte.copy()
+      evte["Municipio"] = padroniza(evte["Municipio"])
+      evte = evte.rename(columns={
+          "E total água (EVTE)": "E total agua",
+          "E total esgoto (EVTE)": "E total esgoto",
+      })[["Municipio", "E total agua", "E total esgoto"]]
+
+      
+      # Juntar (apenas por nome do município)
+      
+      iua_iue_analise = evte.merge(potenciais, on="Municipio", how="outer")
+
+      
+      # Índices
+      
+      iua_iue_analise[["E potencial agua", "E potencial esgoto"]] = (
+          iua_iue_analise[["E potencial agua", "E potencial esgoto"]].fillna(0)
+      )
+      
+      iua_iue_analise["IUA"] = np.where(
+          iua_iue_analise["E total agua"] > 0,
+          iua_iue_analise["E potencial agua"] / iua_iue_analise["E total agua"],
+          np.nan,
+      )
+      iua_iue_analise["IUE"] = np.where(
+          iua_iue_analise["E total esgoto"] > 0,
+          iua_iue_analise["E potencial esgoto"] / iua_iue_analise["E total esgoto"],
+          np.nan,
+      )
+
+      
+      # Colunas finais
+      
+      iua_iue_analise = iua_iue_analise[[
+          "Municipio",
+          "E potencial agua", "E total agua", "IUA",
+          "E potencial esgoto", "E total esgoto", "IUE",
+      ]].sort_values("Municipio").reset_index(drop=True)
+
+    
+    
+
+    return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise
 
   else:
 
@@ -7043,14 +7159,14 @@ def rel_iqa_iqe():
 def MAIN ():
 
     
-  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe = ler_ajustar_arquivo ()
+  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte = ler_ajustar_arquivo ()
     
   
   print (plano_iqe_totais_parametros)
 
   if mes == "November" or mes == "February" or mes == "May" or mes == "August":
 
-    realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2)
+    realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
 
     print (realizados)
     print (parametros)
@@ -7058,7 +7174,7 @@ def MAIN ():
     print (plano_final)
     print (iqa_final)
 
-    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual)
+    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes)
     nc_nr (prestadora_sigla, mes)
@@ -7082,7 +7198,7 @@ def MAIN ():
     plano_final_iqe = 0
     iqe_final = 0
 
-    realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2)
+    realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes)
