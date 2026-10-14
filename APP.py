@@ -316,6 +316,15 @@ def ler_ajustar_arquivo ():
     iqe_vi = float(infos_gerais.iloc[21, 1])
     iqe_meta = float(infos_gerais.iloc[22, 1])
 
+    iua_prest = float(infos_gerais.iloc[29, 1])
+    iua_vi = float(infos_gerais.iloc[32, 1])
+    iua_meta = float(infos_gerais.iloc[33, 1])
+
+    iue_prest = float(infos_gerais.iloc[38, 1])
+    iue_vi = float(infos_gerais.iloc[41, 1])
+    iue_meta = float(infos_gerais.iloc[42, 1])
+    
+
   
   
   # TRATAMENTO - IQA
@@ -414,6 +423,12 @@ def ler_ajustar_arquivo ():
     df_conferido_iqe = "x"
     iua_iue_economias = "x"
     iua_iue_evte = "x"
+    iua_prest = "x"
+    iua_vi = "x"
+    iua_meta = "x"
+    iue_prest = "x"
+    iue_vi = "x"
+    iue_meta = "x"
 
 
 
@@ -667,11 +682,11 @@ def ler_ajustar_arquivo ():
       )
 
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta
 
   else:
 
-    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte
+    return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta
 
 
 
@@ -1601,70 +1616,131 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
                    .str.encode("ascii", errors="ignore")
                    .str.decode("utf-8"))
       
-      df = iua_iue_economias.copy()
-      df["UA_pad"] = padroniza(df["UA"])
-      df["UE_pad"] = padroniza(df["UE"])
-      df["Municipio"] = padroniza(df["Municipio"])
+      df_vi = iua_iue_economias.copy()
+      df_arsal = iua_iue_economias.copy()
+      
+      df_vi["UA_pad"] = padroniza(df_vi["UA - VI"])
+      df_vi["UE_pad"] = padroniza(df_vi["UE - VI"])
+      df_vi["Municipio"] = padroniza(df_vi["Municipio"])
+
+      df_arsal["UA_pad"] = padroniza(df_arsal["UA - ARSAL"])
+      df_arsal["UE_pad"] = padroniza(df_arsal["UE - ARSAL"])
+      df_arsal["Municipio"] = padroniza(df_arsal["Municipio"])
 
       
       # Garantir que N Economias seja numérico
       
-      df["N Economias"] = pd.to_numeric(df["N Economias"], errors="coerce").fillna(0)
+      df_vi["N Economias - VI"] = pd.to_numeric(df_vi["N Economias - VI"], errors="coerce").fillna(0)
+
+      df_arsal["N Economias - ARSAL"] = pd.to_numeric(df_arsal["N Economias - ARSAL"], errors="coerce").fillna(0)
+
 
       
       # E potencial por município
       
-      df = df[padroniza(df["Integra_area_concessao?"]).isin(["SIM", "S", "TRUE", "1"])]
+      df_vi = df_vi[padroniza(df_vi["Integra_area_concessao?"]).isin(["SIM", "S", "TRUE", "1"])]
       
-      pot_agua = (df[df["UA_pad"].isin(status_validos)]
-                  .groupby("Municipio", as_index=False)["N Economias"]
+      pot_agua_vi = (df_vi[df_vi["UA_pad"].isin(status_validos)]
+                  .groupby("Municipio", as_index=False)["N Economias - VI"]
                   .sum()
-                  .rename(columns={"N Economias": "E potencial agua"}))
+                  .rename(columns={"N Economias - VI": "E potencial agua - VI"}))
       
-      pot_esgoto = (df[df["UE_pad"].isin(status_validos)]
-                    .groupby("Municipio", as_index=False)["N Economias"]
+      pot_esgoto_vi = (df_vi[df_vi["UE_pad"].isin(status_validos)]
+                    .groupby("Municipio", as_index=False)["N Economias - VI"]
                     .sum()
-                    .rename(columns={"N Economias": "E potencial esgoto"}))
+                    .rename(columns={"N Economias - VI": "E potencial esgoto - VI"}))
       
-      potenciais = pot_agua.merge(pot_esgoto, on="Municipio", how="outer")
+      potenciais_vi = pot_agua_vi.merge(pot_esgoto_vi, on="Municipio", how="outer")
+
+
+      
+      df_arsal = df_arsal[padroniza(df_arsal["Integra_area_concessao?"]).isin(["SIM", "S", "TRUE", "1"])]
+      
+      pot_agua_arsal = (df_arsal[df_arsal["UA_pad"].isin(status_validos)]
+                  .groupby("Municipio", as_index=False)["N Economias - ARSAL"]
+                  .sum()
+                  .rename(columns={"N Economias - ARSAL": "E potencial agua - ARSAL"}))
+      
+      pot_esgoto_arsal = (df_arsal[df_arsal["UE_pad"].isin(status_validos)]
+                    .groupby("Municipio", as_index=False)["N Economias - ARSAL"]
+                    .sum()
+                    .rename(columns={"N Economias - ARSAL": "E potencial esgoto - ARSAL"}))
+      
+      potenciais_arsal = pot_agua_arsal.merge(pot_esgoto_arsal, on="Municipio", how="outer")
 
       
       # Preparar EVTE
       
-      evte = iau_iue_evte.copy()
-      evte["Municipio"] = padroniza(evte["Municipio"])
-      evte = evte.rename(columns={
-          "E total água (EVTE)": "E total agua",
-          "E total esgoto (EVTE)": "E total esgoto",
+      evte_vi = iau_iue_evte.copy()
+      evte_vi["Municipio"] = padroniza(evte_vi["Municipio"])
+      evte_vi = evte_vi.rename(columns={
+          "E total água (EVTE) - VI": "E total agua",
+          "E total esgoto (EVTE) - VI": "E total esgoto",
+      })[["Municipio", "E total agua", "E total esgoto"]]
+
+
+      evte_arsal = iau_iue_evte.copy()
+      evte_arsal["Municipio"] = padroniza(evte_arsal["Municipio"])
+      evte_arsal = evte_arsal.rename(columns={
+          "E total água (EVTE) - ARSAL": "E total agua",
+          "E total esgoto (EVTE) - ARSAL": "E total esgoto",
       })[["Municipio", "E total agua", "E total esgoto"]]
 
       
       # Juntar (apenas por nome do município)
       
-      iua_iue_analise = evte.merge(potenciais, on="Municipio", how="outer")
+      iua_iue_analise_vi = evte_vi.merge(potenciais_vi, on="Municipio", how="outer")
+
+      iua_iue_analise_arsal = evte_arsal.merge(potenciais_arsal, on="Municipio", how="outer")
 
       
       # Índices
       
-      iua_iue_analise[["E potencial agua", "E potencial esgoto"]] = (
-          iua_iue_analise[["E potencial agua", "E potencial esgoto"]].fillna(0)
+      iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]] = (
+          iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]].fillna(0)
       )
       
-      iua_iue_analise["IUA"] = np.where(
-          iua_iue_analise["E total agua"] > 0,
-          iua_iue_analise["E potencial agua"] / iua_iue_analise["E total agua"],
+      iua_iue_analise_vi["IUA"] = np.where(
+          iua_iue_analise_vi["E total agua"] > 0,
+          iua_iue_analise_vi["E potencial agua"] / iua_iue_analise_vi["E total agua"],
           np.nan,
       )
-      iua_iue_analise["IUE"] = np.where(
-          iua_iue_analise["E total esgoto"] > 0,
-          iua_iue_analise["E potencial esgoto"] / iua_iue_analise["E total esgoto"],
+      iua_iue_analise_vi["IUE"] = np.where(
+          iua_iue_analise_vi["E total esgoto"] > 0,
+          iua_iue_analise_vi["E potencial esgoto"] / iua_iue_analise_vi["E total esgoto"],
           np.nan,
       )
+
+
+      
+      iua_iue_analise_arsal[["E potencial agua", "E potencial esgoto"]] = (
+          iua_iue_analise_arsal[["E potencial agua", "E potencial esgoto"]].fillna(0)
+      )
+      
+      iua_iue_analise_arsal["IUA"] = np.where(
+          iua_iue_analise_arsal["E total agua"] > 0,
+          iua_iue_analise_arsal["E potencial agua"] / iua_iue_analise_arsal["E total agua"],
+          np.nan,
+      )
+      iua_iue_analise_arsal["IUE"] = np.where(
+          iua_iue_analise_arsal["E total esgoto"] > 0,
+          iua_iue_analise_arsal["E potencial esgoto"] / iua_iue_analise_arsal["E total esgoto"],
+          np.nan,
+      )
+
 
       
       # Colunas finais
       
-      iua_iue_analise = iua_iue_analise[[
+      iua_iue_analise_vi = iua_iue_analise_vi[[
+          "Municipio",
+          "E potencial agua", "E total agua", "IUA",
+          "E potencial esgoto", "E total esgoto", "IUE",
+      ]].sort_values("Municipio").reset_index(drop=True)
+
+
+
+      iua_iue_analise_arsal = iua_iue_analise_arsal[[
           "Municipio",
           "E potencial agua", "E total agua", "IUA",
           "E potencial esgoto", "E total esgoto", "IUE",
@@ -1673,7 +1749,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
     
     
 
-    return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise
+    return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal
 
   else:
 
@@ -1685,7 +1761,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
 # ATUALIZAÇÃO DO BANCO DE DADOS
 
-def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual):
+def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta):
 
   prestadora_iqa = prestadora_sigla + '_IQA'
 
@@ -1820,7 +1896,7 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
 
     resposta_iqe = supabase.table(prestadora_iqe).select("*").execute()
 
-    df_iqe = pd.DataFrame(resposta.data)
+    df_iqe = pd.DataFrame(resposta_iqe.data)
 
     prestadora_detalhado_iqe = prestadora_sigla + '_IQE_DETALHADO'
     prestadora_realizados_iqe = prestadora_sigla + '_IQE_REALIZADOS'
@@ -1924,6 +2000,51 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
         supabase.table(prestadora_mun_iqe).insert(mun_iqe.to_dict(orient="records")).execute()
         supabase.table(prestadora_plano_iqe).insert(plano_final_iqe.to_dict(orient="records")).execute()
         supabase.table(prestadora_iqe).insert(iqe_final.to_dict(orient="records")).execute()
+
+    if mes == "August":
+
+
+      prestadora_iua_iue = 'IUA_IUE_ANALISE_'+ prestadora_sigla
+  
+      resposta_iua_iue = supabase.table(prestadora_iua_iue).select("*").execute()
+  
+      df_iua_iue = pd.DataFrame(resposta_iua_iue.data)
+  
+      resposta_iua_iue = (
+          supabase
+          .table(prestadora_iua_iue)
+          .select("id")
+          .eq("ano_contratual", ano_contratual)
+          .execute()
+      )
+  
+      if resposta_iua_iue.data:
+  
+          (
+              supabase
+              .table(prestadora_iua_iue)
+              .delete()
+              .eq("ano_contratual", ano_contratual)
+              .execute()
+          )
+    
+          iua_iue_analise_arsal = iua_iue_analise_arsal.astype(object).where(pd.notnull(iua_iue_analise_arsal), None)
+
+          supabase.table(prestadora_iua_iue).insert(iua_iue_analise_arsal.to_dict(orient="records")).execute()
+
+  
+          vacuum_full_tabelas([prestadora_iua_iue])
+
+          ##### CRIAR OUTRA TABLEA COM O RESULTADO SOMADO
+  
+  
+      else:
+  
+          iua_iue_analise_arsal = iua_iue_analise_arsal.astype(object).where(pd.notnull(iua_iue_analise_arsal), None)
+  
+          supabase.table(prestadora_iua_iue).insert(iua_iue_analise_arsal.to_dict(orient="records")).execute()
+
+          ##### CRIAR OUTRA TABLEA COM O RESULTADO SOMADO
 
 
 
@@ -4968,7 +5089,43 @@ def rel_iqa_iqe():
     FONT_NCONF_IQE = TAB_INFO ["INFORMAÇÃO"][25]
     ACREDITAÇÃO_IQE = TAB_INFO ["INFORMAÇÃO"][26]
 
-    return (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITAÇÃO_IQE, MESMIN_ANO)
+
+    EPOT_P_IUA = TAB_INFO ["INFORMAÇÃO"][27]
+    ETOT_P_IUA = TAB_INFO ["INFORMAÇÃO"][28]
+    IUA_P = TAB_INFO ["INFORMAÇÃO"][29]
+
+    EPOT_VI_IUA = TAB_INFO ["INFORMAÇÃO"][30]
+    ETOT_VI_IUA = TAB_INFO ["INFORMAÇÃO"][31]
+    IUA_VI = TAB_INFO ["INFORMAÇÃO"][32]
+
+    META_IUA = TAB_INFO ["INFORMAÇÃO"][33]
+    META_IUA = float(META_IUA)
+    META_IUA = "100%" if META_IUA >= 1 else f"{META_IUA*100:.1f}%".replace('.', ',').rstrip('0').rstrip(',')
+
+    FONTE_EPOT_IUA = TAB_INFO ["INFORMAÇÃO"][34]
+    FONTE_ETOT_IUA = TAB_INFO ["INFORMAÇÃO"][35]
+
+
+    
+    EPOT_P_IUE = TAB_INFO ["INFORMAÇÃO"][36]
+    ETOT_P_IUE = TAB_INFO ["INFORMAÇÃO"][37]
+    IUE_P = TAB_INFO ["INFORMAÇÃO"][38]
+
+    EPOT_VI_IUE = TAB_INFO ["INFORMAÇÃO"][39]
+    ETOT_VI_IUE = TAB_INFO ["INFORMAÇÃO"][40]
+    IUE_VI = TAB_INFO ["INFORMAÇÃO"][41]
+
+    META_IUE = TAB_INFO ["INFORMAÇÃO"][42]
+    META_IUE = float(META_IUE)
+    META_IUE = "100%" if META_IUE >= 1 else f"{META_IUE*100:.1f}%".replace('.', ',').rstrip('0').rstrip(',')
+
+    FONTE_EPOT_IUE = TAB_INFO ["INFORMAÇÃO"][43]
+    FONTE_ETOT_IUE = TAB_INFO ["INFORMAÇÃO"][44]
+
+
+    
+
+    return (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITAÇÃO_IQE, MESMIN_ANO, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA, FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE)
 
 
 
@@ -7159,14 +7316,14 @@ def rel_iqa_iqe():
 def MAIN ():
 
     
-  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte = ler_ajustar_arquivo ()
+  prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta = ler_ajustar_arquivo ()
     
   
   print (plano_iqe_totais_parametros)
 
   if mes == "November" or mes == "February" or mes == "May" or mes == "August":
 
-    realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
+    realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
 
     print (realizados)
     print (parametros)
@@ -7174,7 +7331,7 @@ def MAIN ():
     print (plano_final)
     print (iqa_final)
 
-    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise)
+    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes)
     nc_nr (prestadora_sigla, mes)
@@ -7197,9 +7354,16 @@ def MAIN ():
     mun_iqe = 0
     plano_final_iqe = 0
     iqe_final = 0
+    iua_iue_analise_arsal = 0
+    iua_prest = 0
+    iua_vi = 0
+    iua_meta = 0
+    iue_prest = 0
+    iue_vi = 0
+    iue_meta = 0
 
     realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
-    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual)
+    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes)
     nc_nr (prestadora_sigla, mes)
