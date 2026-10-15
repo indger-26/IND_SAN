@@ -2161,6 +2161,8 @@ def backup_bd (prestadora_sigla):
       "BRK_IQE_MUN",
       "BRK_IQE_PLANO",
       "BRK_IQE",
+      "IUA_IUE_BRK",
+      "IUA_IUE_ANALISE_BRK",
     ]
 
   if prestadora_sigla == "ADS":
@@ -2179,6 +2181,8 @@ def backup_bd (prestadora_sigla):
       "ADS_IQE_MUN",
       "ADS_IQE_PLANO",
       "ADS_IQE",
+      "IUA_IUE_ADS",
+      "IUA_IUE_ANALISE_ADS",
     ]
 
   if prestadora_sigla == "VAA":
@@ -2197,6 +2201,8 @@ def backup_bd (prestadora_sigla):
       "VAA_IQE_MUN",
       "VAA_IQE_PLANO",
       "VAA_IQE",
+      "IUA_IUE_VAA",
+      "IUA_IUE_ANALISE_VAA",
     ]
 
   # TABELAS = [
@@ -7418,8 +7424,8 @@ def MAIN ():
 
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
-    graf_iqa_iqe (prestadora_sigla, mes)
-    nc_nr (prestadora_sigla, mes)
+    graf_iqa_iqe (prestadora_sigla, mes) # TEMPORAIS
+    nc_nr (prestadora_sigla, mes) # TEMPORAIS
     nome_arq = rel_iqa_iqe()
 
     return nome_arq, df_conferido, df_conferido_iqe
@@ -7450,8 +7456,8 @@ def MAIN ():
     realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
-    graf_iqa_iqe (prestadora_sigla, mes)
-    nc_nr (prestadora_sigla, mes)
+    graf_iqa_iqe (prestadora_sigla, mes) # TEMPORAIS
+    nc_nr (prestadora_sigla, mes) # TEMPORAIS
     nome_arq = rel_iqa()
 
     return nome_arq, df_conferido, df_conferido_iqe
