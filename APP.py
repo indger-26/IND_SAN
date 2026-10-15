@@ -2005,10 +2005,11 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
 
 
       prestadora_iua_iue = 'IUA_IUE_ANALISE_'+ prestadora_sigla
+      prestadora_iua_iue_final = 'IUA_IUE_'+ prestadora_sigla
   
-      resposta_iua_iue = supabase.table(prestadora_iua_iue).select("*").execute()
+      # resposta_iua_iue = supabase.table(prestadora_iua_iue).select("*").execute()
   
-      df_iua_iue = pd.DataFrame(resposta_iua_iue.data)
+      # df_iua_iue = pd.DataFrame(resposta_iua_iue.data)
   
       resposta_iua_iue = (
           supabase
@@ -2027,16 +2028,62 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
               .eq("ano_contratual", ano_contratual)
               .execute()
           )
+
+          (
+              supabase
+              .table(prestadora_iua_iue_final)
+              .delete()
+              .eq("ano_contratual", ano_contratual)
+              .execute()
+          )
     
           iua_iue_analise_arsal = iua_iue_analise_arsal.astype(object).where(pd.notnull(iua_iue_analise_arsal), None)
-
           supabase.table(prestadora_iua_iue).insert(iua_iue_analise_arsal.to_dict(orient="records")).execute()
 
-  
           vacuum_full_tabelas([prestadora_iua_iue])
 
-          ##### CRIAR OUTRA TABLEA COM O RESULTADO SOMADO
-  
+          # Agrega por ano contratual (soma das colunas de energia)
+
+          iua_iue_arsal = (
+              iua_iue_analise_arsal.groupby("ano_contratual", as_index=False)
+                .agg(
+                    e_potencial_agua=("e_potencial_agua", "sum"),
+                    e_total_agua=("e_total_agua", "sum"),
+                    e_potencial_esgoto=("e_potencial_esgoto", "sum"),
+                    e_total_esgoto=("e_total_esgoto", "sum"),
+                )
+          )
+          
+          # IUA e IUE = razão das somas (não a soma/média dos índices)
+          # Se e_potencial = 0, retorna NaN para evitar divisão por zero
+          iua_iue_arsal["iua"] = iua_iue_arsal["e_total_agua"] / iua_iue_arsal["e_potencial_agua"].replace(0, np.nan)
+          iua_iue_arsal["iue"] = iua_iue_arsal["e_total_esgoto"] / iua_iue_arsal["e_potencial_esgoto"].replace(0, np.nan)
+          
+          # Novas colunas (vazias por enquanto, para preencher depois)
+          iua_iue_arsal["iua_vi"] = iua_vi
+          iua_iue_arsal["iua_prest"] = iua_prest
+          iua_iue_arsal["iua_meta"] = iua_meta
+          iua_iue_arsal["iue_vi"] = iue_vi
+          iua_iue_arsal["iue_prest"] = iue_prest
+          iua_iue_arsal["iue_meta"] = iue_meta
+          
+          # Ordem final das colunas
+          iua_iue_arsal = iua_iue_arsal[
+              [
+                  "ano_contratual",
+                  "e_potencial_agua", "e_total_agua",
+                  "iua", "iua_vi", "iua_prest", "iua_meta",
+                  "e_potencial_esgoto", "e_total_esgoto",
+                  "iue", "iue_vi", "iue_prest", "iue_meta",
+              ]
+          ]
+        
+          iua_iue_arsal = iua_iue_arsal.astype(object).where(pd.notnull(iua_iue_arsal), None)
+          supabase.table(prestadora_iua_iue_final).insert(iua_iue_arsal.to_dict(orient="records")).execute()
+
+          vacuum_full_tabelas([prestadora_iua_iue_final])
+
+      
   
       else:
   
@@ -2044,7 +2091,45 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
   
           supabase.table(prestadora_iua_iue).insert(iua_iue_analise_arsal.to_dict(orient="records")).execute()
 
-          ##### CRIAR OUTRA TABLEA COM O RESULTADO SOMADO
+        
+          # Agrega por ano contratual (soma das colunas de energia)
+
+          iua_iue_arsal = (
+              iua_iue_analise_arsal.groupby("ano_contratual", as_index=False)
+                .agg(
+                    e_potencial_agua=("e_potencial_agua", "sum"),
+                    e_total_agua=("e_total_agua", "sum"),
+                    e_potencial_esgoto=("e_potencial_esgoto", "sum"),
+                    e_total_esgoto=("e_total_esgoto", "sum"),
+                )
+          )
+          
+          # IUA e IUE = razão das somas (não a soma/média dos índices)
+          # Se e_potencial = 0, retorna NaN para evitar divisão por zero
+          iua_iue_arsal["iua"] = iua_iue_arsal["e_total_agua"] / iua_iue_arsal["e_potencial_agua"].replace(0, np.nan)
+          iua_iue_arsal["iue"] = iua_iue_arsal["e_total_esgoto"] / iua_iue_arsal["e_potencial_esgoto"].replace(0, np.nan)
+          
+          # Novas colunas (vazias por enquanto, para preencher depois)
+          iua_iue_arsal["iua_vi"] = iua_vi
+          iua_iue_arsal["iua_prest"] = iua_prest
+          iua_iue_arsal["iua_meta"] = iua_meta
+          iua_iue_arsal["iue_vi"] = iue_vi
+          iua_iue_arsal["iue_prest"] = iue_prest
+          iua_iue_arsal["iue_meta"] = iue_meta
+          
+          # Ordem final das colunas
+          iua_iue_arsal = iua_iue_arsal[
+              [
+                  "ano_contratual",
+                  "e_potencial_agua", "e_total_agua",
+                  "iua", "iua_vi", "iua_prest", "iua_meta",
+                  "e_potencial_esgoto", "e_total_esgoto",
+                  "iue", "iue_vi", "iue_prest", "iue_meta",
+              ]
+          ]
+        
+          iua_iue_arsal = iua_iue_arsal.astype(object).where(pd.notnull(iua_iue_arsal), None)
+          supabase.table(prestadora_iua_iue_final).insert(iua_iue_arsal.to_dict(orient="records")).execute()
 
 
 
