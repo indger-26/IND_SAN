@@ -2359,10 +2359,11 @@ def enviar_backup_storage(caminho_arquivo, nome_arquivo):
     # 4.1 IQAs / IQEs
 
 
-def graf_iqa_iqe (prestadora_sigla, mes):
+def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
   nome_tabela_iqa = prestadora_sigla + "_IQA"
   nome_tabela_iqe = prestadora_sigla + "_IQE"
+  nome_tabela_iua_iue = "IUA_IUE_" + prestadora_sigla
   col_prest = 'iqa_' + prestadora_sigla.lower()
   col_prest_iqe = 'iqe_' + prestadora_sigla.lower()
 
@@ -2931,6 +2932,136 @@ def graf_iqa_iqe (prestadora_sigla, mes):
       traceback.print_exc()
 
 
+    # IUA_IUE
+
+    if mes == "August":
+
+      # Cores (mesmas do gráfico de IQA)
+      cor_arsal = '#0878E8'
+      cor_prest   = '#9A9D17'
+      cor_vi    = '#EC008C'
+      cor_meta  = '#333333'
+      
+      QTD_ANOS = 6  # quantidade máxima de anos contratuais exibidos (None = todos)
+      
+      
+      def chave_ano(texto):
+          """Ordena 'ano_contratual' (text) pelo primeiro número de 4 dígitos. Ex.: '2023/2024' -> 2023"""
+          m = re.search(r"\d{4}", str(texto))
+          return int(m.group()) if m else -1
+      
+      
+      def gerar_grafico(df, indicador, prest_label="ADS", arq=None):
+          """
+          indicador: 'iua' ou 'iue'
+          Colunas usadas: {indicador}, {indicador}_prest, {indicador}_vi, {indicador}_meta
+          """
+          col_arsal = indicador
+          col_prest = f"{indicador}_prest"
+          col_vi    = f"{indicador}_vi"
+          col_meta  = f"{indicador}_meta"
+          nome = indicador.upper()
+      
+          d = df[["ano_contratual", col_arsal, col_prest, col_vi, col_meta]].copy()
+      
+          # Ordena cronologicamente e pega os últimos anos
+          d["_ord"] = d["ano_contratual"].apply(chave_ano)
+          d = d.sort_values("_ord").drop(columns="_ord")
+      
+          if QTD_ANOS:
+              d = d.tail(QTD_ANOS)
+      
+          if d.empty:
+              print(f"❌ Nenhum dado para {nome}!")
+              return
+      
+          print(f"{nome} - anos contratuais: {d['ano_contratual'].tolist()}")
+      
+          # Converte para número (mantém NaN para não plotar barra/ponto inexistente)
+          for c in [col_arsal, col_prest, col_vi, col_meta]:
+              d[c] = pd.to_numeric(d[c], errors="coerce")
+      
+          labels = d["ano_contratual"].astype(str).tolist()
+          x = np.arange(len(labels))
+          width = 0.25
+      
+          fig, ax = plt.subplots(figsize=(12, 4.5))
+      
+          barras1 = ax.bar(x - width, d[col_arsal], width, label=f"{nome} - Arsal",
+                           color=cor_arsal, edgecolor="white", linewidth=0.8)
+          barras2 = ax.bar(x, d[col_prest], width, label=f"{nome} - {prest_label}",
+                           color=cor_prest, edgecolor="white", linewidth=0.8)
+          barras3 = ax.bar(x + width, d[col_vi], width, label=f"{nome} - VI",
+                           color=cor_vi, edgecolor="white", linewidth=0.8)
+      
+          # Meta como linha tracejada
+          ax.plot(x, d[col_meta], label=f"{nome} - Meta", color=cor_meta,
+                  linestyle="--", linewidth=1.5, marker="o", markersize=5)
+      
+          # Eixo Y dinâmico (os índices podem passar de 1)
+          ymax = np.nanmax(d[[col_arsal, col_prest, col_vi, col_meta]].to_numpy(dtype=float))
+          ymax = 1.0 if np.isnan(ymax) else ymax
+          ax.set_ylim(0, ymax * 1.15)
+      
+          ax.set_xticks(x)
+          ax.set_xticklabels(labels, fontsize=10)
+      
+          ax.legend(loc="upper left", bbox_to_anchor=(0, 1.12), ncol=4,
+                    frameon=False, fontsize=10)
+      
+          ax.grid(axis="y", linestyle="-", linewidth=0.7, alpha=0.35)
+          ax.set_axisbelow(True)
+          ax.spines["top"].set_visible(False)
+          ax.spines["right"].set_visible(False)
+          ax.set_xlabel("")
+          ax.set_ylabel("")
+          ax.tick_params(axis="both", length=0)
+      
+          def colocar_valores(barras):
+              for barra in barras:
+                  altura = barra.get_height()
+                  if pd.notnull(altura) and altura > 0:
+                      ax.text(
+                          barra.get_x() + barra.get_width() / 2,
+                          altura + ymax * 0.01,
+                          f"{altura:.2f}".replace(".", ","),
+                          ha="center", va="bottom", fontsize=10.0
+                      )
+      
+          colocar_valores(barras1)
+          colocar_valores(barras2)
+          colocar_valores(barras3)
+      
+          plt.tight_layout()
+      
+          os.makedirs("graficos", exist_ok=True)
+          nome_arquivo = arq or "{nome}.png"
+          plt.savefig(nome_arquivo, dpi=300, bbox_inches="tight", format="png")
+          print(f"✅ Gráfico salvo: {nome_arquivo}")
+      
+          plt.show()
+      
+      
+      # ---------------- Execução ----------------
+      try:
+          response = supabase.table(nome_tabela_iua_iue).select(
+              "ano_contratual, iua, iua_vi, iua_prest, iua_meta, "
+              "iue, iue_vi, iue_prest, iue_meta"
+          ).execute()
+      
+          df_iua_iue_graf = pd.DataFrame(response.data)
+      
+          if df_iua_iue_graf.empty:
+              print("❌ Nenhum dado encontrado!")
+          else:
+              gerar_grafico(df_iua_iue_graf, "iua")
+              gerar_grafico(df_iua_iue_graf, "iue")
+      
+      except Exception as e:
+          print(f"❌ Erro: {e}")
+          traceback.print_exc()
+
+
 
     # 4.2 Nam conf x Nam realiz
 
@@ -2938,6 +3069,7 @@ def nc_nr(prestadora_sigla, mes):
 
   nome_tabela_iqa = prestadora_sigla + "_IQA"
   nome_tabela_iqe = prestadora_sigla + "_IQE"
+  nome_tabela_iua_iue = "IUA_IUE_" + prestadora_sigla
 
     
   # IQA
@@ -3476,6 +3608,155 @@ def nc_nr(prestadora_sigla, mes):
         traceback.print_exc()
 
 
+    
+    if mes == "August":
+
+      cor_potencial = '#0878E8'
+      cor_total = '#9A9D17'
+  
+      QTD_ANOS = 6  # quantidade máxima de anos contratuais exibidos (None = todos)
+  
+      def chave_ano(texto):
+          """Ordena 'ano_contratual' (text) pelo primeiro número de 4 dígitos. Ex.: '2023/2024' -> 2023"""
+          m = re.search(r"\d{4}", str(texto))
+          return int(m.group()) if m else -1
+  
+      def formatar_numero(valor):
+          """12345.6 -> '12.346' (padrão brasileiro)"""
+          return f'{valor:,.0f}'.replace(',', '.')
+  
+      def gerar_grafico_parametros(df, col_potencial, col_total, titulo, nome_arquivo):
+  
+          d = df[['ano_contratual', col_potencial, col_total]].copy()
+  
+          d['_ord'] = d['ano_contratual'].apply(chave_ano)
+          d = d.sort_values('_ord').drop(columns='_ord')
+  
+          if QTD_ANOS:
+              d = d.tail(QTD_ANOS)
+  
+          if d.empty:
+              print(f"❌ Nenhum dado encontrado para {titulo}!")
+              return
+  
+          print(
+              f"{titulo} - anos contratuais: "
+              f"{d['ano_contratual'].astype(str).tolist()}"
+          )
+  
+          potencial = pd.to_numeric(d[col_potencial], errors='coerce').fillna(0)
+          total = pd.to_numeric(d[col_total], errors='coerce').fillna(0)
+  
+          labels = d['ano_contratual'].astype(str).tolist()
+          x = np.arange(len(labels))
+  
+          fig, ax = plt.subplots(figsize=(12, 4.5))
+  
+          ax.plot(
+              x, potencial,
+              marker='o', markersize=6, linewidth=2,
+              label=f'{titulo} - Potencial',
+              color=cor_potencial
+          )
+  
+          ax.plot(
+              x, total,
+              marker='o', markersize=6, linewidth=2,
+              label=f'{titulo} - Total',
+              color=cor_total
+          )
+  
+          maior_valor = max(potencial.max(), total.max())
+          ax.set_ylim(0, maior_valor * 1.15 if maior_valor > 0 else 1)
+  
+          ax.set_xticks(x)
+          ax.set_xticklabels(labels, fontsize=10)
+  
+          ax.legend(
+              loc='upper left',
+              bbox_to_anchor=(0, 1.12),
+              ncol=2,
+              frameon=False,
+              fontsize=10
+          )
+  
+          ax.grid(axis='y', linestyle='-', linewidth=0.7, alpha=0.35)
+          ax.set_axisbelow(True)
+  
+          ax.spines['top'].set_visible(False)
+          ax.spines['right'].set_visible(False)
+  
+          ax.set_xlabel('')
+          ax.set_ylabel('')
+  
+          # Rótulos: o maior valor de cada ano fica acima do ponto e o menor, abaixo
+          deslocamento = maior_valor * 0.035
+  
+          for i in range(len(x)):
+  
+              if potencial.iloc[i] >= total.iloc[i]:
+                  ax.text(x[i], potencial.iloc[i] + deslocamento,
+                          formatar_numero(potencial.iloc[i]),
+                          ha='center', va='bottom', fontsize=10)
+                  ax.text(x[i], total.iloc[i] - deslocamento,
+                          formatar_numero(total.iloc[i]),
+                          ha='center', va='top', fontsize=10)
+              else:
+                  ax.text(x[i], total.iloc[i] + deslocamento,
+                          formatar_numero(total.iloc[i]),
+                          ha='center', va='bottom', fontsize=10)
+                  ax.text(x[i], potencial.iloc[i] - deslocamento,
+                          formatar_numero(potencial.iloc[i]),
+                          ha='center', va='top', fontsize=10)
+  
+          ax.tick_params(axis='both', length=0)
+  
+          plt.tight_layout()
+  
+          pasta = "graficos"
+          if not os.path.exists(pasta):
+              os.makedirs(pasta)
+  
+          plt.savefig(
+              nome_arquivo,
+              dpi=300,
+              bbox_inches='tight',
+              format='png'
+          )
+  
+          print(f"✅ Gráfico salvo: {nome_arquivo}")
+  
+          plt.show()
+  
+      # ---------------- Execução ----------------
+      try:
+  
+          response = supabase.table(nome_tabela_iua_iue).select(
+              "ano_contratual, e_potencial_agua, e_total_agua, "
+              "e_potencial_esgoto, e_total_esgoto"
+          ).execute()
+  
+          df_param = pd.DataFrame(response.data)
+  
+          if df_param.empty:
+              print("❌ Nenhum dado encontrado!")
+          else:
+              gerar_grafico_parametros(
+                  df_param,
+                  "e_potencial_agua", "e_total_agua",
+                  "IUA", "parametros_IUA.png"
+              )
+  
+              gerar_grafico_parametros(
+                  df_param,
+                  "e_potencial_esgoto", "e_total_esgoto",
+                  "IUE", "parametros_IUE.png"
+              )
+  
+      except Exception as e:
+  
+          print(f"❌ Erro: {e}")
+          traceback.print_exc()
 
 ##############################################################################################################################################################################################################################
 
@@ -7424,7 +7705,7 @@ def MAIN ():
 
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
-    graf_iqa_iqe (prestadora_sigla, mes) # TEMPORAIS
+    graf_iqa_iqe (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
     nc_nr (prestadora_sigla, mes) # TEMPORAIS
     nome_arq = rel_iqa_iqe()
 
@@ -7456,7 +7737,7 @@ def MAIN ():
     realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
-    graf_iqa_iqe (prestadora_sigla, mes) # TEMPORAIS
+    graf_iqa_iqe (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
     nc_nr (prestadora_sigla, mes) # TEMPORAIS
     nome_arq = rel_iqa()
 
