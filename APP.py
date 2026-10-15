@@ -1,5 +1,7 @@
 # ----- BIBLIOTECAS -----
 
+import re
+import traceback
 import pandas as pd
 import itertools
 from datetime import datetime
@@ -2681,7 +2683,6 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
     print(f"❌ Erro: {e}")
 
-    import traceback
     traceback.print_exc()
 
 
@@ -3065,7 +3066,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
     # 4.2 Nam conf x Nam realiz
 
-def nc_nr(prestadora_sigla, mes):
+def nc_nr(prestadora_sigla, mes, ano_contratual):
 
   nome_tabela_iqa = prestadora_sigla + "_IQA"
   nome_tabela_iqe = prestadora_sigla + "_IQE"
@@ -3604,7 +3605,6 @@ def nc_nr(prestadora_sigla, mes):
 
         print(f"❌ Erro: {e}")
 
-        import traceback
         traceback.print_exc()
 
 
@@ -7706,7 +7706,7 @@ def MAIN ():
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
-    nc_nr (prestadora_sigla, mes) # TEMPORAIS
+    nc_nr (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
     nome_arq = rel_iqa_iqe()
 
     return nome_arq, df_conferido, df_conferido_iqe
@@ -7738,7 +7738,7 @@ def MAIN ():
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
-    nc_nr (prestadora_sigla, mes) # TEMPORAIS
+    nc_nr (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
     nome_arq = rel_iqa()
 
     return nome_arq, df_conferido, df_conferido_iqe
