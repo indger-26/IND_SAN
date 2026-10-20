@@ -7684,6 +7684,7 @@ def rel_iqa_iqe():
     if mes == "August":
     
         #TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = pond_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
+        #Ver a questão de não haver ponderacoes - trocar por texto padrao
 
     
     graf(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
