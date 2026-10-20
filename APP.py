@@ -7645,23 +7645,60 @@ def rel_iqa_iqe():
     AMOSTRAS_REALIZADAS_IQE = AMOSTRAS_REALIZADAS_IQE.fillna(0)
     PONDERACOES_IQE = PONDERACOES_IQE.fillna(0)
 
+    # IUA - IUE
+
+    mes, ano = MES_ANO.split("-")
+
+    if mes == "August":
+
+      iua_iue_economias = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_ECONOMIAS")
+      iua_iue_evte = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_EVTE")
+    
+      iua_iue_economias["Municipio"] = (
+        iua_iue_economias["municipio_code"]
+        .map(mapa_municipio_padrao)
+        .fillna(iua_iue_economias["Municipio"])
+      )
+    
+      iua_iue_evte["Municipio"] = (
+        iua_iue_economias["municipio_code"]
+        .map(mapa_municipio_padrao)
+        .fillna(iua_iue_economias["Municipio"])
+      )
+
     TAB_MUN, TAB_TIPO, TAB_REALIZADAS, TAB_POND, BASE_MUN_TIPO_completo = base(PLAN_MUN_TIPO, AMOSTRAS_REALIZADAS, PONDERACOES, MES_ANO)
 
     TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = base_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
 
+    if mes == "August":
+    
+        #TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = base_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
+
+    
     TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, AN_TIPO_IQE, TAB_TIPO_FINAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
+    if mes == "August":
+    
+        #TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = pond_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
+
+    
     graf(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
 
+    if mes == "August":
+    
+        #graf_iqe(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
+
+    #Criar variáveis pré definidas, para caso o mês seja diferente de agosto, as quais devem ser inseridas no var_doc abaixo (Ver se também precisa ser definida no vardoc do MAIN_IQA
+    
     dic_info = var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE)
 
     arquivo_entrada = "modelo_iqa_iqe_automatico.docx"
 
-    doc_modificado = substituir_var(arquivo_entrada, dic_info)
+    doc_modificado = substituir_var(arquivo_entrada, dic_info) # Avaliar função
 
     arquivo_saida = f'INDICADORES- ' + str(PRESTADORA) + ' - ' + str(MES_ANO) + '.docx'
 
