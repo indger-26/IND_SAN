@@ -5363,6 +5363,151 @@ def rel_iqa_iqe():
     return (BASE_MUN_IQE, BASE_TIPO_IQE, BASE_REALIZADAS_IQE, BASE_POND_IQE, BASE_MUN_TIPO_IQE_completo)
 
 
+  def base_IUA_IUE(iua_iue_economias, iua_iue_evte):
+
+      status_validos = ["ATIVA", "DISPONIVEL", "INATIVA"]
+      
+      def padroniza(s):
+          return (s.astype(str)
+                   .str.strip()
+                   .str.upper()
+                   .str.normalize("NFKD")
+                   .str.encode("ascii", errors="ignore")
+                   .str.decode("utf-8"))
+      
+      df_vi = iua_iue_economias.copy()
+      df_arsal = iua_iue_economias.copy()
+      
+      df_vi["UA_pad"] = padroniza(df_vi["UA - VI"])
+      df_vi["UE_pad"] = padroniza(df_vi["UE - VI"])
+      df_vi["Municipio"] = padroniza(df_vi["Municipio"])
+
+      df_arsal["UA_pad"] = padroniza(df_arsal["UA - ARSAL"])
+      df_arsal["UE_pad"] = padroniza(df_arsal["UE - ARSAL"])
+      df_arsal["Municipio"] = padroniza(df_arsal["Municipio"])
+
+      
+      # Garantir que N Economias seja numérico
+      
+      df_vi["N Economias - VI"] = pd.to_numeric(df_vi["N Economias - VI"], errors="coerce").fillna(0)
+
+      df_arsal["N Economias - ARSAL"] = pd.to_numeric(df_arsal["N Economias - ARSAL"], errors="coerce").fillna(0)
+
+
+      
+      # E potencial por município
+      
+      df_vi = df_vi[padroniza(df_vi["Integra_area_concessao?"]).isin(["SIM", "S", "TRUE", "1"])]
+      
+      pot_agua_vi = (df_vi[df_vi["UA_pad"].isin(status_validos)]
+                  .groupby("Municipio", as_index=False)["N Economias - VI"]
+                  .sum()
+                  .rename(columns={"N Economias - VI": "E potencial agua - VI"}))
+      
+      pot_esgoto_vi = (df_vi[df_vi["UE_pad"].isin(status_validos)]
+                    .groupby("Municipio", as_index=False)["N Economias - VI"]
+                    .sum()
+                    .rename(columns={"N Economias - VI": "E potencial esgoto - VI"}))
+      
+      potenciais_vi = pot_agua_vi.merge(pot_esgoto_vi, on="Municipio", how="outer")
+
+
+      
+      df_arsal = df_arsal[padroniza(df_arsal["Integra_area_concessao?"]).isin(["SIM", "S", "TRUE", "1"])]
+      
+      pot_agua_arsal = (df_arsal[df_arsal["UA_pad"].isin(status_validos)]
+                  .groupby("Municipio", as_index=False)["N Economias - ARSAL"]
+                  .sum()
+                  .rename(columns={"N Economias - ARSAL": "E potencial agua - ARSAL"}))
+      
+      pot_esgoto_arsal = (df_arsal[df_arsal["UE_pad"].isin(status_validos)]
+                    .groupby("Municipio", as_index=False)["N Economias - ARSAL"]
+                    .sum()
+                    .rename(columns={"N Economias - ARSAL": "E potencial esgoto - ARSAL"}))
+      
+      potenciais_arsal = pot_agua_arsal.merge(pot_esgoto_arsal, on="Municipio", how="outer")
+
+      
+      # Preparar EVTE
+      
+      evte_vi = iau_iue_evte.copy()
+      evte_vi["Municipio"] = padroniza(evte_vi["Municipio"])
+      evte_vi = evte_vi.rename(columns={
+          "E total água (EVTE) - VI": "E total agua",
+          "E total esgoto (EVTE) - VI": "E total esgoto",
+      })[["Municipio", "E total agua", "E total esgoto"]]
+
+
+      evte_arsal = iau_iue_evte.copy()
+      evte_arsal["Municipio"] = padroniza(evte_arsal["Municipio"])
+      evte_arsal = evte_arsal.rename(columns={
+          "E total água (EVTE) - ARSAL": "E total agua",
+          "E total esgoto (EVTE) - ARSAL": "E total esgoto",
+      })[["Municipio", "E total agua", "E total esgoto"]]
+
+      
+      # Juntar (apenas por nome do município)
+      
+      iua_iue_analise_vi = evte_vi.merge(potenciais_vi, on="Municipio", how="outer")
+
+      iua_iue_analise_arsal = evte_arsal.merge(potenciais_arsal, on="Municipio", how="outer")
+
+      
+      # Índices
+      
+      iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]] = (
+          iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]].fillna(0)
+      )
+      
+      iua_iue_analise_vi["IUA"] = np.where(
+          iua_iue_analise_vi["E total agua"] > 0,
+          iua_iue_analise_vi["E potencial agua"] / iua_iue_analise_vi["E total agua"],
+          np.nan,
+      )
+      iua_iue_analise_vi["IUE"] = np.where(
+          iua_iue_analise_vi["E total esgoto"] > 0,
+          iua_iue_analise_vi["E potencial esgoto"] / iua_iue_analise_vi["E total esgoto"],
+          np.nan,
+      )
+
+
+      
+      iua_iue_analise_arsal[["E potencial agua", "E potencial esgoto"]] = (
+          iua_iue_analise_arsal[["E potencial agua", "E potencial esgoto"]].fillna(0)
+      )
+      
+      iua_iue_analise_arsal["IUA"] = np.where(
+          iua_iue_analise_arsal["E total agua"] > 0,
+          iua_iue_analise_arsal["E potencial agua"] / iua_iue_analise_arsal["E total agua"],
+          np.nan,
+      )
+      iua_iue_analise_arsal["IUE"] = np.where(
+          iua_iue_analise_arsal["E total esgoto"] > 0,
+          iua_iue_analise_arsal["E potencial esgoto"] / iua_iue_analise_arsal["E total esgoto"],
+          np.nan,
+      )
+
+
+      
+      # Colunas finais
+      
+      iua_iue_analise_vi = iua_iue_analise_vi[[
+          "Municipio",
+          "E potencial agua", "E total agua", "IUA",
+          "E potencial esgoto", "E total esgoto", "IUE",
+      ]].sort_values("Municipio").reset_index(drop=True)
+
+
+
+      iua_iue_analise_arsal = iua_iue_analise_arsal[[
+          "Municipio",
+          "E potencial agua", "E total agua", "IUA",
+          "E potencial esgoto", "E total esgoto", "IUE",
+      ]].sort_values("Municipio").reset_index(drop=True)
+
+      return iua_iue_analise_arsal, iua_iue_analise_vi
+
+
 
   # COLETANDO AS INFORMAÇÕES GERAIS
   
@@ -6800,6 +6945,68 @@ def rel_iqa_iqe():
     return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
 
 
+# PONDERAÇÕES - IUA/IUE  
+  
+  STATUS_VALIDOS = ["ATIVA", "DISPONIVEL", "INATIVA"]
+  
+  COL_ID_POND = "ID"
+  COL_ID_ECON = "ID_POND"
+  COL_UA_VI, COL_UA_ARSAL = "UA - VI", "UA - ARSAL"
+  COL_UE_VI, COL_UE_ARSAL = "UE - VI", "UE - ARSAL"
+  COL_N_VI, COL_N_ARSAL = "N Economias - VI", "N Economias - ARSAL"
+  
+  def _expurgadas(status_vi, status_arsal, n_vi, n_arsal):
+      vi_ok = status_vi.isin(STATUS_VALIDOS)
+      ars_ok = status_arsal.isin(STATUS_VALIDOS)
+      diff = n_vi - n_arsal
+      return np.select(
+          [vi_ok & ~ars_ok, diff > 0],
+          [n_vi, diff],
+          default=0,
+      )
+  
+  def _reconsideradas(status_vi, status_arsal, n_vi, n_arsal):
+      vi_ok = status_vi.isin(STATUS_VALIDOS)
+      ars_ok = status_arsal.isin(STATUS_VALIDOS)
+      diff = n_arsal - n_vi
+      return np.select(
+          [~vi_ok & ars_ok, diff > 0],
+          [n_arsal, diff],
+          default=0,
+      )
+  
+  def pond_iua_iue(iua_iue_economias: pd.DataFrame, iua_iue_pond: pd.DataFrame) -> pd.DataFrame:
+      eco = iua_iue_economias.copy()
+      pond = iua_iue_pond.copy()
+  
+      # garante numéricos (NaN -> 0)
+      n_vi = pd.to_numeric(eco[COL_N_VI], errors="coerce").fillna(0)
+      n_ars = pd.to_numeric(eco[COL_N_ARSAL], errors="coerce").fillna(0)
+  
+      # cálculo linha a linha na tabela de economias
+      eco["Economias expurgadas IUA"] = _expurgadas(eco[COL_UA_VI], eco[COL_UA_ARSAL], n_vi, n_ars)
+      eco["Economias expurgadas IUE"] = _expurgadas(eco[COL_UE_VI], eco[COL_UE_ARSAL], n_vi, n_ars)
+      eco["Economias reconsideradas IUA"] = _reconsideradas(eco[COL_UA_VI], eco[COL_UA_ARSAL], n_vi, n_ars)
+      eco["Economias reconsideradas IUE"] = _reconsideradas(eco[COL_UE_VI], eco[COL_UE_ARSAL], n_vi, n_ars)
+  
+      novas_cols = [
+          "Economias expurgadas IUA",
+          "Economias expurgadas IUE",
+          "Economias reconsideradas IUA",
+          "Economias reconsideradas IUE",
+      ]
+  
+      # soma por id (um id pode ter várias linhas de economias)
+      somas = eco.groupby(COL_ID)[novas_cols].sum()
+  
+      # traz para a tabela de ponderações pelo id; ids sem correspondência ficam 0
+      pond = pond.drop(columns=[c for c in novas_cols if c in pond.columns])
+      pond = pond.merge(somas, how="left", left_on=COL_ID, right_index=True)
+      pond[novas_cols] = pond[novas_cols].fillna(0)
+  
+      return pond
+
+
 
 # CONSTRUÇÃO DOS GRÁFICOS
 
@@ -7653,6 +7860,7 @@ def rel_iqa_iqe():
 
       iua_iue_economias = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_ECONOMIAS")
       iua_iue_evte = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_EVTE")
+      iua_iue_pond = pd.read_excel("ATT_SQL.xlsx", sheet_name="IUA_IUE_PONDERACOES")
     
       iua_iue_economias["Municipio"] = (
         iua_iue_economias["municipio_code"]
@@ -7672,7 +7880,7 @@ def rel_iqa_iqe():
 
     if mes == "August":
     
-        #TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = base_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
+        TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI = base_IUA_IUE(iua_iue_economias, iua_iue_evte)
 
     
     TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
@@ -7683,7 +7891,7 @@ def rel_iqa_iqe():
 
     if mes == "August":
     
-        #TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = pond_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
+        QUADRO_IUA_IUE_POND = pond_iua_iue(iua_iue_economias, iua_iue_pond)
         #Ver a questão de não haver ponderacoes - trocar por texto padrao
 
     
