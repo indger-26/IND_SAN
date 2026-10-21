@@ -1698,12 +1698,12 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       
       # Índices
       
-      iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]] = (
-          iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]].fillna(0)
+      iua_iue_analise_vi[["E potencial agua - VI", "E potencial esgoto"]] = (
+          iua_iue_analise_vi[["E potencial agua - VI", "E potencial esgoto"]].fillna(0)
       )
       
       iua_iue_analise_vi["IUA"] = np.where(
-          iua_iue_analise_vi["E total agua"] > 0,
+          iua_iue_analise_vi["E total agua - VI"] > 0,
           iua_iue_analise_vi["E potencial agua"] / iua_iue_analise_vi["E total agua"],
           np.nan,
       )
@@ -1748,7 +1748,9 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
           "E potencial esgoto", "E total esgoto", "IUE",
       ]].sort_values("Municipio").reset_index(drop=True)
 
-    
+
+    iua_iue_analise_vi
+    iua_iue_analise_arsal
     
 
     return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal
@@ -2004,6 +2006,16 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
         supabase.table(prestadora_iqe).insert(iqe_final.to_dict(orient="records")).execute()
 
     if mes == "August":
+
+      iua_iue_analise_arsal = iua_iue_analise_arsal.rename(columns={
+          "Municipio": "municipio",
+          "E potencial agua": "e_potencial_agua",
+          "E total agua": "e_total_agua",
+          "IUA": "iua",
+          "E potencial esgoto": "e_potencial_esgoto",
+          "E total esgoto": "e_total_esgoto",
+          "IUE": "iue",
+      })
 
 
       prestadora_iua_iue = 'IUA_IUE_ANALISE_'+ prestadora_sigla
