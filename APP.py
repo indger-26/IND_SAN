@@ -8497,7 +8497,7 @@ st.markdown(
 <div class="card">
 
 <h3>
-📂 Upload da Planilha de dados
+📂 Upload da planilha de dados
 <a href="https://raw.githubusercontent.com/indger-26/IND_SAN/main/ATT_SQL.xlsx" target="_blank">(TEMPLATE)</a>
 </h3>
 
