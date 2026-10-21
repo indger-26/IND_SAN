@@ -1703,7 +1703,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       )
       
       iua_iue_analise_vi["IUA"] = np.where(
-          iua_iue_analise_vi["E total agua - VI"] > 0,
+          iua_iue_analise_vi["E total agua"] > 0,
           iua_iue_analise_vi["E potencial agua"] / iua_iue_analise_vi["E total agua"],
           np.nan,
       )
