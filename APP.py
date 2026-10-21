@@ -8247,7 +8247,7 @@ def df_para_excel(df: pd.DataFrame) -> bytes:
 
 
 st.set_page_config(
-    page_title="ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - IQA/IQE",
+    page_title="ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - INDICADORES CONTRATUAIS",
     page_icon="💧",
     layout="wide"
 )
@@ -8482,11 +8482,11 @@ with col_logo:
 with col_texto:
     st.markdown("""
     <h1 class="header-title">
-    ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - IQA/IQE
+    ELABORAÇÃO DE RELATÓRIOS + ATUALIZAÇÃO DO BANCO DE DADOS - INDICADORES CONTRATUAIS
     </h1>
 
     <p class="header-subtitle">
-    Sistema para elaboração de relatórios de acompanhamento dos indicadores de qualidade da água e esgoto (IQA/IQE) e atualização do banco de dados.
+    Sistema para elaboração de relatórios de acompanhamento de indicadores contratuais (IQA/IQE/IUA/IUE) e atualização do banco de dados.
     </p>
     """, unsafe_allow_html=True)
 
@@ -8497,7 +8497,7 @@ st.markdown(
 <div class="card">
 
 <h3>
-📂 Upload da Planilha - IQA/IQE
+📂 Upload da Planilha de dados
 <a href="https://raw.githubusercontent.com/indger-26/IND_SAN/main/ATT_SQL.xlsx" target="_blank">(TEMPLATE)</a>
 </h3>
 
