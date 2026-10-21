@@ -5086,6 +5086,10 @@ def rel_iqa():
 
     QUADRO_POND_NCONF, QUADRO_POND_REALIZ = pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
 
+    QUADRO_IUA_IUE_POND = "x"
+    TAB_MUN_IUA_IUE_ARSAL = "x"
+    TAB_MUN_IUA_IUE_VI = "x"
+    
     dic_info = var_doc (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI)
 
     arquivo_entrada = "modelo_iqa_automatico.docx"
@@ -5648,7 +5652,12 @@ def rel_iqa_iqe():
 
 # DEFINIÇÃO DO CONJUNTO DE VARIÁVEIS A SEREM INSERIDAS NO RELATÓRIO
 
-  def var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE):
+  def var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE,
+               QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF,
+               TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE,
+               TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE,
+               TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
+               FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND):
 
     NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
     NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
@@ -5707,6 +5716,61 @@ def rel_iqa_iqe():
 
     def validar(valor):
       return valor if valor is not None else ""
+
+
+    # soma das colunas numéricas (os índices serão sobrescritos abaixo)
+    cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
+    total = tab_mun_iua_iue_arsal[cols_num].sum()
+    
+    # IUA e IUE totais = divisão dos somatórios dos componentes
+    iua_total = total["E total agua"] / total["E potencial agua"] if total["E potencial agua"] else 0
+    iue_total = total["E total esgoto"] / total["E potencial esgoto"] if total["E potencial esgoto"] else 0
+    
+    linha_total = {
+        "Municipio": "TOTAL",
+        "E potencial agua": total["E potencial agua"],
+        "E total agua": total["E total agua"],
+        "IUA": iua_total,
+        "E potencial esgoto": total["E potencial esgoto"],
+        "E total esgoto": total["E total esgoto"],
+        "IUE": iue_total,
+    }
+    
+    tab_mun_iua_iue_arsal = pd.concat(
+        [tab_mun_iua_iue_arsal, pd.DataFrame([linha_total])],
+        ignore_index=True,
+    )
+    
+
+    E_POT_IUA_ARSAL = (tab_mun_iua_iue_arsal["E potencial agua"].iloc[-1]).astype(int)
+    E_TOT_IUA_ARSAL = (tab_mun_iua_iue_arsal["E total agua"].iloc[-1]).astype(int)
+    IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
+    IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')    
+    EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
+    REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
+
+
+    E_POT_IUE_ARSAL = (tab_mun_iua_iue_arsal["E potencial esgoto"].iloc[-1]).astype(int)
+    E_TOT_IUE_ARSAL = (tab_mun_iua_iue_arsal["E total esgoto"].iloc[-1]).astype(int)
+    IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
+    IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')    
+    EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
+    REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
+                  
+      
+    if (IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
+      IS_SATISF_IUA = "satisfatório"
+
+    if (IUA_VI).strip() != (IUA_ARSAL_TXT).strip():
+      IS_SATISF_IUA = "divergente"
+
+
+    if (IUE_VI).strip() == (IUE_ARSAL_TXT).strip():
+      IS_SATISF_IUE = "satisfatório"
+
+    if (IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
+      IS_SATISF_IUE = "divergente"
+      
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
@@ -5775,7 +5839,37 @@ def rel_iqa_iqe():
               '$IQE_ARSAL': IQE_ARSAL_TXT,
               '$CONF__NCONF_IQE': str(total_conf_vi_naoconf_arsal_IQE),
               '$NCONF__CONF_IQE' : str(total_naoconf_vi_conf_arsal_IQE),
-              '$NREAL__PLAN_IQE' : str(desc_plano_IQE)
+              '$NREAL__PLAN_IQE' : str(desc_plano_IQE),
+
+
+              # '$MEETA_IQE':str(META_IQE),
+              # '$NCOF__P_IQE': formata_milhar(NCOF_P_IQE),
+              # '$NREA__P_IQE': formata_milhar(NREA_P_IQE),
+              # '$IQE_P': str(IQE_P),
+              # '$NCOF__VI_IQE': formata_milhar(NCOF_VI_IQE),
+              # '$NREA__VI_IQE': formata_milhar(NREA_VI_IQE),
+              # '$IQE_VI': str(IQE_VI),
+              # '$FONTE__NREALIZ_IQE': str(FONTE_NREALIZ_IQE),
+              # '$FONTE__PLANO_IQE': str(FONTE_PLANO_IQE),
+              # '$FONTE__NCONF_IQE': str(FONT_NCONF_IQE),
+              # '$ACREDITA_IQE': str (ACREDITA_IQE),
+              # '$QUADRO__NREA_OBS_IQE': QUADRO_POND_REALIZ_IQE,
+              # '$QUADRO__NCONF_OBS_IQE': QUADRO_POND_NCONF_IQE,
+              # '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
+              # '$QUADRO__NREA_ARSAL_IQE': TAB_MUN_ARSAL_IQE,
+              # '$QUADRO__NCONF_VI_IQE': TAB_TIPO_RESUMIDA_VI_IQE,
+              # '$QUADRO__NCONF_ARSAL_IQE': TAB_TIPO_FINAL_IQE,
+              # # '$QUADRO_NCONFMUN_VI': TAB_MUN_NCONF_VI,
+              # # '$QUADRO_NCONFMUN_ARSAL': TAB_MUN_NCONF,
+              # '$NREA__ARSAL_IQE': formata_milhar(NREA_ARSAL_IQE),
+              # '$NREA__EXPURGOS_IQE': str (NREA_EXPURGOS_IQE),
+              # '$NCOF__ARSAL_IQE': formata_milhar(NCONF_ARSAL_IQE),
+              # '$NCONF__EXPURGOS_IQE': str (NCONF_EXPURGOS_IQE),
+              # '$IS__SATISFATORIO_IQE': IS_SATISF_IQE,
+              # '$IQE_ARSAL': IQE_ARSAL_TXT,
+              # '$CONF__NCONF_IQE': str(total_conf_vi_naoconf_arsal_IQE),
+              # '$NCONF__CONF_IQE' : str(total_naoconf_vi_conf_arsal_IQE),
+              # '$NREAL__PLAN_IQE' : str(desc_plano_IQE)
 
               }
 
@@ -7389,6 +7483,77 @@ def rel_iqa_iqe():
     plt.show()
 
 
+  
+  # GRÁF - IAU/IUE
+
+  def _barras_pot_total(df, col_pot, col_total, titulo):
+      """Barras agrupadas: E potencial x E total por município."""
+      municipios = df["Municipio"]
+      x = np.arange(len(municipios))
+      largura = 0.4
+  
+      fig, ax = plt.subplots(figsize=(max(10, len(df) * 0.6), 6))
+      ax.bar(x - largura / 2, df[col_pot], largura, label="E potencial")
+      ax.bar(x + largura / 2, df[col_total], largura, label="E total")
+  
+      ax.set_title(titulo)
+      ax.set_xlabel("Município")
+      ax.set_ylabel("Nº de economias")
+      ax.set_xticks(x)
+      ax.set_xticklabels(municipios, rotation=45, ha="right")
+      ax.legend()
+      ax.grid(axis="y", linestyle="--", alpha=0.5)
+      fig.tight_layout()
+      return fig
+  
+  
+  def _barras_indice(df, col_indice, titulo, ylabel):
+      """Barras simples: índice (IUA ou IUE) por município."""
+      municipios = df["Municipio"]
+      x = np.arange(len(municipios))
+  
+      fig, ax = plt.subplots(figsize=(max(10, len(df) * 0.6), 6))
+      barras = ax.bar(x, df[col_indice])
+  
+      ax.set_title(titulo)
+      ax.set_xlabel("Município")
+      ax.set_ylabel(ylabel)
+      ax.set_xticks(x)
+      ax.set_xticklabels(municipios, rotation=45, ha="right")
+      ax.grid(axis="y", linestyle="--", alpha=0.5)
+      ax.bar_label(barras, fmt="%.2f", padding=2, fontsize=8)
+      fig.tight_layout()
+      return fig
+  
+  
+  def graf_iua_iue(iua_iue_analise_arsal):
+      df = iua_iue_analise_arsal.copy()
+  
+      fig1 = _barras_pot_total(
+          df, "E potencial agua", "E total agua",
+          "Economias potenciais x Economias totais de água por município (IUA)",
+      )
+      fig2 = _barras_pot_total(
+          df, "E potencial esgoto", "E total esgoto",
+          "Economias potenciais x Economias totais de esgoto por município (IUE)",
+      )
+      fig3 = _barras_indice(df, "IUA", "IUA por município", "IUA")
+      fig4 = _barras_indice(df, "IUE", "IUE por município", "IUE")
+  
+      arquivos = {
+          "grafico_1_iua_pot_total.png": fig1,
+          "grafico_2_iue_pot_total.png": fig2,
+          "grafico_3_iua_por_municipio.png": fig3,
+          "grafico_4_iue_por_municipio.png": fig4,
+      }
+  
+      for nome, fig in arquivos.items():
+          fig.savefig(nome, dpi=150, bbox_inches="tight")
+          plt.close(fig)
+  
+      return list(arquivos.keys())
+
+
 
 
 # FUNÇÃO PRINCIPAL E EXECUÇÃO - IQA
@@ -7570,7 +7735,9 @@ def rel_iqa_iqe():
     ########################### NOVO #################################################
 
 
-    MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, MESMIN_ANO = infos_gerais (arquivo_gerais)
+    MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P,
+    NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, MESMIN_ANO, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA, FONTE_ETOT_IUA,
+    EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE = infos_gerais (arquivo_gerais)
 
     # PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
@@ -7878,32 +8045,51 @@ def rel_iqa_iqe():
 
     TAB_MUN_IQE, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, TAB_POND_IQE, BASE_MUN_TIPO_IQE_completo = base_IQE(PLAN_MUN_TIPO_IQE, AMOSTRAS_REALIZADAS_IQE, PONDERACOES_IQE, TRIM_ANO)
 
+    QUADRO_IUA_IUE_POND = "x"
+    TAB_MUN_IUA_IUE_ARSAL = "x"
+    TAB_MUN_IUA_IUE_VI = "x"
+
     if mes == "August":
     
         TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI = base_IUA_IUE(iua_iue_economias, iua_iue_evte)
 
     
-    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
+    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
+    TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
-    AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, AN_TIPO_IQE, TAB_TIPO_FINAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
+    AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, AN_TIPO_IQE, TAB_TIPO_FINAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, total_conf_vi_naoconf_arsal_IQE,
+    total_naoconf_vi_conf_arsal_IQE  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     if mes == "August":
     
         QUADRO_IUA_IUE_POND = pond_iua_iue(iua_iue_economias, iua_iue_pond)
-        #Ver a questão de não haver ponderacoes - trocar por texto padrao
+
+        novas_cols = [
+            "Economias expurgadas IUA",
+            "Economias expurgadas IUE",
+            "Economias reconsideradas IUA",
+            "Economias reconsideradas IUE",
+        ]
+        
+        if QUADRO_IUA_IUE_POND[novas_cols].sum().sum() == 0:
+            QUADRO_IUA_IUE_POND = "SEM PONDERACOES"
 
     
     graf(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
 
     if mes == "August":
     
-        #graf_iqe(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
-
-    #Criar variáveis pré definidas, para caso o mês seja diferente de agosto, as quais devem ser inseridas no var_doc abaixo (Ver se também precisa ser definida no vardoc do MAIN_IQA
+        graf_iua_iue(TAB_MUN_IUA_IUE_ARSAL)
     
-    dic_info = var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE)
+    dic_info = var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO,
+                        FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI,
+                        MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P,
+                        NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE,
+                        TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
+                        TAB_MUN_NCONF_VI_IQE, TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,
+                        FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND)
 
     arquivo_entrada = "modelo_iqa_iqe_automatico.docx"
 
