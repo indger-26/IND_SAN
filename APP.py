@@ -1645,12 +1645,12 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       pot_agua_vi = (df_vi[df_vi["UA_pad"].isin(status_validos)]
                   .groupby("Municipio", as_index=False)["N Economias - VI"]
                   .sum()
-                  .rename(columns={"N Economias - VI": "E potencial agua - VI"}))
+                  .rename(columns={"N Economias - VI": "E potencial agua"}))
       
       pot_esgoto_vi = (df_vi[df_vi["UE_pad"].isin(status_validos)]
                     .groupby("Municipio", as_index=False)["N Economias - VI"]
                     .sum()
-                    .rename(columns={"N Economias - VI": "E potencial esgoto - VI"}))
+                    .rename(columns={"N Economias - VI": "E potencial esgoto"}))
       
       potenciais_vi = pot_agua_vi.merge(pot_esgoto_vi, on="Municipio", how="outer")
 
@@ -1661,12 +1661,12 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       pot_agua_arsal = (df_arsal[df_arsal["UA_pad"].isin(status_validos)]
                   .groupby("Municipio", as_index=False)["N Economias - ARSAL"]
                   .sum()
-                  .rename(columns={"N Economias - ARSAL": "E potencial agua - ARSAL"}))
+                  .rename(columns={"N Economias - ARSAL": "E potencial agua"}))
       
       pot_esgoto_arsal = (df_arsal[df_arsal["UE_pad"].isin(status_validos)]
                     .groupby("Municipio", as_index=False)["N Economias - ARSAL"]
                     .sum()
-                    .rename(columns={"N Economias - ARSAL": "E potencial esgoto - ARSAL"}))
+                    .rename(columns={"N Economias - ARSAL": "E potencial esgoto"}))
       
       potenciais_arsal = pot_agua_arsal.merge(pot_esgoto_arsal, on="Municipio", how="outer")
 
