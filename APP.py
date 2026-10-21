@@ -1698,8 +1698,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       
       # Índices
       
-      iua_iue_analise_vi[["E potencial agua - VI", "E potencial esgoto"]] = (
-          iua_iue_analise_vi[["E potencial agua - VI", "E potencial esgoto"]].fillna(0)
+      iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]] = (
+          iua_iue_analise_vi[["E potencial agua", "E potencial esgoto"]].fillna(0)
       )
       
       iua_iue_analise_vi["IUA"] = np.where(
