@@ -5657,7 +5657,7 @@ def rel_iqa_iqe():
                TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE,
                TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE,
                TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
-               FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND):
+               FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
 
     NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
     NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
@@ -5862,6 +5862,11 @@ def rel_iqa_iqe():
               '$FONTE_ETOT_IUE': str(FONTE_ETOT_IUE),
               '$QUADRO_IUA_IUE_POND': "" if QUADRO_IUA_IUE_POND == "SEM EXPURGOS" else QUADRO_IUA_IUE_POND,**({"XXX": "YYY"} if QUADRO_IUA_IUE_POND == "SEM EXPURGOS" else {}),
               '$QUADRO_MUN_IUA_IUE_ARSAL': tab_mun_iua_iue_arsal,
+              
+              '$TAB_EPOT_VI': TAB_EPOT_VI,
+              '$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
+              '$TAB_ETOT_VI': TAB_ETOT_VI,
+              '$TAB_ETOT_ARSAL': TAB_ETOT_ARSAL,
                  
               '$E_POT_IUA_ARSAL': formata_milhar(E_POT_IUA_ARSAL),
               '$E_TOT_IUA_ARSAL': formata_milhar(E_TOT_IUA_ARSAL),
@@ -8058,10 +8063,23 @@ def rel_iqa_iqe():
     QUADRO_IUA_IUE_POND = "x"
     TAB_MUN_IUA_IUE_ARSAL = "x"
     TAB_MUN_IUA_IUE_VI = "x"
+    TAB_EPOT_VI = "x"
+    TAB_EPOT_ARSAL = "x"
+    TAB_ETOT_VI = "x"
+    TAB_ETOT_ARSAL = "x"
 
     if mes == "August":
     
         TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI = base_IUA_IUE(iua_iue_economias, iua_iue_evte)
+
+        col_pot = ['Municipio', 'E potencial agua', 'E potencial esgoto']
+        col_tot = ['Municipio', 'E total agua', 'E total esgoto']
+        
+        TAB_EPOT_VI = TAB_MUN_IUA_IUE_VI[col_pot].copy()
+        TAB_EPOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_pot].copy()
+        
+        TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
+        TAB_ETOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_tot].copy()
 
     
     TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
@@ -8099,7 +8117,8 @@ def rel_iqa_iqe():
                         NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE,
                         TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
                         TAB_MUN_NCONF_VI_IQE, TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,
-                        FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND)
+                        FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL,
+                        TAB_ETOT_VI, TAB_ETOT_ARSAL)
 
     arquivo_entrada = "modelo_iqa_iqe_automatico.docx"
 
