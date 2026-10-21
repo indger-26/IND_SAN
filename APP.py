@@ -5657,7 +5657,7 @@ def rel_iqa_iqe():
                TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE,
                TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE,
                TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
-               FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
+               FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL, total):
 
     NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
     NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
@@ -5770,6 +5770,20 @@ def rel_iqa_iqe():
 
     if (IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
       IS_SATISF_IUE = "divergente"
+
+    TEXTO_IUA_IUE_POND = (
+        "As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas associados, "
+        "tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo de "
+        "“Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.\n"
+        "Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais – IUA/IUE.\n"
+        "SEM PONDERACOES\n"
+        "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL.\n"
+        "Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os componentes "
+        "“Epotencial água” e “Epotencial esg”:\n"
+        "Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos setores técnicos.\n"
+        "$TAB_EPOT_ARSAL\n"
+        "Fonte: ARSAL."
+        )
       
 
     var_dic = {
@@ -5860,8 +5874,10 @@ def rel_iqa_iqe():
               '$IUE_VI': str(IUE_VI),
               '$FONTE_EPOT_IUE': str(FONTE_EPOT_IUE),
               '$FONTE_ETOT_IUE': str(FONTE_ETOT_IUE),
-              '$QUADRO_IUA_IUE_POND': "" if QUADRO_IUA_IUE_POND == "SEM EXPURGOS" else QUADRO_IUA_IUE_POND,**({"XXX": "YYY"} if QUADRO_IUA_IUE_POND == "SEM EXPURGOS" else {}),
+              '$QUADRO_IUA_IUE_POND': "" if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else QUADRO_IUA_IUE_POND,**({TEXTO_IUA_IUE_POND: "Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância com os valores apresentados para os referidos componentes."} if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else {}),
               '$QUADRO_MUN_IUA_IUE_ARSAL': tab_mun_iua_iue_arsal,
+
+              '$EVTE_CORRETO': IGUAL if igual else DIFERENTE,
               
               '$TAB_EPOT_VI': TAB_EPOT_VI,
               '$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
@@ -5883,6 +5899,11 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
+    if igual:
+        var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
+Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
+$TAB_ETOT_ARSAL
+Fonte: ARSAL."""] = ""
 
     print (IS_SATISF_IQE)
 
@@ -8081,6 +8102,14 @@ def rel_iqa_iqe():
         TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
         TAB_ETOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_tot].copy()
 
+        DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão"
+
+        IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
+
+        total = TAB_ETOT_VI.equals(TAB_ETOT_ARSAL)
+
+      
+
     
     TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
     TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
@@ -8118,7 +8147,7 @@ def rel_iqa_iqe():
                         TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
                         TAB_MUN_NCONF_VI_IQE, TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,
                         FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL,
-                        TAB_ETOT_VI, TAB_ETOT_ARSAL)
+                        TAB_ETOT_VI, TAB_ETOT_ARSAL, total)
 
     arquivo_entrada = "modelo_iqa_iqe_automatico.docx"
 
