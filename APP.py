@@ -1673,7 +1673,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       
       # Preparar EVTE
       
-      evte_vi = iau_iue_evte.copy()
+      evte_vi = iua_iue_evte.copy()
       evte_vi["Municipio"] = padroniza(evte_vi["Municipio"])
       evte_vi = evte_vi.rename(columns={
           "E total água (EVTE) - VI": "E total agua",
@@ -1681,7 +1681,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       })[["Municipio", "E total agua", "E total esgoto"]]
 
 
-      evte_arsal = iau_iue_evte.copy()
+      evte_arsal = iua_iue_evte.copy()
       evte_arsal["Municipio"] = padroniza(evte_arsal["Municipio"])
       evte_arsal = evte_arsal.rename(columns={
           "E total água (EVTE) - ARSAL": "E total agua",
@@ -5434,7 +5434,7 @@ def rel_iqa_iqe():
       
       # Preparar EVTE
       
-      evte_vi = iau_iue_evte.copy()
+      evte_vi = iua_iue_evte.copy()
       evte_vi["Municipio"] = padroniza(evte_vi["Municipio"])
       evte_vi = evte_vi.rename(columns={
           "E total água (EVTE) - VI": "E total agua",
@@ -5442,7 +5442,7 @@ def rel_iqa_iqe():
       })[["Municipio", "E total agua", "E total esgoto"]]
 
 
-      evte_arsal = iau_iue_evte.copy()
+      evte_arsal = iua_iue_evte.copy()
       evte_arsal["Municipio"] = padroniza(evte_arsal["Municipio"])
       evte_arsal = evte_arsal.rename(columns={
           "E total água (EVTE) - ARSAL": "E total agua",
