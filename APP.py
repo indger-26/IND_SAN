@@ -5840,37 +5840,50 @@ def rel_iqa_iqe():
               '$CONF__NCONF_IQE': str(total_conf_vi_naoconf_arsal_IQE),
               '$NCONF__CONF_IQE' : str(total_naoconf_vi_conf_arsal_IQE),
               '$NREAL__PLAN_IQE' : str(desc_plano_IQE),
+   
 
+    E_POT_IUE_ARSAL = (tab_mun_iua_iue_arsal["E potencial esgoto"].iloc[-1]).astype(int)
+    E_TOT_IUE_ARSAL = (tab_mun_iua_iue_arsal["E total esgoto"].iloc[-1]).astype(int)
+    IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
+    IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')    
+    EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
+    REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
+      
 
-              # '$MEETA_IQE':str(META_IQE),
-              # '$NCOF__P_IQE': formata_milhar(NCOF_P_IQE),
-              # '$NREA__P_IQE': formata_milhar(NREA_P_IQE),
-              # '$IQE_P': str(IQE_P),
-              # '$NCOF__VI_IQE': formata_milhar(NCOF_VI_IQE),
-              # '$NREA__VI_IQE': formata_milhar(NREA_VI_IQE),
-              # '$IQE_VI': str(IQE_VI),
-              # '$FONTE__NREALIZ_IQE': str(FONTE_NREALIZ_IQE),
-              # '$FONTE__PLANO_IQE': str(FONTE_PLANO_IQE),
-              # '$FONTE__NCONF_IQE': str(FONT_NCONF_IQE),
-              # '$ACREDITA_IQE': str (ACREDITA_IQE),
-              # '$QUADRO__NREA_OBS_IQE': QUADRO_POND_REALIZ_IQE,
-              # '$QUADRO__NCONF_OBS_IQE': QUADRO_POND_NCONF_IQE,
-              # '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
-              # '$QUADRO__NREA_ARSAL_IQE': TAB_MUN_ARSAL_IQE,
-              # '$QUADRO__NCONF_VI_IQE': TAB_TIPO_RESUMIDA_VI_IQE,
-              # '$QUADRO__NCONF_ARSAL_IQE': TAB_TIPO_FINAL_IQE,
-              # # '$QUADRO_NCONFMUN_VI': TAB_MUN_NCONF_VI,
-              # # '$QUADRO_NCONFMUN_ARSAL': TAB_MUN_NCONF,
-              # '$NREA__ARSAL_IQE': formata_milhar(NREA_ARSAL_IQE),
-              # '$NREA__EXPURGOS_IQE': str (NREA_EXPURGOS_IQE),
-              # '$NCOF__ARSAL_IQE': formata_milhar(NCONF_ARSAL_IQE),
-              # '$NCONF__EXPURGOS_IQE': str (NCONF_EXPURGOS_IQE),
-              # '$IS__SATISFATORIO_IQE': IS_SATISF_IQE,
-              # '$IQE_ARSAL': IQE_ARSAL_TXT,
-              # '$CONF__NCONF_IQE': str(total_conf_vi_naoconf_arsal_IQE),
-              # '$NCONF__CONF_IQE' : str(total_naoconf_vi_conf_arsal_IQE),
-              # '$NREAL__PLAN_IQE' : str(desc_plano_IQE)
-
+              '$MEETA_IUA':str(META_IUA),
+              '$EPOT_P_IUA': formata_milhar(EPOT_P_IUA),
+              '$ETOT_P_IUA': formata_milhar(ETOT_P_IUA),
+              '$IUA_P': str(IUA_P),
+              '$EPOT_VI_IUA': formata_milhar(EPOT_VI_IUA),
+              '$ETOT_VI_IUA': formata_milhar(ETOT_VI_IUA),
+              '$IUA_VI': str(IUA_VI),
+              '$FONTE_EPOT_IUA': str(FONTE_EPOT_IUA),
+              '$FONTE_ETOT_IUA': str(FONTE_ETOT_IUA),
+              '$MEETA_IUE':str(META_IUE),
+              '$EPOT_P_IUE': formata_milhar(EPOT_P_IUE),
+              '$ETOT_P_IUE': formata_milhar(ETOT_P_IUE),
+              '$IUE_P': str(IUE_P),
+              '$EPOT_VI_IUE': formata_milhar(EPOT_VI_IUE),
+              '$ETOT_VI_IUE': formata_milhar(ETOT_VI_IUE),
+              '$IUE_VI': str(IUE_VI),
+              '$FONTE_EPOT_IUE': str(FONTE_EPOT_IUE),
+              '$FONTE_ETOT_IUE': str(FONTE_ETOT_IUE),
+              '$QUADRO_IUA_IUE_POND': QUADRO_IUA_IUE_POND,
+              '$QUADRO_MUN_IUA_IUE_ARSAL': tab_mun_iua_iue_arsal,
+                 
+              '$E_POT_IUA_ARSAL': formata_milhar(E_POT_IUA_ARSAL),
+              '$E_TOT_IUA_ARSAL': formata_milhar(E_TOT_IUA_ARSAL),
+              '$IUA_ARSAL': IUA_ARSAL_TXT,
+              '$IS__SATISFATORIO_IUA': IS_SATISF_IUA,
+              '$EXP_IUA': formata_milhar(EXP_IUA),
+              '$REC_IUA': formata_milhar(REC_IUA),
+                 
+              '$E_POT_IUE_ARSAL': formata_milhar(E_POT_IUE_ARSAL),
+              '$E_TOT_IUE_ARSAL': formata_milhar(E_TOT_IUE_ARSAL),
+              '$IUE_ARSAL': IUE_ARSAL_TXT,
+              '$IS__SATISFATORIO_IUE': IS_SATISF_IUE,
+              '$EXP_IUE': formata_milhar(EXP_IUE),
+              '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
 
@@ -6092,7 +6105,12 @@ def rel_iqa_iqe():
       ('$GRAF__PLANO_REALIZ_MUN_IQE', 'grafico_plan_realiz_mun_IQE.png', 9.0),
       ('$GRAF__CONF_REALIZ_ANALISE_IQE', 'grafico_conf_realiz_tipo_IQE.png', 6.5),
       ('$GRAF__CONF_REALIZ_MUN_IQE', 'grafico_conf_realiz_mun_IQE.png', 9.5),
-      ('$GRAF_IQES_MUN', 'grafico_iqa_mun_IQE.png', 6.5)
+      ('$GRAF_IQES_MUN', 'grafico_iqa_mun_IQE.png', 6.5),
+
+      ('$GRAF_IUAS', 'grafico_3_iua_por_municipio.png', 6.5),
+      ('$GRAF_IUES', 'grafico_4_iue_por_municipio.png', 6.5),
+      ('$GRAF_COMP_IUAS', 'grafico_1_iua_pot_total.png', 6.5),
+      ('$GRAF_COMP_IUES', 'grafico_2_iue_pot_total.png', 6.5)
     ]
 
     for ph, img, width in placeholders:
