@@ -5940,7 +5940,7 @@ def rel_iqa_iqe():
               '$QUADRO_IUA_IUE_POND': "" if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else QUADRO_IUA_IUE_POND,**({TEXTO_IUA_IUE_POND: "Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância com os valores apresentados para os referidos componentes."} if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else {}),
               '$QUADRO_MUN_IUA_IUE_ARSAL': TAB_MUN_IUA_IUE_ARSAL,
 
-              '$EVTE_CORRETO': IGUAL if TAB_ETOT_VI == TAB_ETOT_ARSAL else DIFERENTE,
+              '$EVTE_CORRETO': IGUAL if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL) else DIFERENTE,
               
               '$TAB_EPOT_VI': TAB_EPOT_VI,
               '$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
@@ -5962,7 +5962,7 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
-    if TAB_ETOT_VI == TAB_ETOT_ARSAL:
+    if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
         var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
 Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
 $TAB_ETOT_ARSAL
