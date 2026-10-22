@@ -678,9 +678,9 @@ def ler_ajustar_arquivo ():
       )
     
       iua_iue_evte["Municipio"] = (
-        iua_iue_economias["municipio_code"]
+        iua_iue_evte["municipio_code"]
         .map(mapa_municipio_padrao)
-        .fillna(iua_iue_economias["Municipio"])
+        .fillna(iua_iue_evte["Municipio"])
       )
 
       st.dataframe(iua_iue_economias)
@@ -3988,7 +3988,7 @@ def rel_iqa():
     FONT_NCONF = TAB_INFO ["INFORMAÇÃO"][14]
     ACREDITAÇÃO = TAB_INFO ["INFORMAÇÃO"][15]
 
-    return (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, MESMIN_ANO)
+    return MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, MESMIN_ANO
 
 
 
