@@ -683,6 +683,9 @@ def ler_ajustar_arquivo ():
         .fillna(iua_iue_economias["Municipio"])
       )
 
+      st.dataframe(iua_iue_economias)
+      st.dataframe(iua_iue_evte)
+
 
     return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta
 
@@ -1611,13 +1614,16 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       status_validos = ["ATIVA", "DISPONIVEL", "INATIVA"]
       
       def padroniza(s):
-          return (s.astype(str)
-                   .str.strip()
-                   .str.upper()
-                   .str.normalize("NFKD")
-                   .str.encode("ascii", errors="ignore")
-                   .str.decode("utf-8"))
-      
+          out = (s.astype("string")                    # mantém nulos como <NA>
+                  .str.normalize("NFKD")
+                  .str.encode("ascii", errors="ignore")
+                  .str.decode("utf-8")
+                  .str.upper()
+                  .str.replace(r"[^A-Z0-9 ]", " ", regex=True)   # pontuação vira espaço
+                  .str.replace(r"\s+", " ", regex=True)           # colapsa espaços
+                  .str.strip())
+          return out
+            
       df_vi = iua_iue_economias.copy()
       df_arsal = iua_iue_economias.copy()
       
@@ -1629,12 +1635,17 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       df_arsal["UE_pad"] = padroniza(df_arsal["UE - ARSAL"])
       df_arsal["Municipio"] = padroniza(df_arsal["Municipio"])
 
+
+
       
       # Garantir que N Economias seja numérico
       
       df_vi["N Economias - VI"] = pd.to_numeric(df_vi["N Economias - VI"], errors="coerce").fillna(0)
 
       df_arsal["N Economias - ARSAL"] = pd.to_numeric(df_arsal["N Economias - ARSAL"], errors="coerce").fillna(0)
+
+
+      st.dataframe(df_arsal)
 
 
       
@@ -1670,6 +1681,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       
       potenciais_arsal = pot_agua_arsal.merge(pot_esgoto_arsal, on="Municipio", how="outer")
 
+      st.dataframe(potenciais_arsal)
+
       
       # Preparar EVTE
       
@@ -1688,12 +1701,16 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
           "E total esgoto (EVTE) - ARSAL": "E total esgoto",
       })[["Municipio", "E total agua", "E total esgoto"]]
 
+      st.dataframe(evte_arsal)
+
       
       # Juntar (apenas por nome do município)
       
       iua_iue_analise_vi = evte_vi.merge(potenciais_vi, on="Municipio", how="outer")
 
       iua_iue_analise_arsal = evte_arsal.merge(potenciais_arsal, on="Municipio", how="outer")
+
+      st.dataframe(iua_iue_analise_arsal)
 
       
       # Índices
@@ -1729,6 +1746,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
           iua_iue_analise_arsal["E potencial esgoto"] / iua_iue_analise_arsal["E total esgoto"],
           np.nan,
       )
+
+      st.dataframe(iua_iue_analise_arsal)
 
 
       
