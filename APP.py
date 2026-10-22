@@ -5138,7 +5138,7 @@ def rel_iqa():
 
   lat_long = pd.read_excel('lat_long.xlsx')
 
-  url = "https://github.com/carlosfarsal/DASH_ATT/raw/main/modelo_iqa_automatico.docx"
+  url = "https://github.com/indger-26/IND_SAN/raw/main/modelo_iqa_automatico.docx"
 
   output = "modelo_iqa_automatico.docx"
 
@@ -5962,11 +5962,11 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
-#     if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
-#         var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
-# Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
-# $TAB_ETOT_ARSAL
-# Fonte: ARSAL."""] = ""
+    if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
+        var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
+Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
+$TAB_ETOT_ARSAL
+Fonte: ARSAL."""] = ""
 
     print (IS_SATISF_IQE)
 
@@ -8231,7 +8231,7 @@ def rel_iqa_iqe():
     return arquivo_saida
 
   
-  url = "https://github.com/carlosfarsal/DASH_ATT/raw/main/modelo_iqa_iqe_automatico.docx"
+  url = "https://github.com/indger-26/IND_SAN/raw/main/modelo_iqa_iqe_automatico.docx"
 
   output = "modelo_iqa_iqe_automatico.docx"
 
