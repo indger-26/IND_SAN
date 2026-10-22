@@ -8175,7 +8175,7 @@ Fonte: ARSAL."""] = ""
 
     QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
-    if mes == "August":
+    if mes_ing == "August":
     
         QUADRO_IUA_IUE_POND = pond_iua_iue(iua_iue_economias, iua_iue_pond)
 
