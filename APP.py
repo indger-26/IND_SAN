@@ -5814,8 +5814,8 @@ def rel_iqa_iqe():
       REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
 
     if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
-      EXP_IUA = 0
-      REC_IUA = 0
+      EXP_IUE = 0
+      REC_IUE = 0
                   
       
     if str(IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
