@@ -2017,6 +2017,8 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
           "IUE": "iue",
       })
 
+      pos = iua_iue_analise_arsal.columns.get_loc("municipio")
+      iua_iue_analise_arsal.insert(pos, "ano_contratual", ano_contratual)
 
       prestadora_iua_iue = 'IUA_IUE_ANALISE_'+ prestadora_sigla
       prestadora_iua_iue_final = 'IUA_IUE_'+ prestadora_sigla
