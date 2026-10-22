@@ -5793,17 +5793,29 @@ def rel_iqa_iqe():
     E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype(int)
     E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype(int)
     IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
-    IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')    
-    EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
-    REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
+    IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
+                 
+    if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+      EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
+      REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
+      
+    if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+      EXP_IUA = 0
+      REC_IUA = 0
 
 
     E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype(int)
     E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype(int)
     IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
-    IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')    
-    EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
-    REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
+    IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
+    
+    if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+      EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
+      REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
+
+    if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+      EXP_IUA = 0
+      REC_IUA = 0
                   
       
     if (IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
