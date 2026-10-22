@@ -5818,17 +5818,17 @@ def rel_iqa_iqe():
       REC_IUA = 0
                   
       
-    if (IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
+    if str(IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
       IS_SATISF_IUA = "satisfatório"
 
-    if (IUA_VI).strip() != (IUA_ARSAL_TXT).strip():
+    if str(IUA_VI).strip() != (IUA_ARSAL_TXT).strip():
       IS_SATISF_IUA = "divergente"
 
 
-    if (IUE_VI).strip() == (IUE_ARSAL_TXT).strip():
+    if str(IUE_VI).strip() == (IUE_ARSAL_TXT).strip():
       IS_SATISF_IUE = "satisfatório"
 
-    if (IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
+    if str(IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
       IS_SATISF_IUE = "divergente"
 
     TEXTO_IUA_IUE_POND = (
