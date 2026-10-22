@@ -5935,7 +5935,7 @@ def rel_iqa_iqe():
               '$FONTE_EPOT_IUE': str(FONTE_EPOT_IUE),
               '$FONTE_ETOT_IUE': str(FONTE_ETOT_IUE),
               '$QUADRO_IUA_IUE_POND': "" if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else QUADRO_IUA_IUE_POND,**({TEXTO_IUA_IUE_POND: "Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância com os valores apresentados para os referidos componentes."} if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else {}),
-              '$QUADRO_MUN_IUA_IUE_ARSAL': tab_mun_iua_iue_arsal,
+              '$QUADRO_MUN_IUA_IUE_ARSAL': TAB_MUN_IUA_IUE_ARSAL,
 
               '$EVTE_CORRETO': IGUAL if igual else DIFERENTE,
               
