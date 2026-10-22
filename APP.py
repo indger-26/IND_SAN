@@ -7818,7 +7818,7 @@ Fonte: ARSAL."""] = ""
         EPOT_P_IUE, ETOT_P_IUE, IUE_P,
         EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI,
         META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE,
-    ) = infos_gerais(TAB_INFO)
+    ) = infos_gerais(arquivo_gerais)
 
     # PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
@@ -8147,7 +8147,7 @@ Fonte: ARSAL."""] = ""
         TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
         TAB_ETOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_tot].copy()
 
-        DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão"
+        DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
 
         IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
 
