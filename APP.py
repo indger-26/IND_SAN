@@ -8192,7 +8192,7 @@ Fonte: ARSAL."""] = ""
     
     graf(TAB_MUN_FINAL, AN_TIPO, TAB_MUN_FINAL_IQE, AN_TIPO_IQE)
 
-    if mes == "August":
+    if mes_ing == "August":
     
         graf_iua_iue(TAB_MUN_IUA_IUE_ARSAL)
     
