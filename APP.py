@@ -7175,11 +7175,11 @@ Fonte: ARSAL."""] = ""
       ]
   
       # soma por id (um id pode ter várias linhas de economias)
-      somas = eco.groupby(COL_ID)[novas_cols].sum()
+      somas = eco.groupby(COL_ID_ECON)[novas_cols].sum()
   
       # traz para a tabela de ponderações pelo id; ids sem correspondência ficam 0
       pond = pond.drop(columns=[c for c in novas_cols if c in pond.columns])
-      pond = pond.merge(somas, how="left", left_on=COL_ID, right_index=True)
+      pond = pond.merge(somas, how="left", left_on=COL_ID_POND, right_index=True)
       pond[novas_cols] = pond[novas_cols].fillna(0)
   
       return pond
