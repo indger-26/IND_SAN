@@ -5541,6 +5541,18 @@ def rel_iqa_iqe():
         "E potencial esgoto - ARSAL", "E total esgoto", "IUE",
     ]].sort_values("Municipio").reset_index(drop=True)
 
+    # Remover sufixos dos nomes das colunas ainda persistentes
+    
+    iua_iue_analise_vi = iua_iue_analise_vi.rename(columns={
+        "E potencial agua - VI": "E potencial agua",
+        "E potencial esgoto - VI": "E potencial esgoto",
+    })
+
+    iua_iue_analise_arsal = iua_iue_analise_arsal.rename(columns={
+        "E potencial agua - ARSAL": "E potencial agua",
+        "E potencial esgoto - ARSAL": "E potencial esgoto",
+    })
+
     st.dataframe(iua_iue_analise_arsal)
 
     return iua_iue_analise_arsal, iua_iue_analise_vi
@@ -8118,9 +8130,9 @@ Fonte: ARSAL."""] = ""
       )
     
       iua_iue_evte["Municipio"] = (
-        iua_iue_economias["municipio_code"]
+        iua_iue_evte["municipio_code"]
         .map(mapa_municipio_padrao)
-        .fillna(iua_iue_economias["Municipio"])
+        .fillna(iua_iue_evte["Municipio"])
       )
 
     TAB_MUN, TAB_TIPO, TAB_REALIZADAS, TAB_POND, BASE_MUN_TIPO_completo = base(PLAN_MUN_TIPO, AMOSTRAS_REALIZADAS, PONDERACOES, MES_ANO)
