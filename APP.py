@@ -5753,11 +5753,11 @@ def rel_iqa_iqe():
 
     # soma das colunas numéricas (os índices serão sobrescritos abaixo)
     cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
-    total = tab_mun_iua_iue_arsal[cols_num].sum()
+    total = TAB_MUN_IUA_IUE_ARSAL[cols_num].sum()
     
     # IUA e IUE totais = divisão dos somatórios dos componentes
-    iua_total = total["E total agua"] / total["E potencial agua"] if total["E potencial agua"] else 0
-    iue_total = total["E total esgoto"] / total["E potencial esgoto"] if total["E potencial esgoto"] else 0
+    iua_total = total["E potencial agua"] / total["E total agua"] if total["E total agua"] else 0
+    iue_total = total["E potencial esgoto"] / total["E total esgoto"] if total["E total esgoto"] else 0
     
     linha_total = {
         "Municipio": "TOTAL",
@@ -5769,22 +5769,22 @@ def rel_iqa_iqe():
         "IUE": iue_total,
     }
     
-    tab_mun_iua_iue_arsal = pd.concat(
-        [tab_mun_iua_iue_arsal, pd.DataFrame([linha_total])],
+    TAB_MUN_IUA_IUE_ARSAL = pd.concat(
+        [TAB_MUN_IUA_IUE_ARSAL, pd.DataFrame([linha_total])],
         ignore_index=True,
     )
     
 
-    E_POT_IUA_ARSAL = (tab_mun_iua_iue_arsal["E potencial agua"].iloc[-1]).astype(int)
-    E_TOT_IUA_ARSAL = (tab_mun_iua_iue_arsal["E total agua"].iloc[-1]).astype(int)
+    E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype(int)
+    E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype(int)
     IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
     IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')    
     EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
     REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
 
 
-    E_POT_IUE_ARSAL = (tab_mun_iua_iue_arsal["E potencial esgoto"].iloc[-1]).astype(int)
-    E_TOT_IUE_ARSAL = (tab_mun_iua_iue_arsal["E total esgoto"].iloc[-1]).astype(int)
+    E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype(int)
+    E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype(int)
     IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
     IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')    
     EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
