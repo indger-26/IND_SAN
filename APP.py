@@ -5752,10 +5752,10 @@ def rel_iqa_iqe():
 
 
     # soma das colunas numéricas (os índices serão sobrescritos abaixo)
+    st.dataframe(TAB_MUN_IUA_IUE_ARSAL, use_container_width=True, hide_index=True)
+    
     cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
     total = TAB_MUN_IUA_IUE_ARSAL[cols_num].sum()
-
-    st.dataframe(TAB_MUN_IUA_IUE_ARSAL, use_container_width=True, hide_index=True)
     
     # IUA e IUE totais = divisão dos somatórios dos componentes
     iua_total = total["E potencial agua"] / total["E total agua"] if total["E total agua"] else 0
