@@ -5962,11 +5962,11 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
-    if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
-        var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
-Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
-$TAB_ETOT_ARSAL
-Fonte: ARSAL."""] = ""
+#     if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
+#         var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
+# Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
+# $TAB_ETOT_ARSAL
+# Fonte: ARSAL."""] = ""
 
     print (IS_SATISF_IQE)
 
