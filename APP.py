@@ -2091,8 +2091,8 @@ def alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, paramet
           
           # IUA e IUE = razão das somas (não a soma/média dos índices)
           # Se e_potencial = 0, retorna NaN para evitar divisão por zero
-          iua_iue_arsal["iua"] = iua_iue_arsal["e_total_agua"] / iua_iue_arsal["e_potencial_agua"].replace(0, np.nan)
-          iua_iue_arsal["iue"] = iua_iue_arsal["e_total_esgoto"] / iua_iue_arsal["e_potencial_esgoto"].replace(0, np.nan)
+          iua_iue_arsal["iua"] = iua_iue_arsal["e_potencial_agua"] / iua_iue_arsal["e_total_agua"].replace(0, np.nan)
+          iua_iue_arsal["iue"] = iua_iue_arsal["e_potencial_esgoto"] / iua_iue_arsal["e_total_esgoto"].replace(0, np.nan)
           
           # Novas colunas (vazias por enquanto, para preencher depois)
           iua_iue_arsal["iua_vi"] = iua_vi
@@ -7804,9 +7804,21 @@ Fonte: ARSAL."""] = ""
     ########################### NOVO #################################################
 
 
-    MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P,
-    NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, MESMIN_ANO, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA, FONTE_ETOT_IUA,
-    EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE = infos_gerais (arquivo_gerais)
+    (
+        MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META,
+        NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI,
+        FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO,
+        META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P,
+        NCOF_VI_IQE, NREA_VI_IQE, IQE_VI,
+        FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITAÇÃO_IQE,
+        MESMIN_ANO,
+        EPOT_P_IUA, ETOT_P_IUA, IUA_P,
+        EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI,
+        META_IUA, FONTE_EPOT_IUA, FONTE_ETOT_IUA,
+        EPOT_P_IUE, ETOT_P_IUE, IUE_P,
+        EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI,
+        META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE,
+    ) = infos_gerais(TAB_INFO)
 
     # PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
