@@ -5661,9 +5661,15 @@ def rel_iqa_iqe():
     ETOT_P_IUA = TAB_INFO ["INFORMAÇÃO"][28]
     IUA_P = TAB_INFO ["INFORMAÇÃO"][29]
 
+    IUA_P = float(IUA_P)
+    IUA_P = "100%" if IUA_P >= 1 else f"{IUA_P*100:.1f}%".replace('.', ',').rstrip('0').rstrip(',')
+
     EPOT_VI_IUA = TAB_INFO ["INFORMAÇÃO"][30]
     ETOT_VI_IUA = TAB_INFO ["INFORMAÇÃO"][31]
     IUA_VI = TAB_INFO ["INFORMAÇÃO"][32]
+
+    IUA_VI = float(IUA_VI)
+    IUA_VI = "100%" if IUA_VI >= 1 else f"{IUA_VI*100:.1f}%".replace('.', ',').rstrip('0').rstrip(',')
 
     META_IUA = TAB_INFO ["INFORMAÇÃO"][33]
     META_IUA = float(META_IUA)
@@ -5678,9 +5684,15 @@ def rel_iqa_iqe():
     ETOT_P_IUE = TAB_INFO ["INFORMAÇÃO"][37]
     IUE_P = TAB_INFO ["INFORMAÇÃO"][38]
 
+    IUE_P = float(IUE_P)
+    IUE_P = "100%" if IUE_P >= 1 else f"{IUE_P*100:.1f}%".replace('.', ',').rstrip('0').rstrip(',')
+
     EPOT_VI_IUE = TAB_INFO ["INFORMAÇÃO"][39]
     ETOT_VI_IUE = TAB_INFO ["INFORMAÇÃO"][40]
     IUE_VI = TAB_INFO ["INFORMAÇÃO"][41]
+
+    IUE_VI = float(IUE_VI)
+    IUE_VI = "100%" if IUE_VI >= 1 else f"{IUE_VI*100:.1f}%".replace('.', ',').rstrip('0').rstrip(',')
 
     META_IUE = TAB_INFO ["INFORMAÇÃO"][42]
     META_IUE = float(META_IUE)
