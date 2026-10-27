@@ -7710,15 +7710,15 @@ Fonte: ARSAL."""] = ""
       fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
       y = np.arange(n)
   
-      barras = ax.barh(y, d[col_indice], height=0.7, color="#08519c")
-      ax.bar_label(barras, labels=[_fmt_pct(v) for v in d[col_indice]],
+      barras = ax.barh(y, valores, height=0.7, color="#08519c")
+      ax.bar_label(barras, labels=[_fmt_pct(v) for v in valores],
                    padding=3, fontsize=fs - 3)
   
       ax.set_yticks(y)
       ax.set_yticklabels(d[COL_MUN], fontsize=fs)
       ax.invert_yaxis()
-      ax.set_xlim(0, d[col_indice].max() * 1.15)
-      ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: _fmt_br(v, 2)))
+      ax.set_xlim(0, valores.max() * 1.15)
+      ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: _fmt_pct(v, 0)))
       ax.tick_params(axis="x", labelsize=fs)
       ax.set_xlabel(rotulo_x, fontsize=fs + 1)
       ax.set_title(titulo, fontsize=fs + 3, fontweight="bold", pad=12)
