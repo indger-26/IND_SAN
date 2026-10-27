@@ -7697,7 +7697,7 @@ Fonte: ARSAL."""] = ""
       return fig
   
   
-  def _barras_indice(df, col_indice, titulo, rotulo_x):
+  def _barras_indice(df, col_indice, titulo, rotulo_x, ja_em_percentual=False):
       d = _prepara(df, col_indice)
       n = len(d)
       fs = _fonte_base(n)
