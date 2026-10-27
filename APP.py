@@ -8180,13 +8180,44 @@ Fonte: ARSAL."""] = ""
 
         col_pot = ['Municipio', 'E potencial agua', 'E potencial esgoto']
         col_tot = ['Municipio', 'E total agua', 'E total esgoto']
-        
-        TAB_EPOT_VI = TAB_MUN_IUA_IUE_VI[col_pot].copy()
-        TAB_EPOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_pot].copy()
-        
-        TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
-        TAB_ETOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_tot].copy()
 
+      
+        TAB_EPOT_VI = TAB_MUN_IUA_IUE_VI[col_pot].copy()
+        total = pd.DataFrame({
+            'Municipio': ['TOTAL'],
+            'E potencial agua': [TAB_EPOT_VI['E potencial agua'].sum()],
+            'E potencial esgoto': [TAB_EPOT_VI['E potencial esgoto'].sum()]
+        })
+        TAB_EPOT_VI = pd.concat([TAB_EPOT_VI, total], ignore_index=True)
+
+      
+        TAB_EPOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_pot].copy()
+        total = pd.DataFrame({
+            'Municipio': ['TOTAL'],
+            'E potencial agua': [TAB_EPOT_ARSAL['E potencial agua'].sum()],
+            'E potencial esgoto': [TAB_EPOT_ARSAL['E potencial esgoto'].sum()]
+        })
+        TAB_EPOT_ARSAL = pd.concat([TAB_EPOT_ARSAL, total], ignore_index=True)
+
+      
+        TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
+        total = pd.DataFrame({
+            'Municipio': ['TOTAL'],
+            'E total agua': [TAB_ETOT_VI['E total agua'].sum()],
+            'E total esgoto': [TAB_ETOT_VI['E total esgoto'].sum()]
+        })
+        TAB_ETOT_VI = pd.concat([TAB_ETOT_VI, total], ignore_index=True)
+
+      
+        TAB_ETOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_tot].copy()
+        total = pd.DataFrame({
+            'Municipio': ['TOTAL'],
+            'E total agua': [TAB_ETOT_ARSAL['E total agua'].sum()],
+            'E total esgoto': [TAB_ETOT_ARSAL['E total esgoto'].sum()]
+        })
+        TAB_ETOT_ARSAL = pd.concat([TAB_ETOT_ARSAL, total], ignore_index=True)
+
+      
         DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
 
         IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
