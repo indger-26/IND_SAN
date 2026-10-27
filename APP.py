@@ -6111,7 +6111,7 @@ Fonte: ARSAL."""] = ""
 
     for r, (_, linha) in enumerate(df.iterrows()):
         cor = cor_par if r % 2 == 0 else cor_impar
-        is_ultima_linha = (df.columns[-1] in ("NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)")) and (r == len(df) - 1)
+        is_ultima_linha = (df.columns[-1] in ("NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)", "E potencial esgoto", "E total esgoto")) and (r == len(df) - 1)
         for c, valor in enumerate(linha):
             cell = tabela.rows[r + 1].cells[c]
             set_bg(cell, cor)
@@ -8279,6 +8279,7 @@ Fonte: ARSAL."""] = ""
             'E potencial esgoto': [TAB_EPOT_VI['E potencial esgoto'].sum()]
         })
         TAB_EPOT_VI = pd.concat([TAB_EPOT_VI, total], ignore_index=True)
+        TAB_EPOT_VI['E potencial esgoto'] = TAB_EPOT_VI['E potencial esgoto'].astype(int)
 
       
         TAB_EPOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_pot].copy()
@@ -8288,6 +8289,7 @@ Fonte: ARSAL."""] = ""
             'E potencial esgoto': [TAB_EPOT_ARSAL['E potencial esgoto'].sum()]
         })
         TAB_EPOT_ARSAL = pd.concat([TAB_EPOT_ARSAL, total], ignore_index=True)
+        TAB_EPOT_ARSAL['E potencial esgoto'] = TAB_EPOT_ARSAL['E potencial esgoto'].astype(int)
 
       
         TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
