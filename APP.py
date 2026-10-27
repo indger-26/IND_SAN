@@ -7637,16 +7637,105 @@ Fonte: ARSAL."""] = ""
       return fig
   
   
+  COL_MUN = "Município"
+  FIG_W, FIG_H = 6.7, 9.5
+  DPI = 200
+  
+  
+  def _fmt_br(v, casas=0):
+      """Formata número no padrão brasileiro (1.234,56)."""
+      s = f"{v:,.{casas}f}"
+      return s.replace(",", "X").replace(".", ",").replace("X", ".")
+  
+  
+  def _fonte_base(n):
+      """Tamanho de fonte que diminui só se houver muitos municípios."""
+      return float(np.clip(600 / max(n, 1), 7, 12))
+  
+  
+  def _prepara(df, col_ordem):
+      d = df.copy()
+      # remove a linha TOTAL, se existir
+      d = d[d[COL_MUN].astype(str).str.upper() != "TOTAL"]
+      # ordena do maior para o menor (maior fica no topo)
+      d = d.sort_values(col_ordem, ascending=False).reset_index(drop=True)
+      return d
+  
+  
+  def _barras_pot_total(df, col_pot, col_total, titulo):
+      d = _prepara(df, col_total)
+      n = len(d)
+      fs = _fonte_base(n)
+  
+      fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
+      y = np.arange(n)
+      h = 0.4
+  
+      b1 = ax.barh(y - h/2, d[col_pot], height=h, label="Economias potenciais", color="#9ecae1")
+      b2 = ax.barh(y + h/2, d[col_total], height=h, label="Economias totais", color="#08519c")
+  
+      # rótulos de valor nas pontas das barras
+      for barras in (b1, b2):
+          ax.bar_label(barras, labels=[_fmt_br(v) for v in barras.datavalues],
+                       padding=2, fontsize=fs - 1.5)
+  
+      ax.set_yticks(y)
+      ax.set_yticklabels(d[COL_MUN], fontsize=fs)
+      ax.invert_yaxis()                      # primeiro município no topo
+      ax.set_xlim(0, max(d[col_pot].max(), d[col_total].max()) * 1.18)
+      ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: _fmt_br(v)))
+      ax.tick_params(axis="x", labelsize=fs)
+      ax.set_xlabel("Número de economias", fontsize=fs + 1)
+      ax.set_title(titulo, fontsize=fs + 3, fontweight="bold", pad=12, wrap=True)
+      ax.grid(axis="x", linestyle=":", alpha=0.5)
+      ax.set_axisbelow(True)
+      for s in ("top", "right"):
+          ax.spines[s].set_visible(False)
+      ax.legend(fontsize=fs, loc="lower right", frameon=False)
+  
+      fig.tight_layout()
+      return fig
+  
+  
+  def _barras_indice(df, col_indice, titulo, rotulo_x):
+      d = _prepara(df, col_indice)
+      n = len(d)
+      fs = _fonte_base(n)
+  
+      fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
+      y = np.arange(n)
+  
+      barras = ax.barh(y, d[col_indice], height=0.7, color="#08519c")
+      ax.bar_label(barras, labels=[_fmt_br(v, 2) for v in d[col_indice]],
+                   padding=3, fontsize=fs - 1)
+  
+      ax.set_yticks(y)
+      ax.set_yticklabels(d[COL_MUN], fontsize=fs)
+      ax.invert_yaxis()
+      ax.set_xlim(0, d[col_indice].max() * 1.15)
+      ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: _fmt_br(v, 2)))
+      ax.tick_params(axis="x", labelsize=fs)
+      ax.set_xlabel(rotulo_x, fontsize=fs + 1)
+      ax.set_title(titulo, fontsize=fs + 3, fontweight="bold", pad=12)
+      ax.grid(axis="x", linestyle=":", alpha=0.5)
+      ax.set_axisbelow(True)
+      for s in ("top", "right"):
+          ax.spines[s].set_visible(False)
+  
+      fig.tight_layout()
+      return fig
+  
+  
   def graf_iua_iue(iua_iue_analise_arsal):
       df = iua_iue_analise_arsal.copy()
   
       fig1 = _barras_pot_total(
           df, "E potencial agua", "E total agua",
-          "Economias potenciais x Economias totais de água por município (IUA)",
+          "Economias potenciais x Economias totais\nde água por município (IUA)",
       )
       fig2 = _barras_pot_total(
           df, "E potencial esgoto", "E total esgoto",
-          "Economias potenciais x Economias totais de esgoto por município (IUE)",
+          "Economias potenciais x Economias totais\nde esgoto por município (IUE)",
       )
       fig3 = _barras_indice(df, "IUA", "IUA por município", "IUA")
       fig4 = _barras_indice(df, "IUE", "IUE por município", "IUE")
@@ -7659,7 +7748,8 @@ Fonte: ARSAL."""] = ""
       }
   
       for nome, fig in arquivos.items():
-          fig.savefig(nome, dpi=150, bbox_inches="tight")
+          # sem bbox_inches="tight", para manter o tamanho exato da página
+          fig.savefig(nome, dpi=DPI)
           plt.close(fig)
   
       return list(arquivos.keys())
