@@ -7650,7 +7650,7 @@ Fonte: ARSAL."""] = ""
   
   def _fonte_base(n):
       """Tamanho de fonte que diminui só se houver muitos municípios."""
-      return float(np.clip(600 / max(n, 1), 7, 12))
+      return float(np.clip(450 / max(n, 1), 6, 10))
   
   
   def _prepara(df, col_ordem):
@@ -7677,10 +7677,10 @@ Fonte: ARSAL."""] = ""
       # rótulos de valor nas pontas das barras
       for barras in (b1, b2):
           ax.bar_label(barras, labels=[_fmt_br(v) for v in barras.datavalues],
-                       padding=2, fontsize=fs - 1.5)
+                       padding=2, fontsize=fs - 3)
   
       ax.set_yticks(y)
-      ax.set_yticklabels(d[COL_MUN], fontsize=fs)
+      ax.set_yticklabels(d[COL_MUN], fontsize=fs-2)
       ax.invert_yaxis()                      # primeiro município no topo
       ax.set_xlim(0, max(d[col_pot].max(), d[col_total].max()) * 1.18)
       ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: _fmt_br(v)))
@@ -7707,7 +7707,7 @@ Fonte: ARSAL."""] = ""
   
       barras = ax.barh(y, d[col_indice], height=0.7, color="#08519c")
       ax.bar_label(barras, labels=[_fmt_br(v, 2) for v in d[col_indice]],
-                   padding=3, fontsize=fs - 1)
+                   padding=3, fontsize=fs - 3)
   
       ax.set_yticks(y)
       ax.set_yticklabels(d[COL_MUN], fontsize=fs)
