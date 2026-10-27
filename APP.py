@@ -7637,7 +7637,7 @@ Fonte: ARSAL."""] = ""
       return fig
   
   
-  COL_MUN = "Município"
+  COL_MUN = "Municipio"
   FIG_W, FIG_H = 6.7, 9.5
   DPI = 200
   
