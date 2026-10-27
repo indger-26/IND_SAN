@@ -7695,7 +7695,10 @@ Fonte: ARSAL."""] = ""
   
       fig.tight_layout()
       return fig
-  
+
+  def _fmt_pct(v, casas=1):
+    """Formata como percentual brasileiro (85,3%)."""
+    return _fmt_br(v, casas) + "%"
   
   def _barras_indice(df, col_indice, titulo, rotulo_x, ja_em_percentual=False):
       d = _prepara(df, col_indice)
@@ -7708,7 +7711,7 @@ Fonte: ARSAL."""] = ""
       y = np.arange(n)
   
       barras = ax.barh(y, d[col_indice], height=0.7, color="#08519c")
-      ax.bar_label(barras, labels=[_fmt_br(v, 2) for v in d[col_indice]],
+      ax.bar_label(barras, labels=[_fmt_pct(v) for v in d[col_indice]],
                    padding=3, fontsize=fs - 3)
   
       ax.set_yticks(y)
@@ -7739,8 +7742,8 @@ Fonte: ARSAL."""] = ""
           df, "E potencial esgoto", "E total esgoto",
           "E potenciais x E totais (IUE)",
       )
-      fig3 = _barras_indice(df, "IUA", "IUA por município", "IUA", ja_em_percentual=False)
-      fig4 = _barras_indice(df, "IUE", "IUE por município", "IUE", ja_em_percentual=False)
+      fig3 = _barras_indice(df, "IUA", "IUA por município", "IUA (%)", ja_em_percentual=False)
+      fig4 = _barras_indice(df, "IUE", "IUE por município", "IUE (%)", ja_em_percentual=False)
   
       arquivos = {
           "grafico_1_iua_pot_total.png": fig1,
