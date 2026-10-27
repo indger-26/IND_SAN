@@ -7701,6 +7701,8 @@ Fonte: ARSAL."""] = ""
       d = _prepara(df, col_indice)
       n = len(d)
       fs = _fonte_base(n)
+
+      valores = d[col_indice] if ja_em_percentual else d[col_indice] * 100
   
       fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
       y = np.arange(n)
@@ -7731,14 +7733,14 @@ Fonte: ARSAL."""] = ""
   
       fig1 = _barras_pot_total(
           df, "E potencial agua", "E total agua",
-          "Economias potenciais x Economias totais\nde água por município (IUA)",
+          "E potenciais x E totais (IUA)",
       )
       fig2 = _barras_pot_total(
           df, "E potencial esgoto", "E total esgoto",
-          "Economias potenciais x Economias totais\nde esgoto por município (IUE)",
+          "E potenciais x E totais (IUE)",
       )
-      fig3 = _barras_indice(df, "IUA", "IUA por município", "IUA")
-      fig4 = _barras_indice(df, "IUE", "IUE por município", "IUE")
+      fig3 = _barras_indice(df, "IUA", "IUA por município", "IUA", ja_em_percentual=False)
+      fig4 = _barras_indice(df, "IUE", "IUE por município", "IUE", ja_em_percentual=False)
   
       arquivos = {
           "grafico_1_iua_pot_total.png": fig1,
