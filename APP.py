@@ -1769,8 +1769,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
 
     #iua_iue_analise_vi
-    iua_iue_analise_arsal["conceito_iua"] = np.where(iua_iue_analise_arsal["iua"] > iua_meta, 1, -1)
-    iua_iue_analise_arsal["conceito_iue"] = np.where(iua_iue_analise_arsal["iue"] > iue_meta, 1, -1)
+    iua_iue_analise_arsal["conceito_iua"] = np.where(iua_iue_analise_arsal["IUA"] > iua_meta, 1, -1)
+    iua_iue_analise_arsal["conceito_iue"] = np.where(iua_iue_analise_arsal["IUE"] > iue_meta, 1, -1)
 
     
     lat_long = pd.read_excel('lat_long.xlsx')
