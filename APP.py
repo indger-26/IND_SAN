@@ -1774,6 +1774,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
     poten = iua_iue_analise_arsal["E potencial esgoto"]
     valid = poten.notna() & (poten > 0)
     iua_iue_analise_arsal["conceito_iue"] = np.select([valid & (iua_iue_analise_arsal["IUE"] > iue_meta), valid & (iua_iue_analise_arsal["IUE"] <= iue_meta)], [1, -1], default=np.nan)
+    iua_iue_analise_arsal["conceito_iue"] = iua_iue_analise_arsal["conceito_iue"].astype("Int64")
 
     
     lat_long = pd.read_excel('lat_long.xlsx')
