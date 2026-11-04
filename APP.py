@@ -8430,7 +8430,7 @@ def MAIN ():
 
   if mes == "November" or mes == "February" or mes == "May" or mes == "August":
 
-    realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
+    realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte, iua_meta, iue_meta)
 
     print (realizados)
     print (parametros)
@@ -8469,7 +8469,7 @@ def MAIN ():
     iue_vi = 0
     iue_meta = 0
 
-    realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte)
+    realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte, iua_meta, iue_meta)
     alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
     backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
