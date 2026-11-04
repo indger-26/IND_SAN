@@ -699,7 +699,7 @@ def ler_ajustar_arquivo ():
 
 # ELABORAÇÃO DAS TABELAS ALIMENTADAS AO BANCO DE DADOS
 
-def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte):
+def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte, iua_meta, iue_meta):
 
 
   # IQA
