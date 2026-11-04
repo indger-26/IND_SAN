@@ -1768,10 +1768,44 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       ]].sort_values("Municipio").reset_index(drop=True)
 
 
-    iua_iue_analise_vi
-    iua_iue_analise_arsal
-    
+    #iua_iue_analise_vi
+    iua_iue_analise_arsal["conceito_iua"] = np.where(iua_iue_analise_arsal["iua"] > iua_meta, 1, -1)
+    iua_iue_analise_arsal["conceito_iue"] = np.where(iua_iue_analise_arsal["iue"] > iue_meta, 1, -1)
 
+    
+    lat_long = pd.read_excel('lat_long.xlsx')
+
+    def normalizar(serie):
+        return (
+            serie.astype(str)
+            .str.normalize('NFKD')
+            .str.encode('ascii', errors='ignore')
+            .str.decode('utf-8')
+            .str.upper()
+            .str.strip()
+        )
+    
+    # normaliza uma única vez, em colunas auxiliares
+    lat_long['cidade_norm'] = normalizar(lat_long['cidade'])
+    iua_iue_analise_arsal['municipio_norm'] = normalizar(iua_iue_analise_arsal['municipio'])
+    
+    # remove duplicatas de cidade para não multiplicar linhas no merge
+    coords = lat_long.drop_duplicates('cidade_norm')[['cidade_norm', 'latitude', 'longitude']]
+    
+    iua_iue_analise_arsal = iua_iue_analise_arsal.merge(
+        coords,
+        left_on='municipio_norm',
+        right_on='cidade_norm',
+        how='left'
+    ).drop(columns=['cidade_norm'])
+    
+    # coordenada só onde houver latitude e longitude
+    iua_iue_analise_arsal['coordenada'] = (
+        iua_iue_analise_arsal['latitude'].astype(str) + ',' +
+        iua_iue_analise_arsal['longitude'].astype(str)
+    ).where(iua_iue_analise_arsal[['latitude', 'longitude']].notna().all(axis=1))
+
+    
     return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal
 
   else:
