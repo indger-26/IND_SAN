@@ -1770,7 +1770,10 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
     #iua_iue_analise_vi
     iua_iue_analise_arsal["conceito_iua"] = np.where(iua_iue_analise_arsal["IUA"] > iua_meta, 1, -1)
-    iua_iue_analise_arsal["conceito_iue"] = np.where(iua_iue_analise_arsal["IUE"] > iue_meta, 1, -1)
+    
+    poten = iua_iue_analise_arsal["E potencial esgoto"]
+    valid = poten.notna() & (poten > 0)
+    iua_iue_analise_arsal["conceito_iue"] = np.select([valid & (iua_iue_analise_arsal["IUE"] > iue_meta), valid & (iua_iue_analise_arsal["IUE"] <= iue_meta)], [1, -1], default=np.nan)
 
     
     lat_long = pd.read_excel('lat_long.xlsx')
