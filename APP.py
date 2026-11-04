@@ -1787,7 +1787,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
     
     # normaliza uma única vez, em colunas auxiliares
     lat_long['cidade_norm'] = normalizar(lat_long['cidade'])
-    iua_iue_analise_arsal['municipio_norm'] = normalizar(iua_iue_analise_arsal['municipio'])
+    iua_iue_analise_arsal['municipio_norm'] = normalizar(iua_iue_analise_arsal['Municipio'])
     
     # remove duplicatas de cidade para não multiplicar linhas no merge
     coords = lat_long.drop_duplicates('cidade_norm')[['cidade_norm', 'latitude', 'longitude']]
