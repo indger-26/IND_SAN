@@ -1805,6 +1805,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
         iua_iue_analise_arsal['longitude'].astype(str)
     ).where(iua_iue_analise_arsal[['latitude', 'longitude']].notna().all(axis=1))
 
+    iua_iue_analise_arsal = iua_iue_analise_arsal.drop(columns=['municipio_norm'])
+
     
     return realizados, parametros, mun, plano_final, iqa_final, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, iua_iue_analise_vi, iua_iue_analise_arsal
 
