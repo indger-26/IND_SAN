@@ -1768,6 +1768,10 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       ]].sort_values("Municipio").reset_index(drop=True)
 
 
+    iua_iue_analise_arsal["meta_iua"] = iua_meta
+    iua_iue_analise_arsal["meta_iue"] = iue_meta
+
+
     #iua_iue_analise_vi
     iua_iue_analise_arsal["conceito_iua"] = np.where(iua_iue_analise_arsal["IUA"] > iua_meta, 1, -1)
     
