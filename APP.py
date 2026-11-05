@@ -7,6 +7,7 @@ import itertools
 from datetime import datetime
 from supabase import create_client, Client
 import os
+from docx.oxml.ns import qn
 import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5887,141 +5888,151 @@ def rel_iqa_iqe():
     if str(IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
       IS_SATISF_IUE = "divergente"
 
-    TEXTO_IUA_IUE_POND = (
-        "As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas associados, "
-        "tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo de "
-        "“Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.\n"
-        "Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais – IUA/IUE.\n"
-        "$QUADRO_IUA_IUE_POND\n"                      # <- placeholder, não "SEM PONDERACOES"
-        "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL.\n"
-        "Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os componentes "
-        "“Epotencial água” e “Epotencial esg”:\n"
-        "Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos setores técnicos.\n"
-        "$TAB_EPOT_ARSAL\n"
-        "Fonte: ARSAL."
-    )
+    # TEXTO_IUA_IUE_POND = (
+    #     "As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas associados, "
+    #     "tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo de "
+    #     "“Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.\n"
+    #     "Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais – IUA/IUE.\n"
+    #     "$QUADRO_IUA_IUE_POND\n"                      # <- placeholder, não "SEM PONDERACOES"
+    #     "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL.\n"
+    #     "Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os componentes "
+    #     "“Epotencial água” e “Epotencial esg”:\n"
+    #     "Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos setores técnicos.\n"
+    #     "$TAB_EPOT_ARSAL\n"
+    #     "Fonte: ARSAL."
+    # )
 
     DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
 
     IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
 
     # ---------- utilidades ----------
-    def iter_paragraphs(doc):
-        """Todos os parágrafos: corpo, tabelas, cabeçalhos e rodapés."""
-        def _from_container(container):
-            for p in container.paragraphs:
-                yield p
-            for t in container.tables:
-                for row in t.rows:
-                    for cell in row.cells:
-                        yield from _from_container(cell)
+    # def iter_paragraphs(doc):
+    #     """Todos os parágrafos: corpo, tabelas, cabeçalhos e rodapés."""
+    #     def _from_container(container):
+    #         for p in container.paragraphs:
+    #             yield p
+    #         for t in container.tables:
+    #             for row in t.rows:
+    #                 for cell in row.cells:
+    #                     yield from _from_container(cell)
     
-        yield from _from_container(doc)
-        for sec in doc.sections:
-            for part in (sec.header, sec.footer):
-                yield from _from_container(part)
-    
-    
-    def replace_in_paragraph(p, old, new):
-        """Substitui 'old' por 'new' mesmo se o texto estiver dividido em vários runs."""
-        start = 0
-        changed = False
-        while True:
-            runs = p.runs
-            full = "".join(r.text for r in runs)
-            idx = full.find(old, start)
-            if idx == -1:
-                break
-            end = idx + len(old)
-            pos, first = 0, True
-            for r in runs:
-                rs, re_ = pos, pos + len(r.text)
-                pos = re_
-                if re_ <= idx or rs >= end:
-                    continue
-                s = max(idx, rs) - rs
-                e = min(end, re_) - rs
-                if first:
-                    r.text = r.text[:s] + new + r.text[e:]
-                    first = False
-                else:
-                    r.text = r.text[:s] + r.text[e:]
-            start = idx + len(new)
-            changed = True
-        return changed
+    #     yield from _from_container(doc)
+    #     for sec in doc.sections:
+    #         for part in (sec.header, sec.footer):
+    #             yield from _from_container(part)
     
     
-    def delete_paragraph(p):
-        p._element.getparent().remove(p._element)
+    # def replace_in_paragraph(p, old, new):
+    #     """Substitui 'old' por 'new' mesmo se o texto estiver dividido em vários runs."""
+    #     start = 0
+    #     changed = False
+    #     while True:
+    #         runs = p.runs
+    #         full = "".join(r.text for r in runs)
+    #         idx = full.find(old, start)
+    #         if idx == -1:
+    #             break
+    #         end = idx + len(old)
+    #         pos, first = 0, True
+    #         for r in runs:
+    #             rs, re_ = pos, pos + len(r.text)
+    #             pos = re_
+    #             if re_ <= idx or rs >= end:
+    #                 continue
+    #             s = max(idx, rs) - rs
+    #             e = min(end, re_) - rs
+    #             if first:
+    #                 r.text = r.text[:s] + new + r.text[e:]
+    #                 first = False
+    #             else:
+    #                 r.text = r.text[:s] + r.text[e:]
+    #         start = idx + len(new)
+    #         changed = True
+    #     return changed
     
     
-    def insert_table_after(paragraph, df, style="Table Grid"):
-        """Cria uma tabela do Word a partir de um DataFrame, logo após o parágrafo."""
-        doc_part = paragraph.part
-        table = doc_part.document.add_table(rows=1, cols=len(df.columns))
-        table.style = style
-        for i, col in enumerate(df.columns):
-            table.rows[0].cells[i].text = str(col)
-        for _, row in df.iterrows():
-            cells = table.add_row().cells
-            for i, v in enumerate(row):
-                cells[i].text = str(v)
-        paragraph._p.addnext(table._tbl)  # move a tabela para depois do parágrafo
-        return table
+    # def delete_paragraph(p):
+    #     p._element.getparent().remove(p._element)
+    
+    
+    # def insert_table_after(paragraph, df, style="Table Grid"):
+    #     """Cria uma tabela do Word a partir de um DataFrame, logo após o parágrafo."""
+    #     doc_part = paragraph.part
+    #     table = doc_part.document.add_table(rows=1, cols=len(df.columns))
+    #     table.style = style
+    #     for i, col in enumerate(df.columns):
+    #         table.rows[0].cells[i].text = str(col)
+    #     for _, row in df.iterrows():
+    #         cells = table.add_row().cells
+    #         for i, v in enumerate(row):
+    #             cells[i].text = str(v)
+    #     paragraph._p.addnext(table._tbl)  # move a tabela para depois do parágrafo
+    #     return table
     
     
     # ---------- substituições ----------
-    def replace_multiparagraph(doc, key, new):
-      lines = [l.strip() for l in key.split("\n")]
-      paras = list(iter_paragraphs(doc))
-      n = len(lines)
-      for i in range(len(paras) - n + 1):
-          if all(paras[i + j].text.strip() == lines[j] for j in range(n)):
-              if new == "":
-                  for p in paras[i:i + n]:
-                      delete_paragraph(p)
-              else:
-                  first = paras[i]
-                  for r in first.runs[1:]:
-                      r.text = ""
-                  if first.runs:
-                      first.runs[0].text = new
-                  else:
-                      first.add_run(new)
-                  for p in paras[i + 1:i + n]:
-                      delete_paragraph(p)
-              return True
-      return False
+    def _norm(t):
+        return " ".join(t.replace("\xa0", " ").split())
     
-    
-    def preencher_docx(entrada, saida, var_dic):
-        doc = Document(entrada)
-    
-        # chaves maiores primeiro (evita que um placeholder quebre uma chave longa)
-        for key in sorted(var_dic, key=len, reverse=True):
-            val = var_dic[key]
-    
-            # valor DataFrame -> tabela
-            if isinstance(val, pd.DataFrame):
-                for p in list(iter_paragraphs(doc)):
-                    if key in p.text:
-                        replace_in_paragraph(p, key, "")
-                        insert_table_after(p, val)
+    def replace_block(doc, inicio, fim, novo):
+        """Substitui tudo entre o parágrafo que começa com 'inicio' e o primeiro
+        parágrafo seguinte que começa com 'fim' (inclusive, tabelas incluídas)."""
+        elems = list(doc.element.body.iterchildren())
+        i_ini = i_fim = None
+        for i, el in enumerate(elems):
+            if el.tag != qn("w:p"):
                 continue
+            txt = _norm(Paragraph(el, doc).text)
+            if i_ini is None:
+                if txt.startswith(_norm(inicio)):
+                    i_ini = i
+            elif txt.startswith(_norm(fim)):
+                i_fim = i
+                break
+        if i_ini is None or i_fim is None:
+            print(f"AVISO: bloco não encontrado: {inicio[:40]}...")
+            return False
     
-            val = "" if val is None else str(val)
+        if novo == "":
+            remover = elems[i_ini:i_fim + 1]
+        else:
+            p = Paragraph(elems[i_ini], doc)
+            for r in p.runs[1:]:
+                r._r.getparent().remove(r._r)
+            if p.runs:
+                p.runs[0].text = novo
+            else:
+                p.add_run(novo)
+            remover = elems[i_ini + 1:i_fim + 1]
+        for el in remover:
+            el.getparent().remove(el)
+        return True
     
-            # chave com várias linhas -> vários parágrafos
-            if "\n" in key:
-                replace_multiparagraph(doc, key, val)
-                continue
     
-            for p in iter_paragraphs(doc):
-                if key in p.text:
-                    replace_in_paragraph(p, key, val)
+    # def preencher_docx(entrada, saida, var_dic, blocos=()):
+    #     doc = Document(entrada)
     
-        doc.save(saida)
+    #     # blocos primeiro (antes dos placeholders sumirem)
+    #     for inicio, fim, novo in blocos:
+    #         replace_block(doc, inicio, fim, novo)
+    
+    #     for key in sorted(var_dic, key=len, reverse=True):
+    #         val = var_dic[key]
+    #         if isinstance(val, pd.DataFrame):
+    #             for p in list(iter_paragraphs(doc)):
+    #                 if key in p.text:
+    #                     replace_in_paragraph(p, key, "")
+    #                     insert_table_after(p, val)
+    #             continue
+    #         val = "" if val is None else str(val)
+    #         for p in iter_paragraphs(doc):
+    #             if key in p.text:
+    #                 replace_in_paragraph(p, key, val)
+    
+    #     doc.save(saida)
 
+                 
     sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
 
     var_dic = {
@@ -6137,25 +6148,24 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
+    blocos = []
+
     if sem_pond:
-      var_dic[TEXTO_IUA_IUE_POND] = (
-          "Mediante análise das informações fornecidas, estes setores técnicos apresentam "
-          "concordância com os valores apresentados para os referidos componentes."
-      )
-                 
+        blocos.append((
+            "As observações apresentadas pelo Verificador Independente",   # início
+            "Fonte: ARSAL",                                                # fim
+            "Mediante análise das informações fornecidas, estes setores técnicos apresentam "
+            "concordância com os valores apresentados para os referidos componentes."
+        ))
+    
     if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
-        var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
-Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
-$TAB_ETOT_ARSAL
-Fonte: ARSAL."""] = ""
-
-    preencher_docx(
-        entrada="modelo_iqa_iqe_automatico.docx",      # seu modelo com os $PLACEHOLDERS
-        saida="relatorio_final.docx",
-        var_dic=var_dic,
-    )
-
-    print (IS_SATISF_IQE)
+        blocos.append((
+            "Diante dos fatos mencionados, segue o panorama ajustado",
+            "Fonte: ARSAL",
+            ""    # apaga o bloco inteiro
+        ))
+    
+    #preencher_docx("modelo.docx", "relatorio_final.docx", var_dic, blocos)
 
     return var_dic
 
@@ -6315,9 +6325,13 @@ Fonte: ARSAL."""] = ""
 
 # ALIMENTANDO INFORMAÇÕES AO MODELO DE RELATÓRIO
 
-  def substituir_var(documento, var_dic):
+  def substituir_var(documento, var_dic, blocos=()):
     doc = Document(documento)
 
+    # blocos primeiro, antes de qualquer placeholder sumir
+    for inicio, fim, novo in blocos:
+        replace_block(doc, inicio, fim, novo)
+    
     def process_paragraph(paragraph):
         full_text = "".join(run.text for run in paragraph.runs)
 
