@@ -6150,7 +6150,7 @@ $TAB_ETOT_ARSAL
 Fonte: ARSAL."""] = ""
 
     preencher_docx(
-        entrada="modelo.docx",      # seu modelo com os $PLACEHOLDERS
+        entrada="modelo_iqa_iqe_automatico.docx",      # seu modelo com os $PLACEHOLDERS
         saida="relatorio_final.docx",
         var_dic=var_dic,
     )
