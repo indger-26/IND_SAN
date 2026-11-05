@@ -5892,18 +5892,137 @@ def rel_iqa_iqe():
         "tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo de "
         "“Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.\n"
         "Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais – IUA/IUE.\n"
-        "SEM PONDERACOES\n"
+        "$QUADRO_IUA_IUE_POND\n"                      # <- placeholder, não "SEM PONDERACOES"
         "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL.\n"
         "Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os componentes "
         "“Epotencial água” e “Epotencial esg”:\n"
         "Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos setores técnicos.\n"
         "$TAB_EPOT_ARSAL\n"
         "Fonte: ARSAL."
-        )
+    )
 
     DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
 
     IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
+
+    # ---------- utilidades ----------
+    def iter_paragraphs(doc):
+        """Todos os parágrafos: corpo, tabelas, cabeçalhos e rodapés."""
+        def _from_container(container):
+            for p in container.paragraphs:
+                yield p
+            for t in container.tables:
+                for row in t.rows:
+                    for cell in row.cells:
+                        yield from _from_container(cell)
+    
+        yield from _from_container(doc)
+        for sec in doc.sections:
+            for part in (sec.header, sec.footer):
+                yield from _from_container(part)
+    
+    
+    def replace_in_paragraph(p, old, new):
+        """Substitui 'old' por 'new' mesmo se o texto estiver dividido em vários runs."""
+        start = 0
+        changed = False
+        while True:
+            runs = p.runs
+            full = "".join(r.text for r in runs)
+            idx = full.find(old, start)
+            if idx == -1:
+                break
+            end = idx + len(old)
+            pos, first = 0, True
+            for r in runs:
+                rs, re_ = pos, pos + len(r.text)
+                pos = re_
+                if re_ <= idx or rs >= end:
+                    continue
+                s = max(idx, rs) - rs
+                e = min(end, re_) - rs
+                if first:
+                    r.text = r.text[:s] + new + r.text[e:]
+                    first = False
+                else:
+                    r.text = r.text[:s] + r.text[e:]
+            start = idx + len(new)
+            changed = True
+        return changed
+    
+    
+    def delete_paragraph(p):
+        p._element.getparent().remove(p._element)
+    
+    
+    def insert_table_after(paragraph, df, style="Table Grid"):
+        """Cria uma tabela do Word a partir de um DataFrame, logo após o parágrafo."""
+        doc_part = paragraph.part
+        table = doc_part.document.add_table(rows=1, cols=len(df.columns))
+        table.style = style
+        for i, col in enumerate(df.columns):
+            table.rows[0].cells[i].text = str(col)
+        for _, row in df.iterrows():
+            cells = table.add_row().cells
+            for i, v in enumerate(row):
+                cells[i].text = str(v)
+        paragraph._p.addnext(table._tbl)  # move a tabela para depois do parágrafo
+        return table
+    
+    
+    # ---------- substituições ----------
+    def replace_multiparagraph(doc, key, new):
+      lines = [l.strip() for l in key.split("\n")]
+      paras = list(iter_paragraphs(doc))
+      n = len(lines)
+      for i in range(len(paras) - n + 1):
+          if all(paras[i + j].text.strip() == lines[j] for j in range(n)):
+              if new == "":
+                  for p in paras[i:i + n]:
+                      delete_paragraph(p)
+              else:
+                  first = paras[i]
+                  for r in first.runs[1:]:
+                      r.text = ""
+                  if first.runs:
+                      first.runs[0].text = new
+                  else:
+                      first.add_run(new)
+                  for p in paras[i + 1:i + n]:
+                      delete_paragraph(p)
+              return True
+      return False
+    
+    
+    def preencher_docx(entrada, saida, var_dic):
+        doc = Document(entrada)
+    
+        # chaves maiores primeiro (evita que um placeholder quebre uma chave longa)
+        for key in sorted(var_dic, key=len, reverse=True):
+            val = var_dic[key]
+    
+            # valor DataFrame -> tabela
+            if isinstance(val, pd.DataFrame):
+                for p in list(iter_paragraphs(doc)):
+                    if key in p.text:
+                        replace_in_paragraph(p, key, "")
+                        insert_table_after(p, val)
+                continue
+    
+            val = "" if val is None else str(val)
+    
+            # chave com várias linhas -> vários parágrafos
+            if "\n" in key:
+                replace_multiparagraph(doc, key, val)
+                continue
+    
+            for p in iter_paragraphs(doc):
+                if key in p.text:
+                    replace_in_paragraph(p, key, val)
+    
+        doc.save(saida)
+
+    sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
@@ -5993,7 +6112,7 @@ def rel_iqa_iqe():
               '$IUE_VI': str(IUE_VI),
               '$FONTE_EPOT_IUE': str(FONTE_EPOT_IUE),
               '$FONTE_ETOT_IUE': str(FONTE_ETOT_IUE),
-              '$QUADRO_IUA_IUE_POND': "" if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else QUADRO_IUA_IUE_POND,**({TEXTO_IUA_IUE_POND: "Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância com os valores apresentados para os referidos componentes."} if QUADRO_IUA_IUE_POND == "SEM PONDERACOES" else {}),
+              '$QUADRO_IUA_IUE_POND': "" if sem_pond else QUADRO_IUA_IUE_POND,
               '$QUADRO_MUN_IUA_IUE_ARSAL': TAB_MUN_IUA_IUE_ARSAL,
 
               '$EVTE_CORRETO': IGUAL if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL) else DIFERENTE,
@@ -6018,11 +6137,23 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE)             
               }
 
+    if sem_pond:
+      var_dic[TEXTO_IUA_IUE_POND] = (
+          "Mediante análise das informações fornecidas, estes setores técnicos apresentam "
+          "concordância com os valores apresentados para os referidos componentes."
+      )
+                 
     if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
         var_dic["""Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:
 Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais.
 $TAB_ETOT_ARSAL
 Fonte: ARSAL."""] = ""
+
+    preencher_docx(
+        entrada="modelo.docx",      # seu modelo com os $PLACEHOLDERS
+        saida="relatorio_final.docx",
+        var_dic=var_dic,
+    )
 
     print (IS_SATISF_IQE)
 
