@@ -6033,7 +6033,59 @@ def rel_iqa_iqe():
     #     doc.save(saida)
 
                  
-    sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
+        FRASE_OBS = ("As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
+                 "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
+                 "de “Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.")
+
+        sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
+        tem_pond = not sem_pond          # se a lógica for a que você escreveu, use: tem_pond = sem_pond
+        tabs_iguais = TAB_ETOT_VI.equals(TAB_ETOT_ARSAL)
+    
+        def preenchido(x):
+            return x is not None and not pd.isna(x)
+    
+        # ---- I1 a I7 ----
+        I1 = ("O verificador apresentou, no Arquivo Eletrônico IUA-IUE, as avaliações quantitativas e qualitativas "
+              "realizadas, considerando os eventuais ajustes decorrentes das justificativas apresentadas pela "
+              "Concessionária e acatadas pelo Verificador Independente.") if tem_pond else ""
+        I2 = FRASE_OBS if tem_pond else ""
+        I3 = ("Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas "
+              "setoriais – IUA/IUE.") if tem_pond else ""
+        I4 = "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL." if tem_pond else ""
+        I5 = ("Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os "
+              "componentes “Epotencial água” e “Epotencial esg”:") if tem_pond else ""
+        I6 = ("Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos "
+              "setores técnicos.") if tem_pond else ""
+        I7 = "Fonte: ARSAL." if tem_pond else ""
+    
+        # ---- I8 (com II8 e III8 aninhados) ----
+        III8 = ""
+        if preenchido(EXP_IUE) and preenchido(REC_IUE):
+            III8 = (f"Já para o cômputo do IUE, foram expurgadas {formata_milhar(EXP_IUE)} economias "
+                    f"e reconsideradas {formata_milhar(REC_IUE)} economias.")
+    
+        II8 = III8
+        if preenchido(EXP_IUA) and preenchido(REC_IUA):
+            II8 = (f"Para o cômputo do IUA, procedeu-se ao expurgo de {formata_milhar(EXP_IUA)} economias "
+                   f"e à reconsideração de {formata_milhar(REC_IUA)} economias. {III8}").strip()
+    
+        if tem_pond:
+            I8 = (f"Com isso, adotam-se os valores {formata_milhar(E_POT_IUA_ARSAL)} e "
+                  f"{formata_milhar(E_POT_IUE_ARSAL)} para os componentes “Epotencial água” e “Epotencial esg”, "
+                  f"respectivamente. {II8}").strip()
+        else:
+            I8 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+                  "com os valores apresentados para os referidos componentes.")
+    
+        # ---- EVTE_CORRETO e I9 a I11 ----
+        if tabs_iguais:
+            EVTE = IGUAL
+            I9 = I10 = I11 = ""
+        else:
+            EVTE = DIFERENTE
+            I9 = "Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:"
+            I10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
+            I11 = "Fonte: ARSAL."
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
@@ -6126,7 +6178,11 @@ def rel_iqa_iqe():
               '$QUADRO_IUA_IUE_POND': "" if sem_pond else QUADRO_IUA_IUE_POND,
               '$QUADRO_MUN_IUA_IUE_ARSAL': TAB_MUN_IUA_IUE_ARSAL,
 
-              '$EVTE_CORRETO': IGUAL if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL) else DIFERENTE,
+              '$I1': I1, '$I2': I2, '$I3': I3, '$I4': I4, '$I5': I5, '$I6': I6, '$I7': I7,
+              '$I8': I8,
+              '$I9': I9, '$I10': I10, '$I11': I11,
+
+              '$EVTE_CORRETO': EVTE,
               
               '$TAB_EPOT_VI': TAB_EPOT_VI,
               '$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
@@ -6150,20 +6206,20 @@ def rel_iqa_iqe():
 
     blocos = []
 
-    if sem_pond:
-        blocos.append((
-            "As observações apresentadas pelo Verificador Independente",   # início
-            "Fonte: ARSAL",                                                # fim
-            "Mediante análise das informações fornecidas, estes setores técnicos apresentam "
-            "concordância com os valores apresentados para os referidos componentes."
-        ))
+    # if sem_pond:
+    #     blocos.append((
+    #         "As observações apresentadas pelo Verificador Independente",   # início
+    #         "Fonte: ARSAL",                                                # fim
+    #         "Mediante análise das informações fornecidas, estes setores técnicos apresentam "
+    #         "concordância com os valores apresentados para os referidos componentes."
+    #     ))
     
-    if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
-        blocos.append((
-            "Diante dos fatos mencionados, segue o panorama ajustado",
-            "Fonte: ARSAL",
-            ""    # apaga o bloco inteiro
-        ))
+    # if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
+    #     blocos.append((
+    #         "Diante dos fatos mencionados, segue o panorama ajustado",
+    #         "Fonte: ARSAL",
+    #         ""    # apaga o bloco inteiro
+    #     ))
     
     #preencher_docx("modelo.docx", "relatorio_final.docx", var_dic, blocos)
 
@@ -6325,21 +6381,34 @@ def rel_iqa_iqe():
 
 # ALIMENTANDO INFORMAÇÕES AO MODELO DE RELATÓRIO
 
-  def substituir_var(documento, var_dic, blocos=()):
+  def apagar_linha(paragraph):
+    parent = paragraph._element.getparent()
+    # célula de tabela precisa ter ao menos 1 parágrafo
+    if parent.tag == qn("w:tc") and len(parent.findall(qn("w:p"))) == 1:
+        for run in paragraph.runs:
+            run.text = ""
+    else:
+        parent.remove(paragraph._element)
+  
+  
+  def substituir_var(documento, var_dic):
     doc = Document(documento)
 
-    # blocos primeiro, antes de qualquer placeholder sumir
-    for inicio, fim, novo in blocos:
-        replace_block(doc, inicio, fim, novo)
+    # # blocos primeiro, antes de qualquer placeholder sumir
+    # for inicio, fim, novo in blocos:
+    #     replace_block(doc, inicio, fim, novo)
+
+    # chaves maiores primeiro ('$I10' e '$I11' antes de '$I1')
+    itens = sorted(var_dic.items(), key=lambda kv: len(kv[0]), reverse=True)
     
     def process_paragraph(paragraph):
         full_text = "".join(run.text for run in paragraph.runs)
 
-        if any(key in full_text for key in var_dic.keys()):
-            for key, value in var_dic.items():
+        if any(key in full_text for key, _ in itens):
+            for key, value in itens:
                 if key in full_text:
                     if isinstance(value, pd.DataFrame):
-                        
+
                         tbl = df_para_tabela_word(doc, value)
                         paragraph._element.addprevious(tbl)
 
@@ -6348,11 +6417,17 @@ def rel_iqa_iqe():
 
                         return
                     else:
-                        full_text = full_text.replace(key, value)
+                        full_text = full_text.replace(key, "" if value is None else str(value))
+
+            # ficou vazio depois da troca -> apaga a linha
+            if full_text.strip() == "":
+                apagar_linha(paragraph)
+                return
 
             for run in paragraph.runs:
                 run.text = ""
-            paragraph.runs[0].text = full_text
+            if paragraph.runs:
+                paragraph.runs[0].text = full_text
 
     for p in doc.paragraphs:
         process_paragraph(p)
