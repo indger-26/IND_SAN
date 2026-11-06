@@ -6201,7 +6201,8 @@ def rel_iqa_iqe():
               '$IUE_ARSAL': IUE_ARSAL_TXT,
               '$IS__SATISFATORIO_IUE': IS_SATISF_IUE,
               '$EXP_IUE': formata_milhar(EXP_IUE),
-              '$REC_IUE': formata_milhar(REC_IUE)             
+              '$REC_IUE': formata_milhar(REC_IUE),
+              'SEM PONDERACOES': " "
               }
 
     blocos = []
