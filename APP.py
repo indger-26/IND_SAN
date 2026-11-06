@@ -6185,9 +6185,9 @@ def rel_iqa_iqe():
               '$EVTE_CORRETO': EVTE,
               
               '$TAB_EPOT_VI': TAB_EPOT_VI,
-              '$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
+              #'$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
               '$TAB_ETOT_VI': TAB_ETOT_VI,
-              '$TAB_ETOT_ARSAL': TAB_ETOT_ARSAL,
+              #'$TAB_ETOT_ARSAL': TAB_ETOT_ARSAL,
                  
               '$E_POT_IUA_ARSAL': formata_milhar(E_POT_IUA_ARSAL),
               '$E_TOT_IUA_ARSAL': formata_milhar(E_TOT_IUA_ARSAL),
@@ -6204,6 +6204,12 @@ def rel_iqa_iqe():
               '$REC_IUE': formata_milhar(REC_IUE),
               'SEM PONDERACOES': " "
               }
+
+    # só entra a tabela se houver ponderações; senão "" apaga a linha do placeholder
+    var_dic['$TAB_EPOT_ARSAL'] = TAB_EPOT_ARSAL if not sem_pond else ""
+
+    # só entra a tabela se TAB_ETOT_VI for diferente de TAB_ETOT_ARSAL
+    var_dic['$TAB_ETOT_ARSAL'] = TAB_ETOT_ARSAL if not tabs_iguais else ""
 
     blocos = []
 
