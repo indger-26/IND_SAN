@@ -6033,59 +6033,59 @@ def rel_iqa_iqe():
     #     doc.save(saida)
 
                  
-        FRASE_OBS = ("As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
-                 "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
-                 "de “Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.")
+    FRASE_OBS = ("As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
+             "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
+             "de “Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.")
 
-        sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
-        tem_pond = not sem_pond          # se a lógica for a que você escreveu, use: tem_pond = sem_pond
-        tabs_iguais = TAB_ETOT_VI.equals(TAB_ETOT_ARSAL)
-    
-        def preenchido(x):
-            return x is not None and not pd.isna(x)
-    
-        # ---- I1 a I7 ----
-        I1 = ("O verificador apresentou, no Arquivo Eletrônico IUA-IUE, as avaliações quantitativas e qualitativas "
-              "realizadas, considerando os eventuais ajustes decorrentes das justificativas apresentadas pela "
-              "Concessionária e acatadas pelo Verificador Independente.") if tem_pond else ""
-        I2 = FRASE_OBS if tem_pond else ""
-        I3 = ("Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas "
-              "setoriais – IUA/IUE.") if tem_pond else ""
-        I4 = "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL." if tem_pond else ""
-        I5 = ("Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os "
-              "componentes “Epotencial água” e “Epotencial esg”:") if tem_pond else ""
-        I6 = ("Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos "
-              "setores técnicos.") if tem_pond else ""
-        I7 = "Fonte: ARSAL." if tem_pond else ""
-    
-        # ---- I8 (com II8 e III8 aninhados) ----
-        III8 = ""
-        if preenchido(EXP_IUE) and preenchido(REC_IUE):
-            III8 = (f"Já para o cômputo do IUE, foram expurgadas {formata_milhar(EXP_IUE)} economias "
-                    f"e reconsideradas {formata_milhar(REC_IUE)} economias.")
-    
-        II8 = III8
-        if preenchido(EXP_IUA) and preenchido(REC_IUA):
-            II8 = (f"Para o cômputo do IUA, procedeu-se ao expurgo de {formata_milhar(EXP_IUA)} economias "
-                   f"e à reconsideração de {formata_milhar(REC_IUA)} economias. {III8}").strip()
-    
-        if tem_pond:
-            I8 = (f"Com isso, adotam-se os valores {formata_milhar(E_POT_IUA_ARSAL)} e "
-                  f"{formata_milhar(E_POT_IUE_ARSAL)} para os componentes “Epotencial água” e “Epotencial esg”, "
-                  f"respectivamente. {II8}").strip()
-        else:
-            I8 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
-                  "com os valores apresentados para os referidos componentes.")
-    
-        # ---- EVTE_CORRETO e I9 a I11 ----
-        if tabs_iguais:
-            EVTE = IGUAL
-            I9 = I10 = I11 = ""
-        else:
-            EVTE = DIFERENTE
-            I9 = "Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:"
-            I10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
-            I11 = "Fonte: ARSAL."
+    sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
+    tem_pond = not sem_pond          # se a lógica for a que você escreveu, use: tem_pond = sem_pond
+    tabs_iguais = TAB_ETOT_VI.equals(TAB_ETOT_ARSAL)
+
+    def preenchido(x):
+        return x is not None and not pd.isna(x)
+
+    # ---- I1 a I7 ----
+    I1 = ("O verificador apresentou, no Arquivo Eletrônico IUA-IUE, as avaliações quantitativas e qualitativas "
+          "realizadas, considerando os eventuais ajustes decorrentes das justificativas apresentadas pela "
+          "Concessionária e acatadas pelo Verificador Independente.") if tem_pond else ""
+    I2 = FRASE_OBS if tem_pond else ""
+    I3 = ("Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas "
+          "setoriais – IUA/IUE.") if tem_pond else ""
+    I4 = "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL." if tem_pond else ""
+    I5 = ("Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os "
+          "componentes “Epotencial água” e “Epotencial esg”:") if tem_pond else ""
+    I6 = ("Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos "
+          "setores técnicos.") if tem_pond else ""
+    I7 = "Fonte: ARSAL." if tem_pond else ""
+
+    # ---- I8 (com II8 e III8 aninhados) ----
+    III8 = ""
+    if preenchido(EXP_IUE) and preenchido(REC_IUE):
+        III8 = (f"Já para o cômputo do IUE, foram expurgadas {formata_milhar(EXP_IUE)} economias "
+                f"e reconsideradas {formata_milhar(REC_IUE)} economias.")
+
+    II8 = III8
+    if preenchido(EXP_IUA) and preenchido(REC_IUA):
+        II8 = (f"Para o cômputo do IUA, procedeu-se ao expurgo de {formata_milhar(EXP_IUA)} economias "
+               f"e à reconsideração de {formata_milhar(REC_IUA)} economias. {III8}").strip()
+
+    if tem_pond:
+        I8 = (f"Com isso, adotam-se os valores {formata_milhar(E_POT_IUA_ARSAL)} e "
+              f"{formata_milhar(E_POT_IUE_ARSAL)} para os componentes “Epotencial água” e “Epotencial esg”, "
+              f"respectivamente. {II8}").strip()
+    else:
+        I8 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+              "com os valores apresentados para os referidos componentes.")
+
+    # ---- EVTE_CORRETO e I9 a I11 ----
+    if tabs_iguais:
+        EVTE = IGUAL
+        I9 = I10 = I11 = ""
+    else:
+        EVTE = DIFERENTE
+        I9 = "Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:"
+        I10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
+        I11 = "Fonte: ARSAL."
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
