@@ -6611,12 +6611,12 @@ def rel_iqa_iqe():
           "realizadas, considerando os eventuais ajustes decorrentes das justificativas apresentadas pela "
           "Concessionária e acatadas pelo Verificador Independente.") if tem_pond else ""
     I2 = FRASE_OBS if tem_pond else ""
-    I3 = ("Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas "
+    I3 = ("Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas "
           "setoriais – IUA/IUE.") if tem_pond else ""
     I4 = "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL." if tem_pond else ""
     I5 = ("Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os "
           "componentes “Epotencial água” e “Epotencial esg”:") if tem_pond else ""
-    I6 = ("Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos "
+    I6 = ("Quadro – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos "
           "setores técnicos.") if tem_pond else ""
     I7 = "Fonte: ARSAL." if tem_pond else ""
 
@@ -6646,7 +6646,7 @@ def rel_iqa_iqe():
     else:
         EVTE = DIFERENTE
         I9 = "Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:"
-        I_10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
+        I_10 = "Quadro - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
         I_11 = "Fonte: ARSAL."
 
     var_dic = {
