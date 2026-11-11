@@ -4040,6 +4040,84 @@ def rel_iqa():
   # DEFINIÇÃO DO CONJUNTO DE VARIÁVEIS A SEREM INSERIDAS NO RELATÓRIO
 
 
+  # def var_doc (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI):
+
+  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
+  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
+  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
+  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
+  #   IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
+
+  #   if (IQA_VI).strip() == (IQA_ARSAL_TXT).strip():
+  #     IS_SATISF = "satisfatório"
+
+  #   if (IQA_VI).strip() != (IQA_ARSAL_TXT).strip():
+  #     IS_SATISF = "divergente"
+
+  #   if PRESTADORA == "BRK Ambiental":
+  #     legis = '5'
+
+  #   if PRESTADORA != "BRK Ambiental":
+  #     legis = '7'
+
+  #   def validar(valor):
+  #     return valor if valor is not None else ""
+
+
+  #   def formata_milhar(x):
+  #     try:
+  #         return f"{int(float(x)):,}".replace(",", ".")
+  #     except:
+  #         return "-"
+
+
+  #   var_dic = {
+  #             '$MES_ANO': str(MES_ANO),
+  #             '$ANO_CONTRAT': str(ANO_CONTRAT),
+  #             '$MESMIN_ANO': str(MESMIN_ANO),
+  #             '$PRESTADORA': str(PRESTADORA),
+  #             '$META':str(META),
+  #             '$NCOF_P': formata_milhar(NCOF_P),
+  #             '$NREA_P': formata_milhar(NREA_P),
+  #             '$IQA_P': str(IQA_P),
+  #             '$NCOF_VI': formata_milhar(NCOF_VI),
+  #             '$NREA_VI': formata_milhar(NREA_VI),
+  #             '$IQA_VI': str(IQA_VI),
+  #             '$FONTE_NREALIZ': str(FONTE_NREALIZ),
+  #             '$FONTE_PLANO': str(FONTE_PLANO),
+  #             '$FONTE_NCONF': str(FONT_NCONF),
+  #             '$ACREDITAÇÃO': str (ACREDITAÇÃO),
+
+  #             '$QUADRO_NREA_OBS': QUADRO_POND_REALIZ,
+  #             '$QUADRO_NCONF_OBS': QUADRO_POND_NCONF,
+
+  #             '$QUADRO_NREA_VI': TAB_MUN_VI,
+  #             '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
+
+  #             '$QUADRO_NCONF_VI': TAB_TIPO_RESUMIDA_VI,
+  #             '$QUADRO_NCONF_ARSAL': TAB_TIPO_FINAL,
+
+  #             '$QUADRO_NCONFMUN_VI': TAB_MUN_NCONF_VI,
+  #             '$QUADRO_NCONFMUN_ARSAL': TAB_MUN_NCONF,
+
+
+  #             '$NREA_ARSAL': formata_milhar(NREA_ARSAL),
+  #             '$NREA_EXPURGOS': str (NREA_EXPURGOS),
+  #             '$NCOF_ARSAL': formata_milhar(NCONF_ARSAL),
+  #             '$NCONF_EXPURGOS': str (NCONF_EXPURGOS),
+  #             '$IS_SATISFATORIO': IS_SATISF,
+  #             '$IQA_ARSAL': IQA_ARSAL_TXT,
+  #             '$LEGIS' : legis,
+  #             '$CONF_NCONF': str(total_conf_vi_naoconf_arsal),
+  #             '$NCONF_CONF' : str(total_naoconf_vi_conf_arsal),
+  #             '$NREA__PLAN' : str(desc_plano)
+  #             }
+
+  #   return var_dic
+
+
+
   def var_doc (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI):
 
     NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
@@ -4072,6 +4150,108 @@ def rel_iqa():
           return "-"
 
 
+    # ---------- IQA: textos condicionais (IIQA) ----------
+    def _num(x):
+        """Converte para número; qualquer coisa inválida/vazia vira 0."""
+        try:
+            v = float(str(x).replace(",", "."))
+            return 0 if v != v else v      # v != v => NaN
+        except (TypeError, ValueError):
+            return 0
+
+    def _sem_exp(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
+
+    sem_exp_rea = _sem_exp(QUADRO_POND_REALIZ)    # $QUADRO_NREA_OBS
+    sem_exp_conf = _sem_exp(QUADRO_POND_NCONF)    # $QUADRO_NCONF_OBS
+
+    # ---- Nam Realiz: IIQA1 a IIQA6 ----
+    IIQA1 = "" if sem_exp_rea else (
+        "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
+        "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
+        "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
+        "realizadas e o quantitativo de expurgos considerados cabíveis.")
+
+    IIQA2 = "" if sem_exp_rea else (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+
+    IIQA3 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    IIQA4 = "" if sem_exp_rea else (
+        "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
+        "setoriais mediante as observações mencionadas acima:")
+
+    IIQA5 = "" if sem_exp_rea else (
+        "Quadro - Contabilização do componente “Nam Realiz” do IQA, ajustado por estas setoriais.")
+
+    IIQA6 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    # ---- Nam Realiz: IIQA7 (com IIQA_71 aninhado) ----
+    if _num(NREA_EXPURGOS) != 0:
+        if _num(desc_plano) != 0:
+            IIQA_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
+                       f"desconsideração de {desc_plano} amostras em relação ao plano de amostragem ajustado "
+                       f"pelo Verificador Independente.")
+        else:
+            IIQA_71 = ""
+
+        IIQA7 = (f"Dessa forma, a análise destas setoriais, contabiliza o valor do componente “Nam Realiz”, "
+                 f"passando de {formata_milhar(NREA_VI)} (Fipe) para {formata_milhar(NREA_ARSAL)}, mediante a "
+                 f"aplicação de {NREA_EXPURGOS} amostras expurgadas. {IIQA_71}").strip()
+    else:
+        IIQA7 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+                 "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+    # ---- Nam Conf: IIQA8 a IIQA_13 e IIQA_15 ----
+    IIQA8 = "" if sem_exp_conf else (
+        "As observações apresentadas pelo Verificador Independente, juntamente com o entendimento a elas "
+        "associado, tanto pelo próprio verificar quanto por esta setorial encontram-se no quadro abaixo.")
+
+    IIQA9 = "" if sem_exp_conf else (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+
+    IIQA_10 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    IIQA_11 = "" if sem_exp_conf else (
+        "Diante dos fatos mencionados, segue o panorama ajustado para o componente “Nam conf”, modificado por "
+        "estas setoriais mediante as observações elencadas acima:")
+
+    IIQA_12 = "" if sem_exp_conf else (
+        "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais.")
+
+    IIQA_13 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    IIQA_15 = "" if sem_exp_conf else (
+        "Ressalta-se que as conversões de análises conformes para não conformes, e vice-versa, que não estejam "
+        "contempladas no quadro de ponderações decorrem de reclassificação realizada por estes setores técnicos, "
+        "com base nos valores brutos de cada tipo de análise. Tais reclassificações podem ser consultadas na base "
+        "de dados encaminhada juntamente com este relatório.")
+
+    # ---- Nam Conf: IIQA_14 (com IIQA_1_14 e IIQA_2_14 aninhados) ----
+    if _num(NCONF_EXPURGOS) != 0:
+        # IIQA_2_14: conversão de não conformes (VI) para conformes (Arsal)
+        if _num(total_naoconf_vi_conf_arsal) != 0:
+            IIQA_2_14 = (f"Houve a conversão de {total_naoconf_vi_conf_arsal} amostras de não conformes "
+                         f"(Verificador Independente) para conformes (Arsal)")
+        else:
+            IIQA_2_14 = ""
+
+        # IIQA_1_14: conversão de conformes (VI) para não conformes (Arsal) + IIQA_2_14
+        if _num(total_conf_vi_naoconf_arsal) != 0:
+            IIQA_1_14 = (f"Houve a conversão de {total_conf_vi_naoconf_arsal} amostras de conformes "
+                         f"(Verificador Independente) para não conformes (Arsal). {IIQA_2_14}").strip()
+        else:
+            IIQA_1_14 = IIQA_2_14
+
+        IIQA_14 = (f"Com isso, dada a análise destas setoriais, o valor do componente “Nam conf” passa de "
+                   f"{formata_milhar(NCOF_VI)} (Fipe) para {formata_milhar(NCONF_ARSAL)}, com o expurgo de "
+                   f"{NCONF_EXPURGOS} amostras anteriormente consideradas conformes pelo Verificador "
+                   f"Independente. {IIQA_1_14}").strip()
+    else:
+        IIQA_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+                   "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+
     var_dic = {
               '$MES_ANO': str(MES_ANO),
               '$ANO_CONTRAT': str(ANO_CONTRAT),
@@ -4089,8 +4269,9 @@ def rel_iqa():
               '$FONTE_NCONF': str(FONT_NCONF),
               '$ACREDITAÇÃO': str (ACREDITAÇÃO),
 
-              '$QUADRO_NREA_OBS': QUADRO_POND_REALIZ,
-              '$QUADRO_NCONF_OBS': QUADRO_POND_NCONF,
+              # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
+              '$QUADRO_NREA_OBS': "" if sem_exp_rea else QUADRO_POND_REALIZ,
+              '$QUADRO_NCONF_OBS': "" if sem_exp_conf else QUADRO_POND_NCONF,
 
               '$QUADRO_NREA_VI': TAB_MUN_VI,
               '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
@@ -4111,7 +4292,27 @@ def rel_iqa():
               '$LEGIS' : legis,
               '$CONF_NCONF': str(total_conf_vi_naoconf_arsal),
               '$NCONF_CONF' : str(total_naoconf_vi_conf_arsal),
-              '$NREA__PLAN' : str(desc_plano)
+              '$NREA__PLAN' : str(desc_plano),
+
+              # ---- IQA: textos condicionais (IIQA) ----
+              '$IIQA1': IIQA1,
+              '$IIQA2': IIQA2,
+              '$IIQA3': IIQA3,
+              '$IIQA4': IIQA4,
+              '$IIQA5': IIQA5,
+              '$IIQA6': IIQA6,
+              '$IIQA7': IIQA7,
+              '$IIQA8': IIQA8,
+              '$IIQA9': IIQA9,
+              '$IIQA_10': IIQA_10,
+              '$IIQA_11': IIQA_11,
+              '$IIQA_12': IIQA_12,
+              '$IIQA_13': IIQA_13,
+              '$IIQA_14': IIQA_14,
+              '$IIQA_15': IIQA_15,
+
+              # "TIRAR LINHAS QUE TIVEREM SEM EXPURGOS" (rede de segurança)
+              'SEM EXPURGOS': ""
               }
 
     return var_dic
@@ -4728,11 +4929,15 @@ def rel_iqa():
         QUADRO_POND_NCONF[colunas_impacto].apply(lambda row: any(v != "" for v in row), axis=1)
     ]
 
-    for col in colunas_impacto:
-        if col in QUADRO_POND_NCONF.columns:
-            if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
-                QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
+    if QUADRO_POND_NCONF.empty:
+        QUADRO_POND_NCONF = "SEM EXPURGOS"
+    else:
+        for col in colunas_impacto:
+            if col in QUADRO_POND_NCONF.columns:
+                if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
+                    QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
 
+    
     if not TAB_EXPURGOS.empty:
 
       QUADRO_POND_REALIZ = TAB_POND.copy()
@@ -5755,6 +5960,364 @@ def rel_iqa_iqe():
 
 # DEFINIÇÃO DO CONJUNTO DE VARIÁVEIS A SEREM INSERIDAS NO RELATÓRIO
 
+  # def var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE,
+  #              QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF,
+  #              TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE,
+  #              TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE,
+  #              TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
+  #              FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
+
+  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
+  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
+  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
+  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
+  #   IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
+
+  #   if (IQA_VI).strip() == (IQA_ARSAL_TXT).strip():
+  #     IS_SATISF = "satisfatório"
+
+  #   if (IQA_VI).strip() != (IQA_ARSAL_TXT).strip():
+  #     IS_SATISF = "divergente"
+
+  #   if PRESTADORA == "BRK Ambiental":
+  #     legis = '5'
+
+  #   if PRESTADORA != "BRK Ambiental":
+  #     legis = '7'
+
+  #   def validar(valor):
+  #     return valor if valor is not None else ""
+
+  #   def formata_milhar(x):
+  #     try:
+  #         return f"{int(float(x)):,}".replace(",", ".")
+  #     except:
+  #         return "-"
+
+  #   NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
+  #   NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
+  #   NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype(int)
+  #   NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
+  #   IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
+
+  #   print ("####################################################")
+
+  #   print(type(IQE_ARSAL_TXT))
+  #   print(type(IQE_VI))
+
+  #   print(IQE_ARSAL_TXT)
+  #   print(IQE_VI)
+
+  #   if (IQE_VI).strip() == (IQE_ARSAL_TXT).strip():
+  #     IS_SATISF_IQE = "satisfatório"
+
+  #   if (IQE_VI).strip() != (IQE_ARSAL_TXT).strip():
+  #     IS_SATISF_IQE = "divergente"
+
+  #   if PRESTADORA == "BRK Ambiental":
+  #     legis = '5'
+
+  #   if PRESTADORA != "BRK Ambiental":
+  #     legis = '7'
+
+  #   def validar(valor):
+  #     return valor if valor is not None else ""
+
+
+  #   # soma das colunas numéricas (os índices serão sobrescritos abaixo)
+  #   st.dataframe(TAB_MUN_IUA_IUE_ARSAL, use_container_width=True, hide_index=True)
+    
+  #   cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
+  #   total = TAB_MUN_IUA_IUE_ARSAL[cols_num].sum()
+    
+  #   # IUA e IUE totais = divisão dos somatórios dos componentes
+  #   iua_total = total["E potencial agua"] / total["E total agua"] if total["E total agua"] else 0
+  #   iue_total = total["E potencial esgoto"] / total["E total esgoto"] if total["E total esgoto"] else 0
+    
+  #   linha_total = {
+  #       "Municipio": "TOTAL",
+  #       "E potencial agua": total["E potencial agua"],
+  #       "E total agua": total["E total agua"],
+  #       "IUA": iua_total,
+  #       "E potencial esgoto": total["E potencial esgoto"],
+  #       "E total esgoto": total["E total esgoto"],
+  #       "IUE": iue_total,
+  #   }
+    
+  #   TAB_MUN_IUA_IUE_ARSAL = pd.concat(
+  #       [TAB_MUN_IUA_IUE_ARSAL, pd.DataFrame([linha_total])],
+  #       ignore_index=True,
+  #   )
+    
+
+  #   E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype(int)
+  #   E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype(int)
+  #   IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
+  #   IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
+                 
+  #   if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+  #     EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
+  #     REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
+      
+  #   if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+  #     EXP_IUA = 0
+  #     REC_IUA = 0
+
+
+  #   E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype(int)
+  #   E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype(int)
+  #   IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
+  #   IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
+    
+  #   if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+  #     EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
+  #     REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
+
+  #   if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+  #     EXP_IUE = 0
+  #     REC_IUE = 0
+                  
+      
+  #   if str(IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
+  #     IS_SATISF_IUA = "satisfatório"
+
+  #   if str(IUA_VI).strip() != (IUA_ARSAL_TXT).strip():
+  #     IS_SATISF_IUA = "divergente"
+
+
+  #   if str(IUE_VI).strip() == (IUE_ARSAL_TXT).strip():
+  #     IS_SATISF_IUE = "satisfatório"
+
+  #   if str(IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
+  #     IS_SATISF_IUE = "divergente"
+
+  #   DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
+
+  #   IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
+    
+  #   # ---------- substituições ----------
+  #   def _norm(t):
+  #       return " ".join(t.replace("\xa0", " ").split())
+    
+  #   def replace_block(doc, inicio, fim, novo):
+  #       """Substitui tudo entre o parágrafo que começa com 'inicio' e o primeiro
+  #       parágrafo seguinte que começa com 'fim' (inclusive, tabelas incluídas)."""
+  #       elems = list(doc.element.body.iterchildren())
+  #       i_ini = i_fim = None
+  #       for i, el in enumerate(elems):
+  #           if el.tag != qn("w:p"):
+  #               continue
+  #           txt = _norm(Paragraph(el, doc).text)
+  #           if i_ini is None:
+  #               if txt.startswith(_norm(inicio)):
+  #                   i_ini = i
+  #           elif txt.startswith(_norm(fim)):
+  #               i_fim = i
+  #               break
+  #       if i_ini is None or i_fim is None:
+  #           print(f"AVISO: bloco não encontrado: {inicio[:40]}...")
+  #           return False
+    
+  #       if novo == "":
+  #           remover = elems[i_ini:i_fim + 1]
+  #       else:
+  #           p = Paragraph(elems[i_ini], doc)
+  #           for r in p.runs[1:]:
+  #               r._r.getparent().remove(r._r)
+  #           if p.runs:
+  #               p.runs[0].text = novo
+  #           else:
+  #               p.add_run(novo)
+  #           remover = elems[i_ini + 1:i_fim + 1]
+  #       for el in remover:
+  #           el.getparent().remove(el)
+  #       return True
+    
+                 
+  #   FRASE_OBS = ("As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
+  #            "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
+  #            "de “Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.")
+
+  #   sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
+  #   tem_pond = not sem_pond          # se a lógica for a que você escreveu, use: tem_pond = sem_pond
+  #   tabs_iguais = TAB_ETOT_VI.equals(TAB_ETOT_ARSAL)
+
+  #   def preenchido(x):
+  #       return x is not None and not pd.isna(x)
+
+  #   # ---- I1 a I7 ----
+  #   I1 = ("O verificador apresentou, no Arquivo Eletrônico IUA-IUE, as avaliações quantitativas e qualitativas "
+  #         "realizadas, considerando os eventuais ajustes decorrentes das justificativas apresentadas pela "
+  #         "Concessionária e acatadas pelo Verificador Independente.") if tem_pond else ""
+  #   I2 = FRASE_OBS if tem_pond else ""
+  #   I3 = ("Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas "
+  #         "setoriais – IUA/IUE.") if tem_pond else ""
+  #   I4 = "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL." if tem_pond else ""
+  #   I5 = ("Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os "
+  #         "componentes “Epotencial água” e “Epotencial esg”:") if tem_pond else ""
+  #   I6 = ("Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos "
+  #         "setores técnicos.") if tem_pond else ""
+  #   I7 = "Fonte: ARSAL." if tem_pond else ""
+
+  #   # ---- I8 (com II8 e III8 aninhados) ----
+  #   III8 = ""
+  #   if preenchido(EXP_IUE) and preenchido(REC_IUE):
+  #       III8 = (f"Já para o cômputo do IUE, foram expurgadas {formata_milhar(EXP_IUE)} economias "
+  #               f"e reconsideradas {formata_milhar(REC_IUE)} economias.")
+
+  #   II8 = III8
+  #   if preenchido(EXP_IUA) and preenchido(REC_IUA):
+  #       II8 = (f"Para o cômputo do IUA, procedeu-se ao expurgo de {formata_milhar(EXP_IUA)} economias "
+  #              f"e à reconsideração de {formata_milhar(REC_IUA)} economias. {III8}").strip()
+
+  #   if tem_pond:
+  #       I8 = (f"Com isso, adotam-se os valores {formata_milhar(E_POT_IUA_ARSAL)} e "
+  #             f"{formata_milhar(E_POT_IUE_ARSAL)} para os componentes “Epotencial água” e “Epotencial esg”, "
+  #             f"respectivamente. {II8}").strip()
+  #   else:
+  #       I8 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+  #             "com os valores apresentados para os referidos componentes.")
+
+  #   # ---- EVTE_CORRETO e I9 a I11 ----
+  #   if tabs_iguais:
+  #       EVTE = IGUAL
+  #       I9 = I_10 = I_11 = ""
+  #   else:
+  #       EVTE = DIFERENTE
+  #       I9 = "Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:"
+  #       I_10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
+  #       I_11 = "Fonte: ARSAL."
+
+  #   var_dic = {
+  #             '$MES_ANO': str(MES_ANO),
+  #             '$ANO_CONTRAT': str(ANO_CONTRAT),
+  #             '$MESMIN_ANO': str(MESMIN_ANO),
+  #             '$PRESTADORA': str(PRESTADORA),
+  #             '$TRIMMIN_ANO': str(TRIMMIN_ANO),
+  #             '$TRIM_ANO': str(TRIM_ANO),
+
+
+  #             '$META':str(META),
+  #             '$NCOF_P': formata_milhar(NCOF_P),
+  #             '$NREA_P': formata_milhar(NREA_P),
+  #             '$IQA_P': str(IQA_P),
+  #             '$NCOF_VI': formata_milhar(NCOF_VI),
+  #             '$NREA_VI': formata_milhar(NREA_VI),
+  #             '$IQA_VI': str(IQA_VI),
+  #             '$FONTE_NREALIZ': str(FONTE_NREALIZ),
+  #             '$FONTE_PLANO': str(FONTE_PLANO),
+  #             '$FONTE_NCONF': str(FONT_NCONF),
+  #             '$ACREDITAÇÃO': str (ACREDITAÇÃO),
+  #             '$QUADRO_NREA_OBS': QUADRO_POND_REALIZ,
+  #             '$QUADRO_NCONF_OBS': QUADRO_POND_NCONF,
+  #             '$QUADRO_NREA_VI': TAB_MUN_VI,
+  #             '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
+  #             '$QUADRO_NCONF_VI': TAB_TIPO_RESUMIDA_VI,
+  #             '$QUADRO_NCONF_ARSAL': TAB_TIPO_FINAL,
+  #             #'$QUADRO_NCONFMUN_VI': TAB_MUN_NCONF_VI,
+  #             #'$QUADRO_NCONFMUN_ARSAL': TAB_MUN_NCONF,
+  #             '$NREA_ARSAL': formata_milhar(NREA_ARSAL),
+  #             '$NREA_EXPURGOS': str (NREA_EXPURGOS),
+  #             '$NCOF_ARSAL': formata_milhar(NCONF_ARSAL),
+  #             '$NCONF_EXPURGOS': str (NCONF_EXPURGOS),
+  #             '$IS_SATISFATORIO': IS_SATISF,
+  #             '$IQA_ARSAL': IQA_ARSAL_TXT,
+  #             '$LEGIS' : legis,
+  #             '$CONF_NCONF': str(total_conf_vi_naoconf_arsal),
+  #             '$NCONF_CONF' : str(total_naoconf_vi_conf_arsal),
+  #             '$NREA__PLAN' : str(desc_plano),
+
+
+  #             '$MEETA_IQE':str(META_IQE),
+  #             '$NCOF__P_IQE': formata_milhar(NCOF_P_IQE),
+  #             '$NREA__P_IQE': formata_milhar(NREA_P_IQE),
+  #             '$IQE_P': str(IQE_P),
+  #             '$NCOF__VI_IQE': formata_milhar(NCOF_VI_IQE),
+  #             '$NREA__VI_IQE': formata_milhar(NREA_VI_IQE),
+  #             '$IQE_VI': str(IQE_VI),
+  #             '$FONTE__NREALIZ_IQE': str(FONTE_NREALIZ_IQE),
+  #             '$FONTE__PLANO_IQE': str(FONTE_PLANO_IQE),
+  #             '$FONTE__NCONF_IQE': str(FONT_NCONF_IQE),
+  #             '$ACREDITA_IQE': str (ACREDITA_IQE),
+  #             '$QUADRO__NREA_OBS_IQE': QUADRO_POND_REALIZ_IQE,
+  #             '$QUADRO__NCONF_OBS_IQE': QUADRO_POND_NCONF_IQE,
+  #             '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
+  #             '$QUADRO__NREA_ARSAL_IQE': TAB_MUN_ARSAL_IQE,
+  #             '$QUADRO__NCONF_VI_IQE': TAB_TIPO_RESUMIDA_VI_IQE,
+  #             '$QUADRO__NCONF_ARSAL_IQE': TAB_TIPO_FINAL_IQE,
+  #             # '$QUADRO_NCONFMUN_VI': TAB_MUN_NCONF_VI,
+  #             # '$QUADRO_NCONFMUN_ARSAL': TAB_MUN_NCONF,
+  #             '$NREA__ARSAL_IQE': formata_milhar(NREA_ARSAL_IQE),
+  #             '$NREA__EXPURGOS_IQE': str (NREA_EXPURGOS_IQE),
+  #             '$NCOF__ARSAL_IQE': formata_milhar(NCONF_ARSAL_IQE),
+  #             '$NCONF__EXPURGOS_IQE': str (NCONF_EXPURGOS_IQE),
+  #             '$IS__SATISFATORIO_IQE': IS_SATISF_IQE,
+  #             '$IQE_ARSAL': IQE_ARSAL_TXT,
+  #             '$CONF__NCONF_IQE': str(total_conf_vi_naoconf_arsal_IQE),
+  #             '$NCONF__CONF_IQE' : str(total_naoconf_vi_conf_arsal_IQE),
+  #             '$NREAL__PLAN_IQE' : str(desc_plano_IQE),
+      
+  #             '$MEETA_IUA':str(META_IUA),
+  #             '$EPOT_P_IUA': formata_milhar(EPOT_P_IUA),
+  #             '$ETOT_P_IUA': formata_milhar(ETOT_P_IUA),
+  #             '$IUA_P': str(IUA_P),
+  #             '$EPOT_VI_IUA': formata_milhar(EPOT_VI_IUA),
+  #             '$ETOT_VI_IUA': formata_milhar(ETOT_VI_IUA),
+  #             '$IUA_VI': str(IUA_VI),
+  #             '$FONTE_EPOT_IUA': str(FONTE_EPOT_IUA),
+  #             '$FONTE_ETOT_IUA': str(FONTE_ETOT_IUA),
+      
+  #             '$MEETA_IUE':str(META_IUE),
+  #             '$EPOT_P_IUE': formata_milhar(EPOT_P_IUE),
+  #             '$ETOT_P_IUE': formata_milhar(ETOT_P_IUE),
+  #             '$IUE_P': str(IUE_P),
+  #             '$EPOT_VI_IUE': formata_milhar(EPOT_VI_IUE),
+  #             '$ETOT_VI_IUE': formata_milhar(ETOT_VI_IUE),
+  #             '$IUE_VI': str(IUE_VI),
+  #             '$FONTE_EPOT_IUE': str(FONTE_EPOT_IUE),
+  #             '$FONTE_ETOT_IUE': str(FONTE_ETOT_IUE),
+  #             '$QUADRO_IUA_IUE_POND': "" if sem_pond else QUADRO_IUA_IUE_POND,
+  #             '$QUADRO_MUN_IUA_IUE_ARSAL': TAB_MUN_IUA_IUE_ARSAL,
+
+  #             '$I1': I1, '$I2': I2, '$I3': I3, '$I4': I4, '$I5': I5, '$I6': I6, '$I7': I7,
+  #             '$I8': I8,
+  #             '$I9': I9, '$I_10': I_10, '$I_11': I_11,
+
+  #             '$EVTE_CORRETO': EVTE,
+              
+  #             '$TAB_EPOT_VI': TAB_EPOT_VI,
+  #             #'$TAB_EPOT_ARSAL': TAB_EPOT_ARSAL,
+  #             '$TAB_ETOT_VI': TAB_ETOT_VI,
+  #             #'$TAB_ETOT_ARSAL': TAB_ETOT_ARSAL,
+                 
+  #             '$E_POT_IUA_ARSAL': formata_milhar(E_POT_IUA_ARSAL),
+  #             '$E_TOT_IUA_ARSAL': formata_milhar(E_TOT_IUA_ARSAL),
+  #             '$IUA_ARSAL': IUA_ARSAL_TXT,
+  #             '$IS__SATISFATORIO_IUA': IS_SATISF_IUA,
+  #             '$EXP_IUA': formata_milhar(EXP_IUA),
+  #             '$REC_IUA': formata_milhar(REC_IUA),
+                 
+  #             '$E_POT_IUE_ARSAL': formata_milhar(E_POT_IUE_ARSAL),
+  #             '$E_TOT_IUE_ARSAL': formata_milhar(E_TOT_IUE_ARSAL),
+  #             '$IUE_ARSAL': IUE_ARSAL_TXT,
+  #             '$IS__SATISFATORIO_IUE': IS_SATISF_IUE,
+  #             '$EXP_IUE': formata_milhar(EXP_IUE),
+  #             '$REC_IUE': formata_milhar(REC_IUE),
+  #             'SEM PONDERACOES': " "
+  #             }
+
+  #   # só entra a tabela se houver ponderações; senão "" apaga a linha do placeholder
+  #   var_dic['$TAB_EPOT_ARSAL'] = TAB_EPOT_ARSAL if not sem_pond else ""
+
+  #   # só entra a tabela se TAB_ETOT_VI for diferente de TAB_ETOT_ARSAL
+  #   var_dic['$TAB_ETOT_ARSAL'] = TAB_ETOT_ARSAL if not tabs_iguais else ""
+
+  #   blocos = []
+
+  #   return var_dic
+
   def var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE,
                QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF,
                TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE,
@@ -5789,6 +6352,107 @@ def rel_iqa_iqe():
           return f"{int(float(x)):,}".replace(",", ".")
       except:
           return "-"
+
+    # ---------- IQA: textos condicionais (IIQA) ----------
+    def _num(x):
+        """Converte para número; qualquer coisa inválida/vazia vira 0."""
+        try:
+            v = float(str(x).replace(",", "."))
+            return 0 if pd.isna(v) else v
+        except (TypeError, ValueError):
+            return 0
+
+    def _sem_exp(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
+
+    sem_exp_rea = _sem_exp(QUADRO_POND_REALIZ)    # $QUADRO_NREA_OBS
+    sem_exp_conf = _sem_exp(QUADRO_POND_NCONF)    # $QUADRO_NCONF_OBS
+
+    # ---- Nam Realiz: IIQA1 a IIQA6 ----
+    IIQA1 = "" if sem_exp_rea else (
+        "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
+        "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
+        "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
+        "realizadas e o quantitativo de expurgos considerados cabíveis.")
+
+    IIQA2 = "" if sem_exp_rea else (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+
+    IIQA3 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    IIQA4 = "" if sem_exp_rea else (
+        "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
+        "setoriais mediante as observações mencionadas acima:")
+
+    IIQA5 = "" if sem_exp_rea else (
+        "Quadro - Contabilização do componente “Nam Realiz” do IQA, ajustado por estas setoriais.")
+
+    IIQA6 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    # ---- Nam Realiz: IIQA7 (com IIQA_71 aninhado) ----
+    if _num(NREA_EXPURGOS) != 0:
+        if _num(desc_plano) != 0:
+            IIQA_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
+                       f"desconsideração de {desc_plano} amostras em relação ao plano de amostragem ajustado "
+                       f"pelo Verificador Independente.")
+        else:
+            IIQA_71 = ""
+
+        IIQA7 = (f"Dessa forma, a análise destas setoriais, contabiliza o valor do componente “Nam Realiz”, "
+                 f"passando de {formata_milhar(NREA_VI)} (Fipe) para {formata_milhar(NREA_ARSAL)}, mediante a "
+                 f"aplicação de {NREA_EXPURGOS} amostras expurgadas. {IIQA_71}").strip()
+    else:
+        IIQA7 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+                 "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+    # ---- Nam Conf: IIQA8 a IIQA_13 e IIQA_15 ----
+    IIQA8 = "" if sem_exp_conf else (
+        "As observações apresentadas pelo Verificador Independente, juntamente com o entendimento a elas "
+        "associado, tanto pelo próprio verificar quanto por esta setorial encontram-se no quadro abaixo.")
+
+    IIQA9 = "" if sem_exp_conf else (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+
+    IIQA_10 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    IIQA_11 = "" if sem_exp_conf else (
+        "Diante dos fatos mencionados, segue o panorama ajustado para o componente “Nam conf”, modificado por "
+        "estas setoriais mediante as observações elencadas acima:")
+
+    IIQA_12 = "" if sem_exp_conf else (
+        "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais.")
+
+    IIQA_13 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    IIQA_15 = "" if sem_exp_conf else (
+        "Ressalta-se que as conversões de análises conformes para não conformes, e vice-versa, que não estejam "
+        "contempladas no quadro de ponderações decorrem de reclassificação realizada por estes setores técnicos, "
+        "com base nos valores brutos de cada tipo de análise. Tais reclassificações podem ser consultadas na base "
+        "de dados encaminhada juntamente com este relatório.")
+
+    # ---- Nam Conf: IIQA_14 (com IIQA_1_14 e IIQA_2_14 aninhados) ----
+    if _num(NCONF_EXPURGOS) != 0:
+        # IIQA_2_14: conversão de não conformes (VI) para conformes (Arsal)
+        if _num(total_naoconf_vi_conf_arsal) != 0:
+            IIQA_2_14 = (f"Houve a conversão de {total_naoconf_vi_conf_arsal} amostras de não conformes "
+                         f"(Verificador Independente) para conformes (Arsal)")
+        else:
+            IIQA_2_14 = ""
+
+        # IIQA_1_14: conversão de conformes (VI) para não conformes (Arsal) + IIQA_2_14
+        if _num(total_conf_vi_naoconf_arsal) != 0:
+            IIQA_1_14 = (f"Houve a conversão de {total_conf_vi_naoconf_arsal} amostras de conformes "
+                         f"(Verificador Independente) para não conformes (Arsal). {IIQA_2_14}").strip()
+        else:
+            IIQA_1_14 = IIQA_2_14
+
+        IIQA_14 = (f"Com isso, dada a análise destas setoriais, o valor do componente “Nam conf” passa de "
+                   f"{formata_milhar(NCOF_VI)} (Fipe) para {formata_milhar(NCONF_ARSAL)}, com o expurgo de "
+                   f"{NCONF_EXPURGOS} amostras anteriormente consideradas conformes pelo Verificador "
+                   f"Independente. {IIQA_1_14}").strip()
+    else:
+        IIQA_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+                   "com o valor apresentado pelo Verificador Independente para o referido componente.")
 
     NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
     NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
@@ -5888,88 +6552,9 @@ def rel_iqa_iqe():
     if str(IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
       IS_SATISF_IUE = "divergente"
 
-    # TEXTO_IUA_IUE_POND = (
-    #     "As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas associados, "
-    #     "tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo de "
-    #     "“Epotencial água” e “Epotencial esg” encontram-se consolidadas no quadro a seguir.\n"
-    #     "Quadro 11 - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais – IUA/IUE.\n"
-    #     "$QUADRO_IUA_IUE_POND\n"                      # <- placeholder, não "SEM PONDERACOES"
-    #     "Fonte: Adaptado do arquivo Eletrônico IUA-IUE. Elaboração: ARSAL.\n"
-    #     "Em face as observações apresentadas, estas setoriais obtiveram os seguintes valores para os componentes "
-    #     "“Epotencial água” e “Epotencial esg”:\n"
-    #     "Quadro 11 – Valores dos componentes “Epotencial água” e “Epotencial esg” obtidos pelos setores técnicos.\n"
-    #     "$TAB_EPOT_ARSAL\n"
-    #     "Fonte: ARSAL."
-    # )
-
     DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
 
     IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
-
-    # ---------- utilidades ----------
-    # def iter_paragraphs(doc):
-    #     """Todos os parágrafos: corpo, tabelas, cabeçalhos e rodapés."""
-    #     def _from_container(container):
-    #         for p in container.paragraphs:
-    #             yield p
-    #         for t in container.tables:
-    #             for row in t.rows:
-    #                 for cell in row.cells:
-    #                     yield from _from_container(cell)
-    
-    #     yield from _from_container(doc)
-    #     for sec in doc.sections:
-    #         for part in (sec.header, sec.footer):
-    #             yield from _from_container(part)
-    
-    
-    # def replace_in_paragraph(p, old, new):
-    #     """Substitui 'old' por 'new' mesmo se o texto estiver dividido em vários runs."""
-    #     start = 0
-    #     changed = False
-    #     while True:
-    #         runs = p.runs
-    #         full = "".join(r.text for r in runs)
-    #         idx = full.find(old, start)
-    #         if idx == -1:
-    #             break
-    #         end = idx + len(old)
-    #         pos, first = 0, True
-    #         for r in runs:
-    #             rs, re_ = pos, pos + len(r.text)
-    #             pos = re_
-    #             if re_ <= idx or rs >= end:
-    #                 continue
-    #             s = max(idx, rs) - rs
-    #             e = min(end, re_) - rs
-    #             if first:
-    #                 r.text = r.text[:s] + new + r.text[e:]
-    #                 first = False
-    #             else:
-    #                 r.text = r.text[:s] + r.text[e:]
-    #         start = idx + len(new)
-    #         changed = True
-    #     return changed
-    
-    
-    # def delete_paragraph(p):
-    #     p._element.getparent().remove(p._element)
-    
-    
-    # def insert_table_after(paragraph, df, style="Table Grid"):
-    #     """Cria uma tabela do Word a partir de um DataFrame, logo após o parágrafo."""
-    #     doc_part = paragraph.part
-    #     table = doc_part.document.add_table(rows=1, cols=len(df.columns))
-    #     table.style = style
-    #     for i, col in enumerate(df.columns):
-    #         table.rows[0].cells[i].text = str(col)
-    #     for _, row in df.iterrows():
-    #         cells = table.add_row().cells
-    #         for i, v in enumerate(row):
-    #             cells[i].text = str(v)
-    #     paragraph._p.addnext(table._tbl)  # move a tabela para depois do parágrafo
-    #     return table
-    
     
     # ---------- substituições ----------
     def _norm(t):
@@ -6009,29 +6594,6 @@ def rel_iqa_iqe():
             el.getparent().remove(el)
         return True
     
-    
-    # def preencher_docx(entrada, saida, var_dic, blocos=()):
-    #     doc = Document(entrada)
-    
-    #     # blocos primeiro (antes dos placeholders sumirem)
-    #     for inicio, fim, novo in blocos:
-    #         replace_block(doc, inicio, fim, novo)
-    
-    #     for key in sorted(var_dic, key=len, reverse=True):
-    #         val = var_dic[key]
-    #         if isinstance(val, pd.DataFrame):
-    #             for p in list(iter_paragraphs(doc)):
-    #                 if key in p.text:
-    #                     replace_in_paragraph(p, key, "")
-    #                     insert_table_after(p, val)
-    #             continue
-    #         val = "" if val is None else str(val)
-    #         for p in iter_paragraphs(doc):
-    #             if key in p.text:
-    #                 replace_in_paragraph(p, key, val)
-    
-    #     doc.save(saida)
-
                  
     FRASE_OBS = ("As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
              "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
@@ -6107,8 +6669,9 @@ def rel_iqa_iqe():
               '$FONTE_PLANO': str(FONTE_PLANO),
               '$FONTE_NCONF': str(FONT_NCONF),
               '$ACREDITAÇÃO': str (ACREDITAÇÃO),
-              '$QUADRO_NREA_OBS': QUADRO_POND_REALIZ,
-              '$QUADRO_NCONF_OBS': QUADRO_POND_NCONF,
+              # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
+              '$QUADRO_NREA_OBS': "" if sem_exp_rea else QUADRO_POND_REALIZ,
+              '$QUADRO_NCONF_OBS': "" if sem_exp_conf else QUADRO_POND_NCONF,
               '$QUADRO_NREA_VI': TAB_MUN_VI,
               '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
               '$QUADRO_NCONF_VI': TAB_TIPO_RESUMIDA_VI,
@@ -6125,6 +6688,23 @@ def rel_iqa_iqe():
               '$CONF_NCONF': str(total_conf_vi_naoconf_arsal),
               '$NCONF_CONF' : str(total_naoconf_vi_conf_arsal),
               '$NREA__PLAN' : str(desc_plano),
+
+              # ---- IQA: textos condicionais (IIQA) ----
+              '$IIQA1': IIQA1,
+              '$IIQA2': IIQA2,
+              '$IIQA3': IIQA3,
+              '$IIQA4': IIQA4,
+              '$IIQA5': IIQA5,
+              '$IIQA6': IIQA6,
+              '$IIQA7': IIQA7,
+              '$IIQA8': IIQA8,
+              '$IIQA9': IIQA9,
+              '$IIQA_10': IIQA_10,
+              '$IIQA_11': IIQA_11,
+              '$IIQA_12': IIQA_12,
+              '$IIQA_13': IIQA_13,
+              '$IIQA_14': IIQA_14,
+              '$IIQA_15': IIQA_15,
 
 
               '$MEETA_IQE':str(META_IQE),
@@ -6202,7 +6782,9 @@ def rel_iqa_iqe():
               '$IS__SATISFATORIO_IUE': IS_SATISF_IUE,
               '$EXP_IUE': formata_milhar(EXP_IUE),
               '$REC_IUE': formata_milhar(REC_IUE),
-              'SEM PONDERACOES': " "
+              'SEM PONDERACOES': " ",
+              # "TIRAR LINHAS QUE TIVEREM SEM EXPURGOS" (rede de segurança)
+              'SEM EXPURGOS': ""
               }
 
     # só entra a tabela se houver ponderações; senão "" apaga a linha do placeholder
@@ -6212,23 +6794,6 @@ def rel_iqa_iqe():
     var_dic['$TAB_ETOT_ARSAL'] = TAB_ETOT_ARSAL if not tabs_iguais else ""
 
     blocos = []
-
-    # if sem_pond:
-    #     blocos.append((
-    #         "As observações apresentadas pelo Verificador Independente",   # início
-    #         "Fonte: ARSAL",                                                # fim
-    #         "Mediante análise das informações fornecidas, estes setores técnicos apresentam "
-    #         "concordância com os valores apresentados para os referidos componentes."
-    #     ))
-    
-    # if TAB_ETOT_VI.equals(TAB_ETOT_ARSAL):
-    #     blocos.append((
-    #         "Diante dos fatos mencionados, segue o panorama ajustado",
-    #         "Fonte: ARSAL",
-    #         ""    # apaga o bloco inteiro
-    #     ))
-    
-    #preencher_docx("modelo.docx", "relatorio_final.docx", var_dic, blocos)
 
     return var_dic
 
@@ -7246,10 +7811,14 @@ def rel_iqa_iqe():
         QUADRO_POND_NCONF[colunas_impacto].apply(lambda row: any(v != "" for v in row), axis=1)
     ]
 
-    for col in colunas_impacto:
-        if col in QUADRO_POND_NCONF.columns:
-            if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
-                QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
+    if QUADRO_POND_NCONF.empty:
+        QUADRO_POND_NCONF = "SEM EXPURGOS"
+      
+    else:
+        for col in colunas_impacto:
+            if col in QUADRO_POND_NCONF.columns:
+                if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
+                    QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
 
     QUADRO_POND_REALIZ = TAB_POND.copy()
 
@@ -7291,7 +7860,7 @@ def rel_iqa_iqe():
     )
 
     if QUADRO_POND_REALIZ[["EXPURGOS", "DESCONSIDERAÇÕES (PLANO)"]].replace("", pd.NA).isna().all().all():
-        QUADRO_POND_REALIZ = "SEM IMPACTOS"
+        QUADRO_POND_REALIZ = "SEM EXPURGOS"
 
 
     
