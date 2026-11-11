@@ -6080,12 +6080,12 @@ def rel_iqa_iqe():
     # ---- EVTE_CORRETO e I9 a I11 ----
     if tabs_iguais:
         EVTE = IGUAL
-        I9 = I10 = I11 = ""
+        I9 = I_10 = I_11 = ""
     else:
         EVTE = DIFERENTE
         I9 = "Diante dos fatos mencionados, segue o panorama ajustado para os componentes “Etotal água” e “Etotal esg”:"
-        I10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
-        I11 = "Fonte: ARSAL."
+        I_10 = "Quadro 12 - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
+        I_11 = "Fonte: ARSAL."
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
@@ -6180,7 +6180,7 @@ def rel_iqa_iqe():
 
               '$I1': I1, '$I2': I2, '$I3': I3, '$I4': I4, '$I5': I5, '$I6': I6, '$I7': I7,
               '$I8': I8,
-              '$I9': I9, '$I10': I10, '$I11': I11,
+              '$I9': I9, '$I_10': I_10, '$I_11': I_11,
 
               '$EVTE_CORRETO': EVTE,
               
