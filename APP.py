@@ -185,103 +185,111 @@ def ler_ajustar_arquivo ():
 
   # Conferência dos valores com os VMPs - IQA
 
-  vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
   
-  # Limpeza do VMPS: SV vira NaN (sem limite)
+  vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
+   
+  # ---------- Limpeza do VMPS: SV vira NaN (sem limite) ----------
   for col in ["V_MIN", "V_MAX"]:
       vmps[col] = (
           vmps[col].astype(str).str.strip()
           .str.replace(",", ".", regex=False)
-          .replace({"SV": None, "sv": None, "nan": None, "": None})
+          .replace({"SV": np.nan, "sv": np.nan, "nan": np.nan, "": np.nan})
       )
       vmps[col] = pd.to_numeric(vmps[col], errors="coerce")
-  
-  # Merge com indicator para saber quais parâmetros existem no VMPS
+   
+  # ---------- Merge com indicator (quais parâmetros existem no VMPS) ----------
   df = iqa_detalhado.merge(
       vmps[["PARAMETRO", "V_MIN", "V_MAX"]].drop_duplicates("PARAMETRO"),
       left_on="analise",
       right_on="PARAMETRO",
       how="left",
-      indicator=True
+      indicator=True,
   )
-  
-  # Valor numérico da coluna "valor" já existente (sem sobrescrevê-la)
+   
+  # ---------- Variáveis de apoio ----------
+  # Valor numérico da coluna "valor" (sem sobrescrevê-la)
   val_num = pd.to_numeric(df["valor"], errors="coerce")
-  
-  # >>> NOVO: só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
-  # (ignora espaços e maiúsculas/minúsculas; vazio/NaN também é conferido)
-  nao_expurgar = df["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
-  
-  # ---------- Coliformes totais / E. coli ----------
-  eh_coli = df["analise"].astype(str).str.contains(
-      r"coliformes?\s+totais|\be\.?\s*coli\b|escherichia", case=False, regex=True, na=False
-  )
-  
+  val_txt = df["valor"].astype(str).str.strip().str.lower()
+   
+  # Texto/número da coluna "resultado" (calculados ANTES de sobrescrevê-la)
   res_txt = df["resultado"].astype(str).str.strip().str.lower()
   res_num = pd.to_numeric(res_txt.str.replace(",", ".", regex=False), errors="coerce")
-  
-  # >>> NOVO: texto da coluna "valor" (para detectar Presente/Ausente também nela)
-  val_txt = df["valor"].astype(str).str.strip().str.lower()
-  
-  # unidade vazia (NaN, "", espaços, "nan" ou "none")
+   
+  # Só confere linhas cujo "expurgos" seja diferente de "EXPURGAR"
+  # (ignora espaços e maiúsculas/minúsculas; vazio/NaN também é conferido)
+  nao_expurgar = df["expurgos"].astype(str).str.strip().str.upper() != "EXPURGAR"
+   
+  # Unidade vazia (NaN, "", espaços, "nan" ou "none")
   sem_unidade = (
       df["unidade"].isna()
       | df["unidade"].astype(str).str.strip().str.lower().isin(["", "nan", "none"])
   )
-  
+   
+  # ---------- Coliformes totais / E. coli ----------
+  # eh_coli = "é coliforme" (sem misturar com expurgo)
+  eh_coli = df["analise"].astype(str).str.contains(
+      r"coliformes?\s+totais|\be\.?\s*coli\b|escherichia",
+      case=False, regex=True, na=False,
+  )
+  # coli_conferir = "é coliforme E deve ser conferido"
+  coli_conferir = eh_coli & nao_expurgar
+   
   ausente = res_txt.isin(["ausente", "ausentes"]) | val_txt.isin(["ausente", "ausentes"])
-  zero = (res_num == 0) | (val_num == 0)
-  
-  # >>> NOVO: regra de "Não Conforme"
   presente = res_txt.isin(["presente", "presentes"]) | val_txt.isin(["presente", "presentes"])
+  zero = (res_num == 0) | (val_num == 0)
   um = (res_num == 1) | (val_num == 1)
-  
+   
   # Conforme: "Ausente"/"Ausentes" ou 0 sem unidade
   conforme_coli = ausente | (zero & sem_unidade)
-  
   # Não Conforme: "Presente"/"Presentes" ou 1 sem unidade
   nao_conforme_coli = presente | (um & sem_unidade)
-  
-  # >>> ALTERADO: aplica o filtro de expurgos
-  eh_coli = eh_coli & nao_expurgar
-  
+   
   # ---------- Demais parâmetros numéricos (VMPS) ----------
-  # >>> ALTERADO: aplica o filtro de expurgos
-  conferir = (df["_merge"] == "both") & val_num.notna() & ~eh_coli & nao_expurgar
-  
-  # Regra: SV (NaN) = sem limite naquele lado
+  conferir = (
+      (df["_merge"] == "both")
+      & val_num.notna()
+      & ~eh_coli          # coliformes têm regra própria
+      & nao_expurgar
+  )
+   
+  # SV (NaN) = sem limite naquele lado
   atende_min = df["V_MIN"].isna() | (val_num >= df["V_MIN"])
   atende_max = df["V_MAX"].isna() | (val_num <= df["V_MAX"])
   conforme = atende_min & atende_max
-  
+   
+  # Análises que não constam no VMPS = Conforme (coliformes ficam de fora,
+  # pois seguem regra própria)
+  fora_vmps = (df["_merge"] == "left_only") & nao_expurgar & ~eh_coli
+   
   # ---------- Escrita na coluna resultado ----------
   df["resultado"] = df["resultado"].astype(object)
   resultado_original = df["resultado"].copy()
-  
+   
+  # 1) Parâmetros numéricos
   df.loc[conferir & conforme, "resultado"] = "Conforme"
   df.loc[conferir & ~conforme, "resultado"] = "Não Conforme"
-
-
-  # >>> NOVO: análises que não constam no VMPS = Conforme
-  
-  fora_vmps = (df["_merge"] == "left_only") & nao_expurgar
+   
+  # 2) Parâmetros fora do VMPS
   df.loc[fora_vmps, "resultado"] = "Conforme"
-
-  
-  # >>> ALTERADO: regras explícitas para coliformes totais / E. coli
-  df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
-  df.loc[eh_coli & nao_conforme_coli, "resultado"] = "Não Conforme"
-  
-  # alterado: True só onde o resultado realmente mudou
+   
+  # 3) Coliformes / E. coli (Não Conforme tem prioridade em caso de conflito)
+  df.loc[coli_conferir & conforme_coli, "resultado"] = "Conforme"
+  df.loc[coli_conferir & nao_conforme_coli, "resultado"] = "Não Conforme"
+   
+  # ---------- Flag de reclassificação ----------
+  # True só onde o resultado realmente mudou
   df["Reclassificado ARSAL?"] = ~(
       (df["resultado"] == resultado_original)
       | (df["resultado"].isna() & resultado_original.isna())
   )
-  
-  # Remove colunas auxiliares e salva
-  df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
-  
-  iqa_detalhado = df_conferido.drop(columns=["Reclassificado ARSAL?", "conformidade_vi"])
+   
+  # ---------- Remove colunas auxiliares ----------
+  df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])
+   
+  iqa_detalhado = df_conferido.drop(
+      columns=["Reclassificado ARSAL?", "conformidade_vi"],
+      errors="ignore",   # não quebra se "conformidade_vi" não existir
+  )
   # buffer = BytesIO()
   # with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
   #     df.to_excel(writer, index=False, sheet_name="Conferido")
