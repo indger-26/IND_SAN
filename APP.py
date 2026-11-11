@@ -684,8 +684,8 @@ def ler_ajustar_arquivo ():
         .fillna(iua_iue_evte["Municipio"])
       )
 
-      st.dataframe(iua_iue_economias)
-      st.dataframe(iua_iue_evte)
+      #st.dataframe(iua_iue_economias)
+      #st.dataframe(iua_iue_evte)
 
 
     return prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, df_conferido, df_conferido_iqe, iua_iue_economias, iua_iue_evte, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta
@@ -1646,7 +1646,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       df_arsal["N Economias - ARSAL"] = pd.to_numeric(df_arsal["N Economias - ARSAL"], errors="coerce").fillna(0)
 
 
-      st.dataframe(df_arsal)
+      #st.dataframe(df_arsal)
 
 
       
@@ -1682,7 +1682,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
       
       potenciais_arsal = pot_agua_arsal.merge(pot_esgoto_arsal, on="Municipio", how="outer")
 
-      st.dataframe(potenciais_arsal)
+      #st.dataframe(potenciais_arsal)
 
       
       # Preparar EVTE
@@ -1702,7 +1702,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
           "E total esgoto (EVTE) - ARSAL": "E total esgoto",
       })[["Municipio", "E total agua", "E total esgoto"]]
 
-      st.dataframe(evte_arsal)
+      #st.dataframe(evte_arsal)
 
       
       # Juntar (apenas por nome do município)
@@ -1711,7 +1711,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
       iua_iue_analise_arsal = evte_arsal.merge(potenciais_arsal, on="Municipio", how="outer")
 
-      st.dataframe(iua_iue_analise_arsal)
+      #st.dataframe(iua_iue_analise_arsal)
 
       
       # Índices
@@ -1748,7 +1748,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
           np.nan,
       )
 
-      st.dataframe(iua_iue_analise_arsal)
+      #st.dataframe(iua_iue_analise_arsal)
 
 
       
@@ -5803,7 +5803,7 @@ def rel_iqa_iqe():
         "E potencial esgoto - ARSAL": "E potencial esgoto",
     })
 
-    st.dataframe(iua_iue_analise_arsal)
+    #st.dataframe(iua_iue_analise_arsal)
 
     return iua_iue_analise_arsal, iua_iue_analise_vi
 
@@ -6486,7 +6486,7 @@ def rel_iqa_iqe():
 
 
     # soma das colunas numéricas (os índices serão sobrescritos abaixo)
-    st.dataframe(TAB_MUN_IUA_IUE_ARSAL, use_container_width=True, hide_index=True)
+    #st.dataframe(TAB_MUN_IUA_IUE_ARSAL, use_container_width=True, hide_index=True)
     
     cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
     total = TAB_MUN_IUA_IUE_ARSAL[cols_num].sum()
