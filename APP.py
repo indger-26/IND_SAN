@@ -6637,7 +6637,7 @@ def rel_iqa_iqe():
               f"respectivamente. {II8}").strip()
     else:
         I8 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
-              "com os valores apresentados para os referidos componentes.")
+              "com os valores apresentados pelo Verificador Independente para os referidos componentes.")
 
     # ---- EVTE_CORRETO e I9 a I11 ----
     if tabs_iguais:
