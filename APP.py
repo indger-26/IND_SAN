@@ -174,9 +174,9 @@ def ler_ajustar_arquivo ():
 
   
   iqa_detalhado = iqa_detalhado.drop('id_pond', axis=1)
-  iqa_detalhado = iqa_detalhado.drop('conformidade_vi', axis=1)
+  #iqa_detalhado = iqa_detalhado.drop('conformidade_vi', axis=1)
   iqe_detalhado = iqe_detalhado.drop('id_pond', axis=1)
-  iqe_detalhado = iqe_detalhado.drop('conformidade_vi', axis=1)
+  #iqe_detalhado = iqe_detalhado.drop('conformidade_vi', axis=1)
 
 
 
@@ -273,7 +273,7 @@ def ler_ajustar_arquivo ():
   df.loc[eh_coli & nao_conforme_coli, "resultado"] = "Não Conforme"
   
   # alterado: True só onde o resultado realmente mudou
-  df["alterado"] = ~(
+  df["Reclassificado ARSAL?"] = ~(
       (df["resultado"] == resultado_original)
       | (df["resultado"].isna() & resultado_original.isna())
   )
@@ -281,7 +281,7 @@ def ler_ajustar_arquivo ():
   # Remove colunas auxiliares e salva
   df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
   
-  iqa_detalhado = df_conferido.drop(columns=["alterado"])
+  iqa_detalhado = df_conferido.drop(columns=["Reclassificado ARSAL?", "conformidade_vi"])
   # buffer = BytesIO()
   # with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
   #     df.to_excel(writer, index=False, sheet_name="Conferido")
@@ -584,7 +584,7 @@ def ler_ajustar_arquivo ():
 
     
     # alterado: True só onde o resultado realmente mudou
-    df_iqe["alterado"] = ~(
+    df_iqe["Reclassificado ARSAL?"] = ~(
         (df_iqe["resultado"] == resultado_original_iqe)
         | (df_iqe["resultado"].isna() & resultado_original_iqe.isna())
     )
@@ -592,7 +592,7 @@ def ler_ajustar_arquivo ():
     # Remove colunas auxiliares e salva
     df_conferido_iqe = df_iqe.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
     
-    iqe_detalhado = df_conferido_iqe.drop(columns=["alterado", "entrada_saida"])
+    iqe_detalhado = df_conferido_iqe.drop(columns=["Reclassificado ARSAL?", "entrada_saida", "conformidade_vi"])
 
 
     
@@ -8764,7 +8764,7 @@ def rel_iqa_iqe():
     df.loc[eh_coli & nao_conforme_coli, "resultado"] = "Não Conforme"
     
     # alterado: True só onde o resultado realmente mudou
-    df["alterado"] = ~(
+    df["Reclassificado ARSAL?"] = ~(
         (df["resultado"] == resultado_original)
         | (df["resultado"].isna() & resultado_original.isna())
     )
@@ -8772,7 +8772,7 @@ def rel_iqa_iqe():
     # Remove colunas auxiliares e salva
     df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
     
-    AMOSTRAS_REALIZADAS = df_conferido.drop(columns=["alterado"])
+    AMOSTRAS_REALIZADAS = df_conferido.drop(columns=["Reclassificado ARSAL?"])
     
     
 
@@ -9026,7 +9026,7 @@ def rel_iqa_iqe():
 
     
     # alterado: True só onde o resultado realmente mudou
-    df_iqe["alterado"] = ~(
+    df_iqe["Reclassificado ARSAL?"] = ~(
         (df_iqe["resultado"] == resultado_original_iqe)
         | (df_iqe["resultado"].isna() & resultado_original_iqe.isna())
     )
@@ -9034,7 +9034,7 @@ def rel_iqa_iqe():
     # Remove colunas auxiliares e salva
     df_conferido_iqe = df_iqe.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])  # mantém "alterado"
     
-    AMOSTRAS_REALIZADAS_IQE = df_conferido_iqe.drop(columns=["alterado", "entrada_saida"])
+    AMOSTRAS_REALIZADAS_IQE = df_conferido_iqe.drop(columns=["Reclassificado ARSAL?", "entrada_saida"])
 
 
 
