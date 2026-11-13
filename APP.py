@@ -5172,6 +5172,12 @@ def rel_iqa():
 
     fig, ax6 = plt.subplots(figsize=(10, 8))
 
+    TAB_TIPO["ANALISES REALIZADAS"] = (
+        pd.to_numeric(TAB_TIPO["ANALISES REALIZADAS"], errors="coerce")
+        .replace([np.inf, -np.inf], np.nan)
+        .fillna(0)
+    )
+
     barras = ax6.bar(x, TAB_TIPO["ANALISES REALIZADAS"], width=largura, label="ANALISES REALIZADAS", color='skyblue')
     ax6.plot(x, TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"], label="PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", color='green', marker='o', linewidth=2, linestyle='--')
 
