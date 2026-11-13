@@ -7440,7 +7440,7 @@ def rel_iqa_iqe():
   def var_doc (MES_ANO, TRIM_ANO, TRIMMIN_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE,
                QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, recon_plano, TAB_MUN_NCONF,
                TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P, NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITA_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE,
-               TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE,
+               TAB_MUN_VI_IQE, TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, recon_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE,
                TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
                FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
 
@@ -7733,97 +7733,367 @@ def rel_iqa_iqe():
     def validar(valor):
       return valor if valor is not None else ""
 
-    # ---------- IQE: textos condicionais (IIQE) ----------
-    sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)    # $QUADRO__NREA_OBS_IQE
-    sem_exp_conf_iqe = _sem_exp(QUADRO_POND_NCONF_IQE)    # $QUADRO__NCONF_OBS_IQE
+    # # ---------- IQE: textos condicionais (IIQE) ----------
+    # sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)    # $QUADRO__NREA_OBS_IQE
+    # sem_exp_conf_iqe = _sem_exp(QUADRO_POND_NCONF_IQE)    # $QUADRO__NCONF_OBS_IQE
 
-    # ---- Nam Realiz: IIQE1 a IIQE6 ----
+    # # ---- Nam Realiz: IIQE1 a IIQE6 ----
+    # IIQE1 = "" if sem_exp_rea_iqe else (
+    #     "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
+    #     "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
+    #     "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
+    #     "realizadas e o quantitativo de expurgos considerados cabíveis.")
+
+    # IIQE2 = "" if sem_exp_rea_iqe else (
+    #     "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+
+    # IIQE3 = "" if sem_exp_rea_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+
+    # IIQE4 = "" if sem_exp_rea_iqe else (
+    #     "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
+    #     "setoriais mediante as observações mencionadas acima:")
+
+    # IIQE5 = "" if sem_exp_rea_iqe else (
+    #     "Quadro - Contabilização do componente “Nam Realiz” do IQE, ajustado por estas setoriais.")
+
+    # IIQE6 = "" if sem_exp_rea_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+
+    # # ---- Nam Realiz: IIQE7 (com IIQE_71 aninhado) ----
+    # if _num(NREA_EXPURGOS_IQE) != 0:
+    #     if _num(desc_plano_IQE) != 0:
+    #         IIQE_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
+    #                    f"desconsideração de {desc_plano_IQE} amostras em relação ao plano de amostragem ajustado "
+    #                    f"pelo Verificador Independente.")
+    #     else:
+    #         IIQE_71 = ""
+
+    #     IIQE7 = (f"Dessa forma, a análise destas setoriais, contabiliza o valor do componente “Nam Realiz”, "
+    #              f"passando de {formata_milhar(NREA_VI_IQE)} (Fipe) para {formata_milhar(NREA_ARSAL_IQE)}, mediante a "
+    #              f"aplicação de {NREA_EXPURGOS_IQE} amostras expurgadas. {IIQE_71}").strip()
+    # else:
+    #     IIQE7 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+    #              "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+    # # ---- Nam Conf: IIQE8 a IIQE_13 e IIQE_15 ----
+    # IIQE8 = "" if sem_exp_conf_iqe else (
+    #     "As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
+    #     "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
+    #     "de amostras classificadas como Conformes e, consequentemente, o componente “Nam Conf.”, "
+    #     "encontram-se consolidadas no quadro a seguir.")
+
+    # IIQE9 = "" if sem_exp_conf_iqe else (
+    #     "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+
+    # IIQE_10 = "" if sem_exp_conf_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+
+    # IIQE_11 = "" if sem_exp_conf_iqe else (
+    #     "Diante dos fatos mencionados, segue o panorama ajustado para o componente “Nam conf”, modificado por "
+    #     "estas setoriais mediante as observações elencadas acima:")
+
+    # IIQE_12 = "" if sem_exp_conf_iqe else (
+    #     "Quadro - Contabilização do componente “Nam Conf” do IQE, ajustado por estas setoriais.")
+
+    # IIQE_13 = "" if sem_exp_conf_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+
+    # IIQE_15 = "" if sem_exp_conf_iqe else (
+    #     "Ressalta-se que as conversões de análises conformes para não conformes, e vice-versa, que não estejam "
+    #     "contempladas no quadro de ponderações decorrem de reclassificação realizada por estes setores técnicos, "
+    #     "com base nos valores brutos de cada tipo de análise. Tais reclassificações podem ser consultadas na base "
+    #     "de dados encaminhada juntamente com este relatório.")
+
+    # # ---- Nam Conf: IIQE_14 (com IIQE_1_14 e IIQE_2_14 aninhados) ----
+    # if _num(NCONF_EXPURGOS_IQE) != 0:
+    #     # IIQE_2_14: conversão de não conformes (VI) para conformes (Arsal)
+    #     if _num(total_naoconf_vi_conf_arsal_IQE) != 0:
+    #         IIQE_2_14 = (f"Houve a conversão de {total_naoconf_vi_conf_arsal_IQE} amostras de não conformes "
+    #                      f"(Verificador Independente) para conformes (Arsal)")
+    #     else:
+    #         IIQE_2_14 = ""
+
+    #     # IIQE_1_14: conversão de conformes (VI) para não conformes (Arsal) + IIQE_2_14
+    #     if _num(total_conf_vi_naoconf_arsal_IQE) != 0:
+    #         IIQE_1_14 = (f"Houve a conversão de {total_conf_vi_naoconf_arsal_IQE} amostras de conformes "
+    #                      f"(Verificador Independente) para não conformes (Arsal). {IIQE_2_14}").strip()
+    #     else:
+    #         IIQE_1_14 = IIQE_2_14
+
+    #     IIQE_14 = (f"Com isso, dada a análise destas setoriais, o valor do componente “Nam conf” passa de "
+    #                f"{formata_milhar(NCOF_VI_IQE)} (Fipe) para {formata_milhar(NCONF_ARSAL_IQE)}, com o expurgo de "
+    #                f"{NCONF_EXPURGOS_IQE} amostras anteriormente consideradas conformes pelo Verificador "
+    #                f"Independente. {IIQE_1_14}").strip()
+    # else:
+    #     IIQE_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+    #                "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+
+    
+    # =========================================================
+    # IQE: TEXTOS CONDICIONAIS (IIQE)
+    # =========================================================
+
+    sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)
+
+    # ---------------------------------------------------------
+    # NAM REALIZ: IIQE1 a IIQE7
+    # ---------------------------------------------------------
+
     IIQE1 = "" if sem_exp_rea_iqe else (
         "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
         "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
         "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
-        "realizadas e o quantitativo de expurgos considerados cabíveis.")
+        "realizadas e o quantitativo de expurgos considerados cabíveis."
+    )
 
     IIQE2 = "" if sem_exp_rea_iqe else (
-        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
+    )
 
-    IIQE3 = "" if sem_exp_rea_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+    IIQE3 = "" if sem_exp_rea_iqe else (
+        "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+    )
 
     IIQE4 = "" if sem_exp_rea_iqe else (
         "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
-        "setoriais mediante as observações mencionadas acima:")
+        "setoriais mediante as observações mencionadas acima:"
+    )
 
     IIQE5 = "" if sem_exp_rea_iqe else (
-        "Quadro - Contabilização do componente “Nam Realiz” do IQE, ajustado por estas setoriais.")
+        "Quadro - Contabilização do componente “Nam Realiz” do IQE, ajustado por estas setoriais."
+    )
 
-    IIQE6 = "" if sem_exp_rea_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+    IIQE6 = "" if sem_exp_rea_iqe else (
+        "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+    )
 
-    # ---- Nam Realiz: IIQE7 (com IIQE_71 aninhado) ----
-    if _num(NREA_EXPURGOS_IQE) != 0:
-        if _num(desc_plano_IQE) != 0:
-            IIQE_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
-                       f"desconsideração de {desc_plano_IQE} amostras em relação ao plano de amostragem ajustado "
-                       f"pelo Verificador Independente.")
-        else:
-            IIQE_71 = ""
+    # Verifica as alterações no Nam Realiz
+    tem_expurgos_rea_iqe = _num(NREA_EXPURGOS_IQE) != 0
+    tem_desconsideracoes_iqe = _num(desc_plano_IQE) != 0
+    tem_reconsideracoes_iqe = _num(recon_plano_IQE) != 0
 
-        IIQE7 = (f"Dessa forma, a análise destas setoriais, contabiliza o valor do componente “Nam Realiz”, "
-                 f"passando de {formata_milhar(NREA_VI_IQE)} (Fipe) para {formata_milhar(NREA_ARSAL_IQE)}, mediante a "
-                 f"aplicação de {NREA_EXPURGOS_IQE} amostras expurgadas. {IIQE_71}").strip()
+    if not (
+        tem_expurgos_rea_iqe
+        or tem_desconsideracoes_iqe
+        or tem_reconsideracoes_iqe
+    ):
+
+        IIQE7 = (
+            "Mediante análise das informações fornecidas, estes setores técnicos "
+            "apresentam concordância com o valor apresentado pelo Verificador "
+            "Independente para o referido componente."
+        )
+
     else:
-        IIQE7 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
-                 "com o valor apresentado pelo Verificador Independente para o referido componente.")
 
-    # ---- Nam Conf: IIQE8 a IIQE_13 e IIQE_15 ----
-    IIQE8 = "" if sem_exp_conf_iqe else (
-        "As observações apresentadas pelo Verificador Independente, bem como os entendimentos a elas "
-        "associados, tanto pelo próprio Verificador quanto por esta setorial, que impactam o quantitativo "
-        "de amostras classificadas como Conformes e, consequentemente, o componente “Nam Conf.”, "
-        "encontram-se consolidadas no quadro a seguir.")
+        IIQE7 = (
+            f"Dessa forma, a análise destas setoriais contabiliza o valor do "
+            f"componente “Nam Realiz”, passando de "
+            f"{formata_milhar(NREA_VI_IQE)} (Fipe) para "
+            f"{formata_milhar(NREA_ARSAL_IQE)}."
+        )
 
-    IIQE9 = "" if sem_exp_conf_iqe else (
-        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+        # Complemento: expurgos
+        if tem_expurgos_rea_iqe:
+            IIQE7 += (
+                f" Para tanto, foram aplicadas "
+                f"{formata_milhar(NREA_EXPURGOS_IQE)} amostras expurgadas."
+            )
 
-    IIQE_10 = "" if sem_exp_conf_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+        # Complemento: desconsiderações
+        if tem_desconsideracoes_iqe:
+            IIQE7 += (
+                f" Além disso, no plano de amostragem ajustado por esta agência "
+                f"reguladora, houve a desconsideração de "
+                f"{formata_milhar(desc_plano_IQE)} amostras em relação ao plano "
+                f"de amostragem ajustado pelo Verificador Independente."
+            )
 
-    IIQE_11 = "" if sem_exp_conf_iqe else (
-        "Diante dos fatos mencionados, segue o panorama ajustado para o componente “Nam conf”, modificado por "
-        "estas setoriais mediante as observações elencadas acima:")
+        # Complemento: reconsiderações
+        if tem_reconsideracoes_iqe:
+            IIQE7 += (
+                f" Ademais, houve a reconsideração de "
+                f"{formata_milhar(recon_plano_IQE)} amostras em relação ao plano "
+                f"de amostragem ajustado pelo Verificador Independente."
+            )
 
-    IIQE_12 = "" if sem_exp_conf_iqe else (
-        "Quadro - Contabilização do componente “Nam Conf” do IQE, ajustado por estas setoriais.")
+    # ---------------------------------------------------------
+    # NAM CONF: IIQE8 a IIQE15
+    # ---------------------------------------------------------
 
-    IIQE_13 = "" if sem_exp_conf_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+    # Existem ponderações a apresentar?
+    tem_ponderacoes_conf_iqe = (
+        isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
+        and not QUADRO_POND_NCONF_IQE.empty
+    )
 
-    IIQE_15 = "" if sem_exp_conf_iqe else (
-        "Ressalta-se que as conversões de análises conformes para não conformes, e vice-versa, que não estejam "
-        "contempladas no quadro de ponderações decorrem de reclassificação realizada por estes setores técnicos, "
-        "com base nos valores brutos de cada tipo de análise. Tais reclassificações podem ser consultadas na base "
-        "de dados encaminhada juntamente com este relatório.")
+    # Existem expurgos de amostras conformes?
+    tem_expurgos_conf_iqe = _num(NCONF_EXPURGOS_IQE) != 0
 
-    # ---- Nam Conf: IIQE_14 (com IIQE_1_14 e IIQE_2_14 aninhados) ----
-    if _num(NCONF_EXPURGOS_IQE) != 0:
-        # IIQE_2_14: conversão de não conformes (VI) para conformes (Arsal)
-        if _num(total_naoconf_vi_conf_arsal_IQE) != 0:
-            IIQE_2_14 = (f"Houve a conversão de {total_naoconf_vi_conf_arsal_IQE} amostras de não conformes "
-                         f"(Verificador Independente) para conformes (Arsal)")
+    # Existem conversões entre Conforme e Não Conforme?
+    tem_conversao_conf_nao_conf_iqe = (
+        _num(total_conf_vi_naoconf_arsal_IQE) != 0
+    )
+
+    tem_conversao_nao_conf_conf_iqe = (
+        _num(total_naoconf_vi_conf_arsal_IQE) != 0
+    )
+
+    tem_conversoes_conf_iqe = (
+        tem_conversao_conf_nao_conf_iqe
+        or tem_conversao_nao_conf_conf_iqe
+    )
+
+    # ---------------------------------------------------------
+    # IIQE8 a IIQE13 e IIQE15
+    # ---------------------------------------------------------
+
+    if tem_ponderacoes_conf_iqe:
+
+        IIQE8 = (
+            "As observações apresentadas pelo Verificador Independente, "
+            "juntamente com o entendimento a elas associado, tanto pelo "
+            "próprio verificador quanto por esta setorial, encontram-se "
+            "no quadro abaixo."
+        )
+
+        IIQE9 = (
+            "Quadro - Ponderações elaboradas pelo Verificador Independente "
+            "e posicionamento destas setoriais."
+        )
+
+        IIQE_10 = (
+            "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+        )
+
+        IIQE_11 = (
+            "Diante dos fatos mencionados, segue o panorama ajustado para "
+            "o componente “Nam conf”, modificado por estas setoriais "
+            "mediante as observações elencadas acima:"
+        )
+
+        IIQE_12 = (
+            "Quadro - Contabilização do componente “Nam Conf” do IQE, "
+            "ajustado por estas setoriais."
+        )
+
+        IIQE_13 = (
+            "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+        )
+
+        if tem_conversoes_conf_iqe:
+
+            IIQE_15 = (
+                "Ressalta-se que as conversões de análises conformes para "
+                "não conformes, e vice-versa, que não estejam contempladas "
+                "no quadro de ponderações decorrem de reclassificação "
+                "realizada por estes setores técnicos, com base nos valores "
+                "brutos de cada tipo de análise. Tais reclassificações podem "
+                "ser consultadas na base de dados encaminhada juntamente "
+                "com este relatório."
+            )
+
         else:
-            IIQE_2_14 = ""
+            IIQE_15 = ""
 
-        # IIQE_1_14: conversão de conformes (VI) para não conformes (Arsal) + IIQE_2_14
-        if _num(total_conf_vi_naoconf_arsal_IQE) != 0:
-            IIQE_1_14 = (f"Houve a conversão de {total_conf_vi_naoconf_arsal_IQE} amostras de conformes "
-                         f"(Verificador Independente) para não conformes (Arsal). {IIQE_2_14}").strip()
-        else:
-            IIQE_1_14 = IIQE_2_14
+    elif tem_conversoes_conf_iqe:
 
-        IIQE_14 = (f"Com isso, dada a análise destas setoriais, o valor do componente “Nam conf” passa de "
-                   f"{formata_milhar(NCOF_VI_IQE)} (Fipe) para {formata_milhar(NCONF_ARSAL_IQE)}, com o expurgo de "
-                   f"{NCONF_EXPURGOS_IQE} amostras anteriormente consideradas conformes pelo Verificador "
-                   f"Independente. {IIQE_1_14}").strip()
+        # Sem ponderações, mas com conversões:
+        # apresenta somente o texto de reclassificação.
+
+        IIQE8 = (
+            "Ressalta-se que as conversões de análises conformes para "
+            "não conformes, e vice-versa, identificadas na análise do "
+            "componente “Nam Conf”, decorreram de reclassificações "
+            "realizadas por estes setores técnicos, com base nos valores "
+            "brutos de cada tipo de amostra. Tais reclassificações podem "
+            "ser consultadas na base de dados encaminhada juntamente "
+            "com este relatório."
+        )
+
+        IIQE9 = ""
+        IIQE_10 = ""
+        IIQE_11 = ""
+        IIQE_12 = ""
+        IIQE_13 = ""
+        IIQE_15 = ""
+
     else:
-        IIQE_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
-                   "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+        # Sem ponderações e sem conversões.
+
+        IIQE8 = ""
+        IIQE9 = ""
+        IIQE_10 = ""
+        IIQE_11 = ""
+        IIQE_12 = ""
+        IIQE_13 = ""
+        IIQE_15 = ""
+
+    # ---------------------------------------------------------
+    # IIQE14: RESULTADO DO NAM CONF
+    # ---------------------------------------------------------
+
+    if (
+        tem_ponderacoes_conf_iqe
+        or tem_expurgos_conf_iqe
+        or tem_conversoes_conf_iqe
+    ):
+
+        partes_14_iqe = [
+            (
+                f"Dessa forma, dada a análise destas setoriais, "
+                f"o valor do componente “Nam conf” passa de "
+                f"{formata_milhar(NCOF_VI_IQE)} "
+                f"(Verificador Independente) para "
+                f"{formata_milhar(NCONF_ARSAL_IQE)}."
+            )
+        ]
+
+        if tem_expurgos_conf_iqe:
+            partes_14_iqe.append(
+                f"Para tanto, foram expurgadas "
+                f"{formata_milhar(NCONF_EXPURGOS_IQE)} amostras "
+                f"anteriormente consideradas conformes pelo "
+                f"Verificador Independente."
+            )
+
+        if tem_conversao_conf_nao_conf_iqe:
+            partes_14_iqe.append(
+                f"Houve a conversão de "
+                f"{formata_milhar(total_conf_vi_naoconf_arsal_IQE)} "
+                f"amostras de conformes (Verificador Independente) "
+                f"para não conformes (ARSAL)."
+            )
+
+        if tem_conversao_nao_conf_conf_iqe:
+            partes_14_iqe.append(
+                f"Houve a conversão de "
+                f"{formata_milhar(total_naoconf_vi_conf_arsal_IQE)} "
+                f"amostras de não conformes (Verificador Independente) "
+                f"para conformes (ARSAL)."
+            )
+
+        # Ponderações registradas, mas sem efeito no quantitativo.
+        if (
+            tem_ponderacoes_conf_iqe
+            and not tem_expurgos_conf_iqe
+            and not tem_conversoes_conf_iqe
+        ):
+            partes_14_iqe.append(
+                "Embora tenham sido registradas ponderações, não houve "
+                "expurgos ou conversões que alterassem o quantitativo "
+                "de amostras conformes."
+            )
+
+        IIQE_14 = " ".join(partes_14_iqe)
+
+    else:
+
+        IIQE_14 = (
+            "Mediante análise das informações fornecidas, estes setores "
+            "técnicos apresentam concordância com o valor apresentado "
+            "pelo Verificador Independente para o referido componente."
+        )
+
 
 
     # soma das colunas numéricas (os índices serão sobrescritos abaixo)
@@ -8578,9 +8848,41 @@ def rel_iqa_iqe():
       })
     )
 
-    TAB_MUN_IQE = TAB_MUN_IQE.merge(DESC_MUN, on="MUNICÍPIO", how="left")
-    TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
-    TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN_IQE["PLANO DE AMOSTRAGEM"] - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]).astype('Int64')
+    RECON_MUN_IQE = (
+      BASE_MUN_TIPO_IQE_completo
+      .groupby("Cidade", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+      .rename(columns={
+        "Cidade": "MUNICÍPIO",
+        "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES DO PLANO"
+      })
+    )
+
+        TAB_MUN_IQE = TAB_MUN_IQE.merge(
+          DESC_MUN, on="MUNICÍPIO", how="left"
+        )
+    
+        TAB_MUN_IQE = TAB_MUN_IQE.merge(
+          RECON_MUN_IQE, on="MUNICÍPIO", how="left"
+        )
+    
+        TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = (
+          TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]
+          .fillna(0)
+          .astype("Int64")
+        )
+    
+        TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"] = (
+          TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"]
+          .fillna(0)
+          .astype("Int64")
+        )
+    
+        TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (
+          TAB_MUN_IQE["PLANO DE AMOSTRAGEM"]
+          - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]
+          + TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"]
+        ).astype("Int64")
 
     TAB_REALIZADAS_ACEITO_IQE          = TAB_REALIZADAS_IQE[TAB_REALIZADAS_IQE["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF_IQE     = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_IQE["CONFORMIDADE - ARSAL"] == "Conforme"]
@@ -8658,7 +8960,7 @@ def rel_iqa_iqe():
     TAB_MUN_IQE["IQE (%)"] = (((TAB_MUN_IQE["NAM CONF"]) / (TAB_MUN_IQE["NAM REALIZ"])) * 100).round(1)
 
     TAB_MUN_FINAL_IQE = TAB_MUN_IQE[[
-      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ",
       "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF", "IQE (%)"
@@ -8668,6 +8970,8 @@ def rel_iqa_iqe():
     TAB_MUN_FINAL_IQE["IQE (%)"].iat[-1] = (((TAB_MUN_FINAL_IQE["NAM CONF"].iat[-1]) / (TAB_MUN_FINAL_IQE["NAM REALIZ"].iat[-1])) * 100).round(1)
 
     desc_plano_IQE = int(TAB_MUN_FINAL_IQE["DESCONSIDERAÇÕES DO PLANO"].iloc[-1])
+
+    recon_plano_IQE = int(TAB_MUN_FINAL_IQE["RECONSIDERAÇÕES DO PLANO"].iloc[-1])
 
     TAB_MUN_NCONF_IQE = TAB_MUN_IQE[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF"]]
     TAB_MUN_NCONF_VI_IQE = TAB_MUN_IQE[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES"]]
@@ -8681,7 +8985,7 @@ def rel_iqa_iqe():
     TAB_MUN_NCONF_VI_IQE = add_total(TAB_MUN_NCONF_VI_IQE)
 
     TAB_MUN_RESUMIDA_IQE = TAB_MUN_FINAL_IQE[[
-      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ"
     ]]
@@ -8705,7 +9009,7 @@ def rel_iqa_iqe():
     TAB_MUN_RESUMIDA_VI_IQE.iloc[-1, TAB_MUN_RESUMIDA_VI_IQE.columns.get_loc("MUNICÍPIO")] = "TOTAL"
     TAB_MUN_RESUMIDA_VI_IQE["ANALISES REALIZADAS"] = TAB_MUN_RESUMIDA_VI_IQE["ANALISES REALIZADAS"].round(0)
 
-    return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_RESUMIDA_IQE, TAB_MUN_RESUMIDA_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE
+    return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_RESUMIDA_IQE, TAB_MUN_RESUMIDA_VI_IQE, desc_plano_IQE, recon_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE
 
 
 
@@ -10703,7 +11007,7 @@ def rel_iqa_iqe():
       
 
     
-    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
+    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, recon_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, AN_TIPO_IQE, TAB_TIPO_FINAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
@@ -10734,7 +11038,7 @@ def rel_iqa_iqe():
                         FONT_NCONF, ACREDITACAO, TAB_MUN_FINAL, TAB_MUN_FINAL_IQE, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI,
                         MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, META_IQE, NCOF_P_IQE, NREA_P_IQE, IQE_P,
                         NCOF_VI_IQE, NREA_VI_IQE, IQE_VI, FONTE_NREALIZ_IQE, FONTE_PLANO_IQE, FONT_NCONF_IQE, ACREDITACAO_IQE, QUADRO_POND_REALIZ_IQE, QUADRO_POND_NCONF_IQE, TAB_MUN_VI_IQE,
-                        TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE,
+                        TAB_MUN_ARSAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, TAB_TIPO_FINAL_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE, desc_plano_IQE, recon_plano_IQE, TAB_MUN_NCONF_IQE,
                         TAB_MUN_NCONF_VI_IQE, TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,
                         FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE, FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL,
                         TAB_ETOT_VI, TAB_ETOT_ARSAL)
