@@ -797,7 +797,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   axis=1
   )
 
-  realizados = realizados.drop(columns=['DESCONSIDERACOES - ARSAL', 'RECONSIDERACOES - ARSAL', plano_ajustado])
+  realizados = realizados.drop(columns=['DESCONSIDERACOES - ARSAL', 'RECONSIDERACOES - ARSAL', 'plano_ajustado'])
 
   print(realizados)
 
@@ -1006,7 +1006,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
   mun['coordenada'] = mun['latitude'].astype(str) + ',' + mun['longitude'].astype(str)
 
-  mun = mun.drop(columns=['desconsideracoes_plano', 'reconsideracoes_plano', plano_ajustado])
+  mun = mun.drop(columns=['desconsideracoes_plano', 'reconsideracoes_plano', 'plano_ajustado'])
 
 
   mun.to_csv('mun.csv', index=False)
@@ -1141,7 +1141,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
   plano_final = plano_final.rename(columns={'SAA': 'saa'})
 
-  plano_final = plano_final.drop(columns=['desconsideracoes_plano', 'reconsideracoes_plano', plano_ajustado])
+  plano_final = plano_final.drop(columns=['desconsideracoes_plano', 'reconsideracoes_plano', 'plano_ajustado'])
 
   plano_final.to_csv('plano_final.csv', index=False)
 
