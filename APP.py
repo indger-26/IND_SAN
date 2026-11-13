@@ -389,7 +389,7 @@ def ler_ajustar_arquivo ():
 
   plano_principais["PLANO"] = plano_principais["PLANO"].fillna(0)
   plano_principais["DESCONSIDERACOES - ARSAL"] = plano_principais["DESCONSIDERACOES - ARSAL"].fillna(0)  # NOVO
-  plano_principais["RECONSIDERACOES - ARSAL"] = plano_principais["DESCONSIDERACOES - ARSAL"].fillna(0)  # NOVO
+  plano_principais["RECONSIDERACOES - ARSAL"] = plano_principais["RECONSIDERACOES - ARSAL"].fillna(0)  # NOVO
   
   plano_demais = plano_agrupado[plano_agrupado["Parâmetros"] == "Demais Parâmetros"]
 
@@ -8069,7 +8069,7 @@ def rel_iqa_iqe():
       .sum()
     )
     RECON_TIPO["Parâmetros"] = RECON_TIPO["Parâmetros"].map(mapa_parametros)
-    RECON_TIPO = DESC_TIPO.rename(columns={
+    RECON_TIPO = RECON_TIPO.rename(columns={
       "Parâmetros":              "ANÁLISE",
       "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES DO PLANO"
     })
