@@ -2500,7 +2500,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
     df = df.dropna(subset=['ano'])
 
-    df['ano'] = df['ano'].astype(int)
+    df['ano'] = df['ano'].astype('Int64')
 
     mapa_meses = {
         'january': 1,
@@ -2552,7 +2552,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
     df = df.dropna(subset=['mes_numero'])
 
-    df['mes_numero'] = df['mes_numero'].astype(int)
+    df['mes_numero'] = df['mes_numero'].astype('Int64')
 
     ultimo_ano = df['ano'].max()
 
@@ -3204,7 +3204,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
 
       df = df.dropna(subset=['ano'])
 
-      df['ano'] = df['ano'].astype(int)
+      df['ano'] = df['ano'].astype('Int64')
 
       mapa_meses = {
           'january': 1,
@@ -3258,7 +3258,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
           subset=['mes_numero']
       )
 
-      df['mes_numero'] = df['mes_numero'].astype(int)
+      df['mes_numero'] = df['mes_numero'].astype('Int64')
 
       ultimo_ano = df['ano'].max()
 
@@ -4077,10 +4077,10 @@ def rel_iqa():
 
   # def var_doc (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI):
 
-  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
-  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
-  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype('Int64')
+  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype('Int64')
+  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
   #   IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
   #   IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
@@ -4155,10 +4155,10 @@ def rel_iqa():
 
   def var_doc (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI):
 
-    NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
-    NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-    NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
-    NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+    NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype('Int64')
+    NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+    NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype('Int64')
+    NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
     IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
     IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
@@ -4599,9 +4599,9 @@ def rel_iqa():
 
     TAB_MUN = TAB_MUN.merge(DESC_MUN, on="MUNICÍPIO", how="left")
     TAB_MUN = TAB_MUN.merge(RECON_MUN, on="MUNICÍPIO", how="left")
-    TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN["RECONSIDERAÇÕES DO PLANO"] = TAB_MUN["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] + TAB_MUN["RECONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_MUN["RECONSIDERAÇÕES DO PLANO"] = TAB_MUN["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] + TAB_MUN["RECONSIDERAÇÕES DO PLANO"]).astype('Int64')
 
     TAB_REALIZADAS_ACEITO          = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF     = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
@@ -4639,11 +4639,11 @@ def rel_iqa():
 
     TAB_MUN = TAB_MUN.merge(contagem_conf_vi_naoconf_arsal, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN["CONF VI → NÃO CONF ARSAL"] = TAB_MUN["CONF VI → NÃO CONF ARSAL"].fillna(0).astype(int)
+    TAB_MUN["CONF VI → NÃO CONF ARSAL"] = TAB_MUN["CONF VI → NÃO CONF ARSAL"].fillna(0).astype('Int64')
 
     TAB_MUN = TAB_MUN.merge(contagem_naoconf_vi_conf_arsal, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN["NÃO CONF VI → CONF ARSAL"] = TAB_MUN["NÃO CONF VI → CONF ARSAL"].fillna(0).astype(int)
+    TAB_MUN["NÃO CONF VI → CONF ARSAL"] = TAB_MUN["NÃO CONF VI → CONF ARSAL"].fillna(0).astype('Int64')
 
     contagem_tot = TAB_REALIZADAS_ACEITO.groupby('CIDADE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_MUN = TAB_MUN.merge(contagem_tot, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
@@ -4656,23 +4656,23 @@ def rel_iqa():
     contagem_naoconf = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('CIDADE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_naoconf, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN['ANALISES NÃO CONFORMES'] = TAB_MUN['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_MUN['ANALISES NÃO CONFORMES'] = TAB_MUN['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('CIDADE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_conf_exp, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN['EXPURGOS CONFORMES'] = TAB_MUN['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_MUN['EXPURGOS CONFORMES'] = TAB_MUN['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('CIDADE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_naoconf_exp, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN['EXPURGOS NAO CONFORMES'] = TAB_MUN['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_MUN['EXPURGOS NAO CONFORMES'] = TAB_MUN['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_MUN['EXPURGOS TOTAIS'] = TAB_MUN['EXPURGOS NAO CONFORMES'] + TAB_MUN['EXPURGOS CONFORMES']
 
-    TAB_MUN["NAM REALIZ"] = (np.maximum(TAB_MUN['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_MUN['ANALISES REALIZADAS']) - TAB_MUN['EXPURGOS TOTAIS']).astype(int)
+    TAB_MUN["NAM REALIZ"] = (np.maximum(TAB_MUN['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_MUN['ANALISES REALIZADAS']) - TAB_MUN['EXPURGOS TOTAIS']).astype('Int64')
 
-    TAB_MUN["NAM CONF"] = (TAB_MUN['ANALISES CONFORMES'] - TAB_MUN['EXPURGOS CONFORMES'] + TAB_MUN['NÃO CONF VI → CONF ARSAL'] - TAB_MUN['CONF VI → NÃO CONF ARSAL']).astype(int)
+    TAB_MUN["NAM CONF"] = (TAB_MUN['ANALISES CONFORMES'] - TAB_MUN['EXPURGOS CONFORMES'] + TAB_MUN['NÃO CONF VI → CONF ARSAL'] - TAB_MUN['CONF VI → NÃO CONF ARSAL']).astype('Int64')
 
 
     TAB_MUN["IQA (%)"] = (((TAB_MUN["NAM CONF"]) / (TAB_MUN["NAM REALIZ"])) * 100).round(1)
@@ -4707,7 +4707,7 @@ def rel_iqa():
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ"
     ]]
     TAB_MUN_RESUMIDA = TAB_MUN_RESUMIDA.rename(columns={"PLANO DE AMOSTRAGEM": "PLANO DE AMOSTRAGEM AJUSTADO"})
-    TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"] = TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"].astype(int)
+    TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"] = TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"].astype('Int64')
     TAB_MUN_RESUMIDA.loc[TAB_MUN_RESUMIDA.index[-1], "MUNICÍPIO"] = "TOTAL"
 
     TAB_MUN_RESUMIDA_VI = TAB_MUN_RESUMIDA[[
@@ -4716,7 +4716,7 @@ def rel_iqa():
     TAB_MUN_RESUMIDA_VI["NAM REALIZ (VI)"] = (np.maximum(
       TAB_MUN_RESUMIDA_VI["PLANO DE AMOSTRAGEM AJUSTADO"],
       TAB_MUN_RESUMIDA_VI['ANALISES REALIZADAS']
-    )).astype(int)
+    )).astype('Int64')
     TAB_MUN_RESUMIDA_VI = TAB_MUN_RESUMIDA_VI[:-1]
     TAB_MUN_RESUMIDA_VI.loc['Total'] = TAB_MUN_RESUMIDA_VI.sum()
     TAB_MUN_RESUMIDA_VI.iloc[-1, TAB_MUN_RESUMIDA_VI.columns.get_loc("MUNICÍPIO")] = "TOTAL"
@@ -4766,9 +4766,9 @@ def rel_iqa():
 
     TAB_TIPO = TAB_TIPO.merge(DESC_TIPO, on="ANÁLISE", how="left")
     TAB_TIPO = TAB_TIPO.merge(RECON_TIPO, on="ANÁLISE", how="left")
-    TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_TIPO["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] + TAB_TIPO["RECONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_TIPO["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] + TAB_TIPO["RECONSIDERAÇÕES DO PLANO"]).astype('Int64')
 
     TAB_REALIZADAS = TAB_REALIZADAS.replace("CLORO", "CLORO RESIDUAL LIVRE")
 
@@ -4806,10 +4806,10 @@ def rel_iqa():
     )
 
     TAB_TIPO = TAB_TIPO.merge(contagem_conf_vi_naoconf_arsal, on="ANÁLISE", how="left")
-    TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype(int)
+    TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype('Int64')
 
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf_vi_conf_arsal, on="ANÁLISE", how="left")
-    TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype(int)
+    TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype('Int64')
 
     TAB_REALIZADAS_ACEITO_CONF = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_CONF_VI = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - VI"] == "Conforme"]
@@ -4829,15 +4829,15 @@ def rel_iqa():
 
     contagem_naoconf = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf, on='ANÁLISE', how='left')
-    TAB_TIPO['ANALISES NÃO CONFORMES'] = TAB_TIPO['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO['ANALISES NÃO CONFORMES'] = TAB_TIPO['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_conf_exp, on='ANÁLISE', how='left')
-    TAB_TIPO['EXPURGOS CONFORMES'] = TAB_TIPO['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO['EXPURGOS CONFORMES'] = TAB_TIPO['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf_exp, on='ANÁLISE', how='left')
-    TAB_TIPO['EXPURGOS NAO CONFORMES'] = TAB_TIPO['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO['EXPURGOS NAO CONFORMES'] = TAB_TIPO['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_TIPO['EXPURGOS TOTAIS'] = TAB_TIPO['EXPURGOS NAO CONFORMES'] + TAB_TIPO['EXPURGOS CONFORMES']
 
@@ -5165,7 +5165,7 @@ def rel_iqa():
 
     # Plano de amostragem vs análises realizadas por tipo de análise
 
-    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype(int)
+    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype('Int64')
 
     x = np.arange(len(TAB_TIPO["ANÁLISE"]))
     largura = 0.6
@@ -6044,10 +6044,10 @@ def rel_iqa_iqe():
   #              TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
   #              FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
 
-  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
-  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
-  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype('Int64')
+  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype('Int64')
+  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
   #   IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
   #   IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
@@ -6072,10 +6072,10 @@ def rel_iqa_iqe():
   #     except:
   #         return "-"
 
-  #   NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
-  #   NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-  #   NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype(int)
-  #   NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype('Int64')
+  #   NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+  #   NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype('Int64')
+  #   NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
   #   IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
   #   IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
 
@@ -6129,8 +6129,8 @@ def rel_iqa_iqe():
   #   )
     
 
-  #   E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype(int)
-  #   E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype(int)
+  #   E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype('Int64')
+  #   E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype('Int64')
   #   IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
   #   IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
                  
@@ -6143,8 +6143,8 @@ def rel_iqa_iqe():
   #     REC_IUA = 0
 
 
-  #   E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype(int)
-  #   E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype(int)
+  #   E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype('Int64')
+  #   E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype('Int64')
   #   IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
   #   IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
     
@@ -6402,10 +6402,10 @@ def rel_iqa_iqe():
   #              TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
   #              FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
 
-  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
-  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
-  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype('Int64')
+  #   NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+  #   NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype('Int64')
+  #   NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
   #   IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
   #   IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
@@ -6531,10 +6531,10 @@ def rel_iqa_iqe():
   #       IIQA_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
   #                  "com o valor apresentado pelo Verificador Independente para o referido componente.")
 
-  #   NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
-  #   NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-  #   NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype(int)
-  #   NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+  #   NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype('Int64')
+  #   NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+  #   NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype('Int64')
+  #   NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
   #   IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
   #   IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
 
@@ -6588,8 +6588,8 @@ def rel_iqa_iqe():
   #   )
     
 
-  #   E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype(int)
-  #   E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype(int)
+  #   E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype('Int64')
+  #   E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype('Int64')
   #   IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
   #   IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
                  
@@ -6602,8 +6602,8 @@ def rel_iqa_iqe():
   #     REC_IUA = 0
 
 
-  #   E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype(int)
-  #   E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype(int)
+  #   E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype('Int64')
+  #   E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype('Int64')
   #   IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
   #   IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
     
@@ -6882,10 +6882,10 @@ def rel_iqa_iqe():
                TAB_MUN_IUA_IUE_ARSAL, TAB_MUN_IUA_IUE_VI, EPOT_P_IUA, ETOT_P_IUA, IUA_P, EPOT_VI_IUA, ETOT_VI_IUA, IUA_VI, META_IUA, FONTE_EPOT_IUA,FONTE_ETOT_IUA, EPOT_P_IUE, ETOT_P_IUE, IUE_P, EPOT_VI_IUE, ETOT_VI_IUE, IUE_VI, META_IUE,
                FONTE_EPOT_IUE, FONTE_ETOT_IUE, QUADRO_IUA_IUE_POND, TAB_EPOT_VI, TAB_EPOT_ARSAL, TAB_ETOT_VI, TAB_ETOT_ARSAL):
 
-    NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
-    NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-    NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
-    NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+    NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype('Int64')
+    NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+    NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype('Int64')
+    NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
     IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
     IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
@@ -7012,10 +7012,10 @@ def rel_iqa_iqe():
         IIQA_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
                    "com o valor apresentado pelo Verificador Independente para o referido componente.")
 
-    NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
-    NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
-    NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype(int)
-    NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
+    NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype('Int64')
+    NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
+    NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype('Int64')
+    NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
     IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
     IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
 
@@ -7161,8 +7161,8 @@ def rel_iqa_iqe():
     )
     
 
-    E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype(int)
-    E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype(int)
+    E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype('Int64')
+    E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype('Int64')
     IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
     IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
                  
@@ -7175,8 +7175,8 @@ def rel_iqa_iqe():
       REC_IUA = 0
 
 
-    E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype(int)
-    E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype(int)
+    E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype('Int64')
+    E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype('Int64')
     IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
     IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
     
@@ -7747,9 +7747,9 @@ def rel_iqa_iqe():
 
     TAB_MUN = TAB_MUN.merge(DESC_MUN, on="MUNICÍPIO", how="left")
     TAB_MUN = TAB_MUN.merge(RECON_MUN, on="MUNICÍPIO", how="left")
-    TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN["RECONSIDERAÇÕES DO PLANO"] = TAB_MUN["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] + TAB_MUN["RECONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_MUN["RECONSIDERAÇÕES DO PLANO"] = TAB_MUN["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] + TAB_MUN["RECONSIDERAÇÕES DO PLANO"]).astype('Int64')
 
     TAB_REALIZADAS_ACEITO          = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF     = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
@@ -7787,11 +7787,11 @@ def rel_iqa_iqe():
 
     TAB_MUN = TAB_MUN.merge(contagem_conf_vi_naoconf_arsal, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN["CONF VI → NÃO CONF ARSAL"] = TAB_MUN["CONF VI → NÃO CONF ARSAL"].fillna(0).astype(int)
+    TAB_MUN["CONF VI → NÃO CONF ARSAL"] = TAB_MUN["CONF VI → NÃO CONF ARSAL"].fillna(0).astype('Int64')
 
     TAB_MUN = TAB_MUN.merge(contagem_naoconf_vi_conf_arsal, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN["NÃO CONF VI → CONF ARSAL"] = TAB_MUN["NÃO CONF VI → CONF ARSAL"].fillna(0).astype(int)
+    TAB_MUN["NÃO CONF VI → CONF ARSAL"] = TAB_MUN["NÃO CONF VI → CONF ARSAL"].fillna(0).astype('Int64')
 
     contagem_tot = TAB_REALIZADAS_ACEITO.groupby('CIDADE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_MUN = TAB_MUN.merge(contagem_tot, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
@@ -7804,23 +7804,23 @@ def rel_iqa_iqe():
     contagem_naoconf = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('CIDADE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_naoconf, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN['ANALISES NÃO CONFORMES'] = TAB_MUN['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_MUN['ANALISES NÃO CONFORMES'] = TAB_MUN['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('CIDADE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_conf_exp, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN['EXPURGOS CONFORMES'] = TAB_MUN['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_MUN['EXPURGOS CONFORMES'] = TAB_MUN['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('CIDADE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_MUN = TAB_MUN.merge(contagem_naoconf_exp, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN = TAB_MUN.drop(columns='CIDADE')
-    TAB_MUN['EXPURGOS NAO CONFORMES'] = TAB_MUN['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_MUN['EXPURGOS NAO CONFORMES'] = TAB_MUN['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_MUN['EXPURGOS TOTAIS'] = TAB_MUN['EXPURGOS NAO CONFORMES'] + TAB_MUN['EXPURGOS CONFORMES']
 
-    TAB_MUN["NAM REALIZ"] = (np.maximum(TAB_MUN['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'].fillna(0), TAB_MUN['ANALISES REALIZADAS'].fillna(0)) - TAB_MUN['EXPURGOS TOTAIS'].fillna(0)).astype(int)
+    TAB_MUN["NAM REALIZ"] = (np.maximum(TAB_MUN['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'].fillna(0), TAB_MUN['ANALISES REALIZADAS'].fillna(0)) - TAB_MUN['EXPURGOS TOTAIS'].fillna(0)).astype('Int64')
 
-    TAB_MUN["NAM CONF"] = (TAB_MUN['ANALISES CONFORMES'].fillna(0) - TAB_MUN['EXPURGOS CONFORMES'].fillna(0) + TAB_MUN['NÃO CONF VI → CONF ARSAL'].fillna(0) - TAB_MUN['CONF VI → NÃO CONF ARSAL'].fillna(0)).astype(int)
+    TAB_MUN["NAM CONF"] = (TAB_MUN['ANALISES CONFORMES'].fillna(0) - TAB_MUN['EXPURGOS CONFORMES'].fillna(0) + TAB_MUN['NÃO CONF VI → CONF ARSAL'].fillna(0) - TAB_MUN['CONF VI → NÃO CONF ARSAL'].fillna(0)).astype('Int64')
 
     TAB_MUN["IQA (%)"] = (((TAB_MUN["NAM CONF"]) / (TAB_MUN["NAM REALIZ"])) * 100).round(1)
 
@@ -7854,7 +7854,7 @@ def rel_iqa_iqe():
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ"
     ]]
     TAB_MUN_RESUMIDA = TAB_MUN_RESUMIDA.rename(columns={"PLANO DE AMOSTRAGEM": "PLANO DE AMOSTRAGEM AJUSTADO"})
-    TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"] = TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"].astype(int)
+    TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"] = TAB_MUN_RESUMIDA["PLANO DE AMOSTRAGEM AJUSTADO"].astype('Int64')
     TAB_MUN_RESUMIDA.loc[TAB_MUN_RESUMIDA.index[-1], "MUNICÍPIO"] = "TOTAL"
 
     TAB_MUN_RESUMIDA_VI = TAB_MUN_RESUMIDA[[
@@ -7866,7 +7866,7 @@ def rel_iqa_iqe():
     TAB_MUN_RESUMIDA_VI["NAM REALIZ (VI)"] = (np.maximum(
       TAB_MUN_RESUMIDA_VI["PLANO DE AMOSTRAGEM AJUSTADO"],
       TAB_MUN_RESUMIDA_VI['ANALISES REALIZADAS']
-    )).astype(int)
+    )).astype('Int64')
     TAB_MUN_RESUMIDA_VI = TAB_MUN_RESUMIDA_VI[:-1]
     TAB_MUN_RESUMIDA_VI.loc['Total'] = TAB_MUN_RESUMIDA_VI.sum()
     TAB_MUN_RESUMIDA_VI.iloc[-1, TAB_MUN_RESUMIDA_VI.columns.get_loc("MUNICÍPIO")] = "TOTAL"
@@ -7888,8 +7888,8 @@ def rel_iqa_iqe():
     )
 
     TAB_MUN_IQE = TAB_MUN_IQE.merge(DESC_MUN, on="MUNICÍPIO", how="left")
-    TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN_IQE["PLANO DE AMOSTRAGEM"] - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN_IQE["PLANO DE AMOSTRAGEM"] - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]).astype('Int64')
 
     TAB_REALIZADAS_ACEITO_IQE          = TAB_REALIZADAS_IQE[TAB_REALIZADAS_IQE["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF_IQE     = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_IQE["CONFORMIDADE - ARSAL"] == "Conforme"]
@@ -7927,11 +7927,11 @@ def rel_iqa_iqe():
 
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_conf_vi_naoconf_arsal_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
-    TAB_MUN_IQE["CONF VI → NÃO CONF ARSAL"] = TAB_MUN_IQE["CONF VI → NÃO CONF ARSAL"].fillna(0).astype(int)
+    TAB_MUN_IQE["CONF VI → NÃO CONF ARSAL"] = TAB_MUN_IQE["CONF VI → NÃO CONF ARSAL"].fillna(0).astype('Int64')
 
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_naoconf_vi_conf_arsal_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
-    TAB_MUN_IQE["NÃO CONF VI → CONF ARSAL"] = TAB_MUN_IQE["NÃO CONF VI → CONF ARSAL"].fillna(0).astype(int)
+    TAB_MUN_IQE["NÃO CONF VI → CONF ARSAL"] = TAB_MUN_IQE["NÃO CONF VI → CONF ARSAL"].fillna(0).astype('Int64')
 
     contagem_tot_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('CIDADE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_tot_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
@@ -7944,25 +7944,25 @@ def rel_iqa_iqe():
     contagem_naoconf_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE.groupby('CIDADE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_naoconf_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
-    TAB_MUN_IQE['ANALISES NÃO CONFORMES'] = TAB_MUN_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_MUN_IQE['ANALISES NÃO CONFORMES'] = TAB_MUN_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp_IQE = TAB_REALIZADAS_ACEITO_CONF_EXP_VI_IQE.groupby('CIDADE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_conf_exp_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
-    TAB_MUN_IQE['EXPURGOS CONFORMES'] = TAB_MUN_IQE['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_MUN_IQE['EXPURGOS CONFORMES'] = TAB_MUN_IQE['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI_IQE.groupby('CIDADE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_MUN_IQE = TAB_MUN_IQE.merge(contagem_naoconf_exp_IQE, left_on='MUNICÍPIO', right_on='CIDADE', how='left')
     TAB_MUN_IQE = TAB_MUN_IQE.drop(columns='CIDADE')
-    TAB_MUN_IQE['EXPURGOS NAO CONFORMES'] = TAB_MUN_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_MUN_IQE['EXPURGOS NAO CONFORMES'] = TAB_MUN_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_MUN_IQE['EXPURGOS TOTAIS'] = TAB_MUN_IQE['EXPURGOS NAO CONFORMES'] + TAB_MUN_IQE['EXPURGOS CONFORMES']
 
-    TAB_MUN_IQE["NAM REALIZ"] = (np.maximum(TAB_MUN_IQE['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'].fillna(0), TAB_MUN_IQE['ANALISES REALIZADAS'].fillna(0)) - TAB_MUN_IQE['EXPURGOS TOTAIS'].fillna(0)).astype(int)
+    TAB_MUN_IQE["NAM REALIZ"] = (np.maximum(TAB_MUN_IQE['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'].fillna(0), TAB_MUN_IQE['ANALISES REALIZADAS'].fillna(0)) - TAB_MUN_IQE['EXPURGOS TOTAIS'].fillna(0)).astype('Int64')
 
     TAB_MUN_IQE = TAB_MUN_IQE.fillna(0)
 
-    TAB_MUN_IQE["NAM CONF"] = (TAB_MUN_IQE['ANALISES CONFORMES'] - TAB_MUN_IQE['EXPURGOS CONFORMES'] + TAB_MUN_IQE['NÃO CONF VI → CONF ARSAL'] - TAB_MUN_IQE['CONF VI → NÃO CONF ARSAL']).astype(int)
+    TAB_MUN_IQE["NAM CONF"] = (TAB_MUN_IQE['ANALISES CONFORMES'] - TAB_MUN_IQE['EXPURGOS CONFORMES'] + TAB_MUN_IQE['NÃO CONF VI → CONF ARSAL'] - TAB_MUN_IQE['CONF VI → NÃO CONF ARSAL']).astype('Int64')
 
     TAB_MUN_IQE["IQE (%)"] = (((TAB_MUN_IQE["NAM CONF"]) / (TAB_MUN_IQE["NAM REALIZ"])) * 100).round(1)
 
@@ -7995,7 +7995,7 @@ def rel_iqa_iqe():
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ"
     ]]
     TAB_MUN_RESUMIDA_IQE = TAB_MUN_RESUMIDA_IQE.rename(columns={"PLANO DE AMOSTRAGEM": "PLANO DE AMOSTRAGEM AJUSTADO"})
-    TAB_MUN_RESUMIDA_IQE["PLANO DE AMOSTRAGEM AJUSTADO"] = TAB_MUN_RESUMIDA_IQE["PLANO DE AMOSTRAGEM AJUSTADO"].astype(int)
+    TAB_MUN_RESUMIDA_IQE["PLANO DE AMOSTRAGEM AJUSTADO"] = TAB_MUN_RESUMIDA_IQE["PLANO DE AMOSTRAGEM AJUSTADO"].astype('Int64')
     TAB_MUN_RESUMIDA_IQE.loc[TAB_MUN_RESUMIDA_IQE.index[-1], "MUNICÍPIO"] = "TOTAL"
     TAB_MUN_RESUMIDA_IQE["ANALISES REALIZADAS"] = TAB_MUN_RESUMIDA_IQE["ANALISES REALIZADAS"].round(0)
 
@@ -8008,7 +8008,7 @@ def rel_iqa_iqe():
     TAB_MUN_RESUMIDA_VI_IQE["NAM REALIZ (VI)"] = (np.maximum(
       TAB_MUN_RESUMIDA_VI_IQE["PLANO DE AMOSTRAGEM AJUSTADO"],
       TAB_MUN_RESUMIDA_VI_IQE['ANALISES REALIZADAS']
-    )).astype(int)
+    )).astype('Int64')
     TAB_MUN_RESUMIDA_VI_IQE = TAB_MUN_RESUMIDA_VI_IQE[:-1]
     TAB_MUN_RESUMIDA_VI_IQE.loc['Total'] = TAB_MUN_RESUMIDA_VI_IQE.sum()
     TAB_MUN_RESUMIDA_VI_IQE.iloc[-1, TAB_MUN_RESUMIDA_VI_IQE.columns.get_loc("MUNICÍPIO")] = "TOTAL"
@@ -8058,9 +8058,9 @@ def rel_iqa_iqe():
 
     TAB_TIPO = TAB_TIPO.merge(DESC_TIPO, on="ANÁLISE", how="left")
     TAB_TIPO = TAB_TIPO.merge(RECON_TIPO, on="ANÁLISE", how="left")
-    TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_TIPO["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] + TAB_TIPO["RECONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_TIPO["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] + TAB_TIPO["RECONSIDERAÇÕES DO PLANO"]).astype('Int64')
 
     TAB_REALIZADAS = TAB_REALIZADAS.replace("CLORO", "CLORO RESIDUAL LIVRE")
 
@@ -8098,10 +8098,10 @@ def rel_iqa_iqe():
     )
 
     TAB_TIPO = TAB_TIPO.merge(contagem_conf_vi_naoconf_arsal, on="ANÁLISE", how="left")
-    TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype(int)
+    TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype('Int64')
 
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf_vi_conf_arsal, on="ANÁLISE", how="left")
-    TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype(int)
+    TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype('Int64')
 
     TAB_REALIZADAS_ACEITO_CONF = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_CONF_VI = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - VI"] == "Conforme"]
@@ -8148,23 +8148,23 @@ def rel_iqa_iqe():
 
     contagem_naoconf = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf, on='ANÁLISE', how='left')
-    TAB_TIPO['ANALISES NÃO CONFORMES'] = TAB_TIPO['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO['ANALISES NÃO CONFORMES'] = TAB_TIPO['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_conf_exp, on='ANÁLISE', how='left')
-    TAB_TIPO['EXPURGOS CONFORMES'] = TAB_TIPO['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO['EXPURGOS CONFORMES'] = TAB_TIPO['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_naoconf_exp, on='ANÁLISE', how='left')
-    TAB_TIPO['EXPURGOS NAO CONFORMES'] = TAB_TIPO['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO['EXPURGOS NAO CONFORMES'] = TAB_TIPO['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_TIPO['EXPURGOS TOTAIS'] = TAB_TIPO['EXPURGOS NAO CONFORMES'] + TAB_TIPO['EXPURGOS CONFORMES']
 
-    TAB_TIPO["NAM REALIZ"] = (np.maximum(TAB_TIPO['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO['ANALISES REALIZADAS']) - TAB_TIPO['EXPURGOS TOTAIS']).astype(int)
+    TAB_TIPO["NAM REALIZ"] = (np.maximum(TAB_TIPO['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO['ANALISES REALIZADAS']) - TAB_TIPO['EXPURGOS TOTAIS']).astype('Int64')
 
     TAB_TIPO = TAB_TIPO.fillna(0)
 
-    TAB_TIPO["NAM CONF"] = (TAB_TIPO['ANALISES CONFORMES'] - TAB_TIPO['EXPURGOS CONFORMES'] + TAB_TIPO['CONVERSÃO: NÃO CONFORME → CONFORME'] - TAB_TIPO['CONVERSÃO: CONFORME → NÃO CONFORME']).astype(int)
+    TAB_TIPO["NAM CONF"] = (TAB_TIPO['ANALISES CONFORMES'] - TAB_TIPO['EXPURGOS CONFORMES'] + TAB_TIPO['CONVERSÃO: NÃO CONFORME → CONFORME'] - TAB_TIPO['CONVERSÃO: CONFORME → NÃO CONFORME']).astype('Int64')
 
     TAB_TIPO["IQA (%)"] = (((TAB_TIPO["NAM CONF"]) / (TAB_TIPO["NAM REALIZ"])) * 100).round(1)
 
@@ -8193,29 +8193,29 @@ def rel_iqa_iqe():
     contagem_tot_VI = TAB_REALIZADAS_ACEITO.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_tot_VI, on='ANÁLISE', how='left')
     TAB_TIPO_VI = TAB_TIPO_VI.fillna(0)
-    TAB_TIPO_VI['ANALISES REALIZADAS'] = TAB_TIPO_VI['ANALISES REALIZADAS'].astype(int)
+    TAB_TIPO_VI['ANALISES REALIZADAS'] = TAB_TIPO_VI['ANALISES REALIZADAS'].astype('Int64')
 
     contagem_conf_VI = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_conf_VI, on='ANÁLISE', how='left')
 
     contagem_naoconf_VI = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_naoconf_VI, on='ANÁLISE', how='left')
-    TAB_TIPO_VI['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp_VI = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_conf_exp_VI, on='ANÁLISE', how='left')
-    TAB_TIPO_VI['EXPURGOS CONFORMES'] = TAB_TIPO_VI['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI['EXPURGOS CONFORMES'] = TAB_TIPO_VI['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp_VI = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_naoconf_exp_VI, on='ANÁLISE', how='left')
-    TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_TIPO_VI['EXPURGOS TOTAIS'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] + TAB_TIPO_VI['EXPURGOS CONFORMES']
 
-    TAB_TIPO_VI["NAM REALIZ"] = (np.maximum(TAB_TIPO_VI['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_VI['ANALISES REALIZADAS']) - TAB_TIPO_VI['EXPURGOS TOTAIS']).astype(int)
+    TAB_TIPO_VI["NAM REALIZ"] = (np.maximum(TAB_TIPO_VI['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_VI['ANALISES REALIZADAS']) - TAB_TIPO_VI['EXPURGOS TOTAIS']).astype('Int64')
 
     TAB_TIPO_VI = TAB_TIPO_VI.fillna(0)
-    TAB_TIPO_VI["NAM CONF"] = (TAB_TIPO_VI['ANALISES CONFORMES'] - TAB_TIPO_VI['EXPURGOS CONFORMES']).astype(int)
+    TAB_TIPO_VI["NAM CONF"] = (TAB_TIPO_VI['ANALISES CONFORMES'] - TAB_TIPO_VI['EXPURGOS CONFORMES']).astype('Int64')
 
     TAB_TIPO_VI["IQA (%)"] = (((TAB_TIPO_VI["NAM CONF"]) / (TAB_TIPO_VI["NAM REALIZ"])) * 100).round(1)
 
@@ -8256,10 +8256,10 @@ def rel_iqa_iqe():
     })
 
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(DESC_TIPO_IQE, on="ANÁLISE", how="left")
-    TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
+    TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
     TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (
       TAB_TIPO_IQE["PLANO DE AMOSTRAGEM"] - TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"]
-    ).astype(int)
+    ).astype('Int64')
 
     TAB_REALIZADAS_IQE['ANÁLISE'] = np.where(
       TAB_REALIZADAS_IQE['ANÁLISE'].isin(['DBO', 'DQO', 'PH', 'MATERIAIS FLUTUANTES', 'OLEOS E GRAXAS', 'TEMPERATURA']),
@@ -8294,10 +8294,10 @@ def rel_iqa_iqe():
     )
 
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_conf_vi_naoconf_arsal_IQE, on="ANÁLISE", how="left")
-    TAB_TIPO_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype(int)
+    TAB_TIPO_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"] = TAB_TIPO_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype('Int64')
 
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_naoconf_vi_conf_arsal_IQE, on="ANÁLISE", how="left")
-    TAB_TIPO_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype(int)
+    TAB_TIPO_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"] = TAB_TIPO_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype('Int64')
 
     TAB_REALIZADAS_ACEITO_CONF_IQE       = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"] == "Conforme"]
     TAB_REALIZADAS_ACEITO_NAOCONF_IQE    = TAB_REALIZADAS_ACEITO_IQE[(TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"] != "Conforme") & (TAB_REALIZADAS_ACEITO_IQE["CONFORMIDADE - ARSAL"].notna())]
@@ -8312,29 +8312,29 @@ def rel_iqa_iqe():
     contagem_tot_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_tot_IQE, on='ANÁLISE', how='left')
     TAB_TIPO_IQE = TAB_TIPO_IQE.fillna(0)
-    TAB_TIPO_IQE['ANALISES REALIZADAS'] = TAB_TIPO_IQE['ANALISES REALIZADAS'].astype(int)
+    TAB_TIPO_IQE['ANALISES REALIZADAS'] = TAB_TIPO_IQE['ANALISES REALIZADAS'].astype('Int64')
 
     contagem_conf_IQE = TAB_REALIZADAS_ACEITO_CONF_VI_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_conf_IQE, on='ANÁLISE', how='left')
 
     contagem_naoconf_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_naoconf_IQE, on='ANÁLISE', how='left')
-    TAB_TIPO_IQE['ANALISES NÃO CONFORMES'] = TAB_TIPO_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_IQE['ANALISES NÃO CONFORMES'] = TAB_TIPO_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp_IQE = TAB_REALIZADAS_ACEITO_CONF_EXP_VI_IQE.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_conf_exp_IQE, on='ANÁLISE', how='left')
-    TAB_TIPO_IQE['EXPURGOS CONFORMES'] = TAB_TIPO_IQE['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_IQE['EXPURGOS CONFORMES'] = TAB_TIPO_IQE['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI_IQE.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(contagem_naoconf_exp_IQE, on='ANÁLISE', how='left')
-    TAB_TIPO_IQE['EXPURGOS NAO CONFORMES'] = TAB_TIPO_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_IQE['EXPURGOS NAO CONFORMES'] = TAB_TIPO_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_TIPO_IQE['EXPURGOS TOTAIS'] = TAB_TIPO_IQE['EXPURGOS NAO CONFORMES'] + TAB_TIPO_IQE['EXPURGOS CONFORMES']
 
     TAB_TIPO_IQE["NAM REALIZ"] = (
       np.maximum(TAB_TIPO_IQE['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_IQE['ANALISES REALIZADAS'])
       - TAB_TIPO_IQE['EXPURGOS TOTAIS']
-    ).astype(int)
+    ).astype('Int64')
 
     TAB_TIPO_IQE = TAB_TIPO_IQE.fillna(0)
 
@@ -8343,7 +8343,7 @@ def rel_iqa_iqe():
       - TAB_TIPO_IQE['EXPURGOS CONFORMES']
       + TAB_TIPO_IQE['CONVERSÃO: NÃO CONFORME → CONFORME']
       - TAB_TIPO_IQE['CONVERSÃO: CONFORME → NÃO CONFORME']
-    ).astype(int)
+    ).astype('Int64')
 
     TAB_TIPO_IQE["IQE (%)"] = (
       (TAB_TIPO_IQE["NAM CONF"] / TAB_TIPO_IQE["NAM REALIZ"]) * 100
@@ -8371,22 +8371,22 @@ def rel_iqa_iqe():
     contagem_tot_VI_IQE = TAB_REALIZADAS_ACEITO_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_tot_VI_IQE, on='ANÁLISE', how='left')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.fillna(0)
-    TAB_TIPO_VI_IQE['ANALISES REALIZADAS'] = TAB_TIPO_VI_IQE['ANALISES REALIZADAS'].astype(int)
+    TAB_TIPO_VI_IQE['ANALISES REALIZADAS'] = TAB_TIPO_VI_IQE['ANALISES REALIZADAS'].astype('Int64')
 
     contagem_conf_VI_IQE = TAB_REALIZADAS_ACEITO_CONF_VI_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_conf_VI_IQE, on='ANÁLISE', how='left')
 
     contagem_naoconf_VI_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_VI_IQE.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_naoconf_VI_IQE, on='ANÁLISE', how='left')
-    TAB_TIPO_VI_IQE['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI_IQE['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI_IQE['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp_VI_IQE = TAB_REALIZADAS_ACEITO_CONF_EXP_VI_IQE.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_conf_exp_VI_IQE, on='ANÁLISE', how='left')
-    TAB_TIPO_VI_IQE['EXPURGOS CONFORMES'] = TAB_TIPO_VI_IQE['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI_IQE['EXPURGOS CONFORMES'] = TAB_TIPO_VI_IQE['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp_VI_IQE = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI_IQE.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.merge(contagem_naoconf_exp_VI_IQE, on='ANÁLISE', how='left')
-    TAB_TIPO_VI_IQE['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI_IQE['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI_IQE['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_TIPO_VI_IQE['EXPURGOS TOTAIS'] = TAB_TIPO_VI_IQE['EXPURGOS NAO CONFORMES'] + TAB_TIPO_VI_IQE['EXPURGOS CONFORMES']
 
@@ -8395,13 +8395,13 @@ def rel_iqa_iqe():
     TAB_TIPO_VI_IQE["NAM REALIZ"] = (
       np.maximum(TAB_TIPO_VI_IQE['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_VI_IQE['ANALISES REALIZADAS'])
       - TAB_TIPO_VI_IQE['EXPURGOS TOTAIS']
-    ).astype(int)
+    ).astype('Int64')
 
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.fillna(0)
 
     TAB_TIPO_VI_IQE["NAM CONF"] = (
       TAB_TIPO_VI_IQE['ANALISES CONFORMES'] - TAB_TIPO_VI_IQE['EXPURGOS CONFORMES']
-    ).astype(int)
+    ).astype('Int64')
 
     TAB_TIPO_VI_IQE = TAB_TIPO_VI_IQE.fillna(0)
 
@@ -8904,7 +8904,7 @@ def rel_iqa_iqe():
 
     # Plano de amostragem vs análises realizadas por tipo de análise
 
-    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype(int)
+    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype('Int64')
 
     x = np.arange(len(TAB_TIPO["ANÁLISE"]))
     largura = 0.6
@@ -9092,7 +9092,7 @@ def rel_iqa_iqe():
 
     # Plano de amostragem vs análises realizadas por tipo de análise
 
-    TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype(int)
+    TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"].astype('Int64')
 
     x = np.arange(len(TAB_TIPO_IQE["ANÁLISE"]))
     largura = 0.6
@@ -9845,7 +9845,7 @@ def rel_iqa_iqe():
             'E potencial esgoto': [TAB_EPOT_VI['E potencial esgoto'].sum()]
         })
         TAB_EPOT_VI = pd.concat([TAB_EPOT_VI, total], ignore_index=True)
-        TAB_EPOT_VI['E potencial esgoto'] = TAB_EPOT_VI['E potencial esgoto'].astype(int)
+        TAB_EPOT_VI['E potencial esgoto'] = TAB_EPOT_VI['E potencial esgoto'].astype('Int64')
 
       
         TAB_EPOT_ARSAL = TAB_MUN_IUA_IUE_ARSAL[col_pot].copy()
@@ -9855,7 +9855,7 @@ def rel_iqa_iqe():
             'E potencial esgoto': [TAB_EPOT_ARSAL['E potencial esgoto'].sum()]
         })
         TAB_EPOT_ARSAL = pd.concat([TAB_EPOT_ARSAL, total], ignore_index=True)
-        TAB_EPOT_ARSAL['E potencial esgoto'] = TAB_EPOT_ARSAL['E potencial esgoto'].astype(int)
+        TAB_EPOT_ARSAL['E potencial esgoto'] = TAB_EPOT_ARSAL['E potencial esgoto'].astype('Int64')
 
       
         TAB_ETOT_VI = TAB_MUN_IUA_IUE_VI[col_tot].copy()
