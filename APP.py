@@ -4841,9 +4841,9 @@ def rel_iqa():
 
     TAB_TIPO['EXPURGOS TOTAIS'] = TAB_TIPO['EXPURGOS NAO CONFORMES'] + TAB_TIPO['EXPURGOS CONFORMES']
 
-    TAB_TIPO["NAM REALIZ"] = (np.maximum(TAB_TIPO['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO['ANALISES REALIZADAS']) - TAB_TIPO['EXPURGOS TOTAIS']).astype(int)
+    TAB_TIPO["NAM REALIZ"] = (np.maximum(TAB_TIPO['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO['ANALISES REALIZADAS']) - TAB_TIPO['EXPURGOS TOTAIS']).astype('Int64')
 
-    TAB_TIPO["NAM CONF"] = (TAB_TIPO['ANALISES CONFORMES'] - TAB_TIPO['EXPURGOS CONFORMES'] + TAB_TIPO['CONVERSÃO: NÃO CONFORME → CONFORME'] - TAB_TIPO['CONVERSÃO: CONFORME → NÃO CONFORME']).astype(int)
+    TAB_TIPO["NAM CONF"] = (TAB_TIPO['ANALISES CONFORMES'] - TAB_TIPO['EXPURGOS CONFORMES'] + TAB_TIPO['CONVERSÃO: NÃO CONFORME → CONFORME'] - TAB_TIPO['CONVERSÃO: CONFORME → NÃO CONFORME']).astype('Int64')
 
     TAB_TIPO["IQA (%)"] = (((TAB_TIPO["NAM CONF"]) / (TAB_TIPO["NAM REALIZ"])) * 100).round(1)
 
@@ -4873,29 +4873,29 @@ def rel_iqa():
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_tot_VI, on='ANÁLISE', how='left')
 
     TAB_TIPO_VI = TAB_TIPO_VI.fillna(0)
-    TAB_TIPO_VI['ANALISES REALIZADAS'] = TAB_TIPO_VI['ANALISES REALIZADAS'].astype(int)
+    TAB_TIPO_VI['ANALISES REALIZADAS'] = TAB_TIPO_VI['ANALISES REALIZADAS'].astype('Int64')
 
     contagem_conf_VI = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_conf_VI, on='ANÁLISE', how='left')
 
     contagem_naoconf_VI = TAB_REALIZADAS_ACEITO_NAOCONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES NÃO CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_naoconf_VI, on='ANÁLISE', how='left')
-    TAB_TIPO_VI['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI['ANALISES NÃO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI['ANALISES NÃO CONFORMES'] = TAB_TIPO_VI['ANALISES NÃO CONFORMES'].fillna(0).astype('Int64')
 
     contagem_conf_exp_VI = TAB_REALIZADAS_ACEITO_CONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_conf_exp_VI, on='ANÁLISE', how='left')
-    TAB_TIPO_VI['EXPURGOS CONFORMES'] = TAB_TIPO_VI['EXPURGOS CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI['EXPURGOS CONFORMES'] = TAB_TIPO_VI['EXPURGOS CONFORMES'].fillna(0).astype('Int64')
 
     contagem_naoconf_exp_VI = TAB_REALIZADAS_ACEITO_NAOCONF_EXP_VI.groupby('ANÁLISE').size().reset_index(name='EXPURGOS NAO CONFORMES')
     TAB_TIPO_VI = TAB_TIPO_VI.merge(contagem_naoconf_exp_VI, on='ANÁLISE', how='left')
-    TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'].fillna(0).astype(int)
+    TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'].fillna(0).astype('Int64')
 
     TAB_TIPO_VI['EXPURGOS TOTAIS'] = TAB_TIPO_VI['EXPURGOS NAO CONFORMES'] + TAB_TIPO_VI['EXPURGOS CONFORMES']
 
-    TAB_TIPO_VI["NAM REALIZ"] = (np.maximum(TAB_TIPO_VI['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_VI['ANALISES REALIZADAS']) - TAB_TIPO_VI['EXPURGOS TOTAIS']).astype(int)
+    TAB_TIPO_VI["NAM REALIZ"] = (np.maximum(TAB_TIPO_VI['PLANO DE AMOSTRAGEM AJUSTADO - ARSAL'], TAB_TIPO_VI['ANALISES REALIZADAS']) - TAB_TIPO_VI['EXPURGOS TOTAIS']).astype('Int64')
 
     TAB_TIPO_VI = TAB_TIPO_VI.fillna(0)
-    TAB_TIPO_VI["NAM CONF"] = (TAB_TIPO_VI['ANALISES CONFORMES'] - TAB_TIPO_VI['EXPURGOS CONFORMES']).astype(int)
+    TAB_TIPO_VI["NAM CONF"] = (TAB_TIPO_VI['ANALISES CONFORMES'] - TAB_TIPO_VI['EXPURGOS CONFORMES']).astype('Int64')
 
     TAB_TIPO_VI["IQA (%)"] = (((TAB_TIPO_VI["NAM CONF"]) / (TAB_TIPO_VI["NAM REALIZ"])) * 100).round(1)
 
@@ -9996,9 +9996,9 @@ def MAIN ():
     iue_vi = 0
     iue_meta = 0
 
-    realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte, iua_meta, iue_meta)
-    alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
-    backup_bd (prestadora_sigla)
+    #realizados, parametros, mun, plano_final, iqa_final = criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi, iqa_meta, trimestre, iqa_detalhado, plano_dados_tratados, plano_totais_municipio, plano_totais_parametros, iqe_prest, iqe_vi, iqe_meta, iqe_detalhado, plano_iqe_completo, plano_iqe_totais_municipio, plano_iqe_totais_parametros, iqe_detalhado2, iua_iue_economias, iua_iue_evte, iua_meta, iue_meta)
+    #alimentar_bd (prestadora_sigla, ano, mes, iqa_detalhado, realizados, parametros, mun, plano_final, iqa_final, iqe_detalhado, realizados_iqe, parametros_iqe, mun_iqe, plano_final_iqe, iqe_final, trimestre, ano_contratual, iua_iue_analise_arsal, iua_prest, iua_vi, iua_meta, iue_prest, iue_vi, iue_meta)
+    #backup_bd (prestadora_sigla)
     graf_iqa_iqe (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
     nc_nr (prestadora_sigla, mes, ano_contratual) # TEMPORAIS
     nome_arq = rel_iqa()
