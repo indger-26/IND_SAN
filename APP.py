@@ -4343,63 +4343,29 @@ def rel_iqa():
 
 
     
-    # ---- NAM CONF: IIQA8 a IIQA15 ----
-    
-    # Verifica se existem ponderações efetivamente preenchidas no NAM CONF
-    colunas_pond_conf = [
-        "PONDERAÇÕES (PRESTADORA)",
-        "PONDERAÇÕES (VI)",
-        "PONDERAÇÕES (ARSAL)"
-    ]
-    
-    tem_ponderacoes_conf = False
-    
-    if isinstance(QUADRO_POND_NCONF, pd.DataFrame):
-    
-        colunas_existentes = [
-            col for col in colunas_pond_conf
-            if col in QUADRO_POND_NCONF.columns
-        ]
-    
-        if colunas_existentes:
-            tem_ponderacoes_conf = (
-                QUADRO_POND_NCONF[colunas_existentes]
-                .apply(
-                    lambda col: (
-                        col.notna() &
-                        col.astype(str).str.strip().ne("")
-                    )
-                )
-                .any()
-                .any()
-            )
-    
-    
-    # Verifica se existem expurgos no NAM CONF
+    # ---- NAM CONF: IIQA8 a IIQA_15 ----
+
+    # Existem ponderações a apresentar? (a função pond devolve "SEM EXPURGOS"
+    # quando não há nenhuma linha com impacto)
+    tem_ponderacoes_conf = (
+        isinstance(QUADRO_POND_NCONF, pd.DataFrame)
+        and not QUADRO_POND_NCONF.empty
+    )
+
+    # Existem expurgos conformes?
     tem_expurgos_conf = _num(NCONF_EXPURGOS) != 0
-    
-    
-    # Verifica se existem conversões entre Conforme e Não Conforme
-    tem_conversao_conf_nao_conf = (
-        _num(total_conf_vi_naoconf_arsal) != 0
-    )
-    
-    tem_conversao_nao_conf_conf = (
-        _num(total_naoconf_vi_conf_arsal) != 0
-    )
-    
-    tem_conversoes_conf = (
-        tem_conversao_conf_nao_conf or
-        tem_conversao_nao_conf_conf
-    )
-    
-    
+
+    # Existem conversões entre Conforme e Não Conforme?
+    tem_conversao_conf_nao_conf = _num(total_conf_vi_naoconf_arsal) != 0
+    tem_conversao_nao_conf_conf = _num(total_naoconf_vi_conf_arsal) != 0
+    tem_conversoes_conf = tem_conversao_conf_nao_conf or tem_conversao_nao_conf_conf
+
     # --------------------------------------------------
-    # IIQA8 A IIQA13 E IIQA15
+    # IIQA8 a IIQA_13 e IIQA_15
     # --------------------------------------------------
-    
+
     if tem_ponderacoes_conf:
-    
+
         # Existem ponderações: apresenta os quadros normalmente
         IIQA8 = (
             "As observações apresentadas pelo Verificador Independente, "
@@ -4407,35 +4373,29 @@ def rel_iqa():
             "próprio verificador quanto por esta setorial, encontram-se "
             "no quadro abaixo."
         )
-    
+
         IIQA9 = (
             "Quadro - Ponderações elaboradas pelo Verificador Independente "
             "e posicionamento destas setoriais."
         )
-    
-        IIQA_10 = (
-            "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
-        )
-    
+
+        IIQA_10 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
         IIQA_11 = (
             "Diante dos fatos mencionados, segue o panorama ajustado para "
             "o componente “Nam conf”, modificado por estas setoriais "
             "mediante as observações elencadas acima:"
         )
-    
+
         IIQA_12 = (
             "Quadro - Contabilização do componente “Nam Conf” do IQA, "
             "ajustado por estas setoriais."
         )
-    
-        IIQA_13 = (
-            "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
-        )
-    
-        # Só apresenta a observação sobre reclassificações
-        # quando efetivamente existirem conversões
+
+        IIQA_13 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+        # Só ressalta as reclassificações quando existirem conversões
         if tem_conversoes_conf:
-    
             IIQA_15 = (
                 "Ressalta-se que as conversões de análises conformes para "
                 "não conformes, e vice-versa, que não estejam contempladas "
@@ -4445,15 +4405,12 @@ def rel_iqa():
                 "ser consultadas na base de dados encaminhada juntamente "
                 "com este relatório."
             )
-    
         else:
             IIQA_15 = ""
-    
-    
+
     elif tem_conversoes_conf:
-    
-        # Não existem ponderações, mas existem conversões:
-        # apresenta somente o alerta sobre as reclassificações
+
+        # Sem ponderações, mas com conversões: apenas o alerta de reclassificação
         IIQA8 = (
             "Ressalta-se que as conversões de análises conformes para "
             "não conformes, e vice-versa, identificadas na análise do "
@@ -4463,45 +4420,32 @@ def rel_iqa():
             "ser consultadas na base de dados encaminhada juntamente "
             "com este relatório."
         )
-    
+
         IIQA9 = ""
         IIQA_10 = ""
         IIQA_11 = ""
         IIQA_12 = ""
         IIQA_13 = ""
         IIQA_15 = ""
-    
-    
+
     else:
-    
-        # Não existem ponderações nem conversões:
-        # apresenta concordância com o VI
-        IIQA8 = (
-            "Mediante análise das informações fornecidas, estes setores "
-            "técnicos apresentam concordância com o valor apresentado "
-            "pelo Verificador Independente para o referido componente."
-        )
-    
+
+        # Sem ponderações nem conversões: a concordância é dita em IIQA_14
+        IIQA8 = ""
         IIQA9 = ""
         IIQA_10 = ""
         IIQA_11 = ""
         IIQA_12 = ""
         IIQA_13 = ""
         IIQA_15 = ""
-    
-    
+
     # --------------------------------------------------
-    # IIQA14: RESULTADO DO NAM CONF
+    # IIQA_14: resultado do NAM CONF
     # --------------------------------------------------
-    
-    if (
-        tem_ponderacoes_conf or
-        tem_expurgos_conf or
-        tem_conversoes_conf
-    ):
-    
-        # Texto principal: alteração do quantitativo de amostras conformes
-        IIQA_14_PARTES = [
+
+    if tem_ponderacoes_conf or tem_expurgos_conf or tem_conversoes_conf:
+
+        partes_14 = [
             (
                 f"Dessa forma, dada a análise destas setoriais, "
                 f"o valor do componente “Nam conf” passa de "
@@ -4509,61 +4453,47 @@ def rel_iqa():
                 f"para {formata_milhar(NCONF_ARSAL)}."
             )
         ]
-    
-        # Acrescenta a informação sobre os expurgos, se houver
+
         if tem_expurgos_conf:
-    
-            IIQA_14_PARTES.append(
+            partes_14.append(
                 f"Para tanto, foram expurgadas {formata_milhar(NCONF_EXPURGOS)} "
                 f"amostras anteriormente consideradas conformes pelo "
                 f"Verificador Independente."
             )
-    
-        # Acrescenta a conversão de Conforme para Não Conforme, se houver
+
         if tem_conversao_conf_nao_conf:
-    
-            IIQA_14_PARTES.append(
+            partes_14.append(
                 f"Houve a conversão de "
                 f"{formata_milhar(total_conf_vi_naoconf_arsal)} "
                 f"amostras de conformes (Verificador Independente) "
                 f"para não conformes (ARSAL)."
             )
-    
-        # Acrescenta a conversão de Não Conforme para Conforme, se houver
+
         if tem_conversao_nao_conf_conf:
-    
-            IIQA_14_PARTES.append(
+            partes_14.append(
                 f"Houve a conversão de "
                 f"{formata_milhar(total_naoconf_vi_conf_arsal)} "
                 f"amostras de não conformes (Verificador Independente) "
                 f"para conformes (ARSAL)."
             )
-    
-        # Caso existam ponderações, mas não ocorram expurgos ou conversões
-        if (
-            tem_ponderacoes_conf and
-            not tem_expurgos_conf and
-            not tem_conversoes_conf
-        ):
-    
-            IIQA_14_PARTES.append(
+
+        # Ponderações registradas, mas sem efeito no quantitativo
+        if tem_ponderacoes_conf and not tem_expurgos_conf and not tem_conversoes_conf:
+            partes_14.append(
                 "Embora tenham sido registradas ponderações, não houve "
                 "expurgos ou conversões que alterassem o quantitativo "
                 "de amostras conformes."
             )
-    
-        IIQA14 = " ".join(IIQA_14_PARTES)
-    
-    
+
+        IIQA_14 = " ".join(partes_14)
+
     else:
-    
-        # Ausência de ponderações, expurgos e conversões
-        IIQA14 = (
+
+        IIQA_14 = (
             "Mediante análise das informações fornecidas, estes setores "
             "técnicos apresentam concordância com o valor apresentado "
             "pelo Verificador Independente para o referido componente."
         )
-    
 
 
     var_dic = {
