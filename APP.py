@@ -4702,7 +4702,7 @@ def rel_iqa():
     TAB_MUN_NCONF_VI = add_total(TAB_MUN_NCONF_VI)
 
     TAB_MUN_RESUMIDA = TAB_MUN_FINAL[[
-      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ"
     ]]
@@ -4917,152 +4917,458 @@ def rel_iqa():
 
   # ELABORAÇÃO DA TABELA DE PONDERAÇÕES
 
-  def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo):
+  # def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo):
 
-    TAB_REALIZADAS["ID_POND"] = TAB_REALIZADAS["ID_POND"].fillna(0)
+  #   TAB_REALIZADAS["ID_POND"] = TAB_REALIZADAS["ID_POND"].fillna(0)
 
-    BASE_MUN_TIPO_completo["ID_POND"] = BASE_MUN_TIPO_completo["ID_POND"].fillna("").astype(str).str.strip()
+  #   BASE_MUN_TIPO_completo["ID_POND"] = BASE_MUN_TIPO_completo["ID_POND"].fillna("").astype(str).str.strip()
 
-    DESC_POR_ID = (
-      BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
-      .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
-      .sum()
-    )
-    DESC_POR_ID["ID_POND"] = DESC_POR_ID["ID_POND"].astype(float).astype("Int64")
+  #   DESC_POR_ID = (
+  #     BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
+  #     .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
+  #     .sum()
+  #   )
+  #   DESC_POR_ID["ID_POND"] = DESC_POR_ID["ID_POND"].astype(float).astype("Int64")
 
-    RECON_POR_ID = (
-      BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
-      .groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
-      .sum()
-    )
-    RECON_POR_ID["ID_POND"] = RECON_POR_ID["ID_POND"].astype(float).astype("Int64")
+  #   RECON_POR_ID = (
+  #     BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
+  #     .groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+  #     .sum()
+  #   )
+  #   RECON_POR_ID["ID_POND"] = RECON_POR_ID["ID_POND"].astype(float).astype("Int64")
 
-    TAB_REALIZADAS['ANÁLISE'] = np.where(
-        TAB_REALIZADAS['ANÁLISE'].isin(['TURBIDEZ', 'COR APARENTE', 'PH', 'COLIFORMES TOTAIS', 'ESCHERICHIA COLI']),
-        TAB_REALIZADAS['ANÁLISE'],
-        'DEMAIS PARAMETROS'
-    )
+  #   TAB_REALIZADAS['ANÁLISE'] = np.where(
+  #       TAB_REALIZADAS['ANÁLISE'].isin(['TURBIDEZ', 'COR APARENTE', 'PH', 'COLIFORMES TOTAIS', 'ESCHERICHIA COLI']),
+  #       TAB_REALIZADAS['ANÁLISE'],
+  #       'DEMAIS PARAMETROS'
+  #   )
 
-    TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
+  #   TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
 
-    TAB_EXPURGOS = TAB_REALIZADAS_ACEITO[
-        TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] == "EXPURGAR"
-    ]
+  #   TAB_EXPURGOS = TAB_REALIZADAS_ACEITO[
+  #       TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] == "EXPURGAR"
+  #   ]
 
-    TAB_EXPURGOS_CONF = TAB_EXPURGOS[
-        TAB_EXPURGOS["CONFORMIDADE - VI"] == "Conforme"
-    ]
+  #   TAB_EXPURGOS_CONF = TAB_EXPURGOS[
+  #       TAB_EXPURGOS["CONFORMIDADE - VI"] == "Conforme"
+  #   ]
 
-    TAB_SEM_EXPURGO = TAB_REALIZADAS_ACEITO[
-        TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR"
-    ]
+  #   TAB_SEM_EXPURGO = TAB_REALIZADAS_ACEITO[
+  #       TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR"
+  #   ]
 
-    TAB_CONF_VI_NAOCONF_ARSAL = TAB_SEM_EXPURGO[
-        (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] == "Conforme") &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] != "Conforme") &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"].notna())
-    ]
+  #   TAB_CONF_VI_NAOCONF_ARSAL = TAB_SEM_EXPURGO[
+  #       (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] == "Conforme") &
+  #       (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] != "Conforme") &
+  #       (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"].notna())
+  #   ]
 
-    TAB_NAOCONF_VI_CONF_ARSAL = TAB_SEM_EXPURGO[
-        (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] != "Conforme") &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - VI"].notna()) &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] == "Conforme")
-    ]
+  #   TAB_NAOCONF_VI_CONF_ARSAL = TAB_SEM_EXPURGO[
+  #       (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] != "Conforme") &
+  #       (TAB_SEM_EXPURGO["CONFORMIDADE - VI"].notna()) &
+  #       (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] == "Conforme")
+  #   ]
 
-    QUADRO_POND_NCONF = TAB_POND.copy()
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.rename(columns={
-      QUADRO_POND_NCONF.columns[0]: "ID",
-      QUADRO_POND_NCONF.columns[1]: "PONDERAÇÕES (PRESTADORA)",
-      QUADRO_POND_NCONF.columns[2]: "PONDERAÇÕES (VI)",
-      QUADRO_POND_NCONF.columns[3]: "PONDERAÇÕES (ARSAL)",
-    })
+  #   QUADRO_POND_NCONF = TAB_POND.copy()
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.rename(columns={
+  #     QUADRO_POND_NCONF.columns[0]: "ID",
+  #     QUADRO_POND_NCONF.columns[1]: "PONDERAÇÕES (PRESTADORA)",
+  #     QUADRO_POND_NCONF.columns[2]: "PONDERAÇÕES (VI)",
+  #     QUADRO_POND_NCONF.columns[3]: "PONDERAÇÕES (ARSAL)",
+  #   })
 
-    contagem_exp = TAB_EXPURGOS_CONF.groupby('ID_POND').size().reset_index(name='EXPURGOS')
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_exp, left_on='ID', right_on='ID_POND', how='left')
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"])
-    QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].fillna(0).astype("Int64")
-    QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].astype("object").replace(0, "")
+  #   contagem_exp = TAB_EXPURGOS_CONF.groupby('ID_POND').size().reset_index(name='EXPURGOS')
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_exp, left_on='ID', right_on='ID_POND', how='left')
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"])
+  #   QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].fillna(0).astype("Int64")
+  #   QUADRO_POND_NCONF["EXPURGOS"] = QUADRO_POND_NCONF["EXPURGOS"].astype("object").replace(0, "")
 
-    contagem_cv_na = TAB_CONF_VI_NAOCONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: CONFORME → NÃO CONFORME')
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_cv_na, left_on='ID', right_on='ID_POND', how='left')
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
-    QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype("Int64")
-    QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].astype("object").replace(0, "")
+  #   contagem_cv_na = TAB_CONF_VI_NAOCONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: CONFORME → NÃO CONFORME')
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_cv_na, left_on='ID', right_on='ID_POND', how='left')
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
+  #   QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype("Int64")
+  #   QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: CONFORME → NÃO CONFORME"].astype("object").replace(0, "")
 
-    contagem_na_cv = TAB_NAOCONF_VI_CONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: NÃO CONFORME → CONFORME')
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_na_cv, left_on='ID', right_on='ID_POND', how='left')
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
-    QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype("Int64")
-    QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].astype("object").replace(0, "")
+  #   contagem_na_cv = TAB_NAOCONF_VI_CONF_ARSAL.groupby('ID_POND').size().reset_index(name='CONVERSÃO: NÃO CONFORME → CONFORME')
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(contagem_na_cv, left_on='ID', right_on='ID_POND', how='left')
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=["ID_POND"], errors="ignore")
+  #   QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype("Int64")
+  #   QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF["CONVERSÃO: NÃO CONFORME → CONFORME"].astype("object").replace(0, "")
 
-    colunas_impacto = ['EXPURGOS', 'CONVERSÃO: CONFORME → NÃO CONFORME', 'CONVERSÃO: NÃO CONFORME → CONFORME']
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF[
-        QUADRO_POND_NCONF[colunas_impacto].apply(lambda row: any(v != "" for v in row), axis=1)
-    ]
+  #   colunas_impacto = ['EXPURGOS', 'CONVERSÃO: CONFORME → NÃO CONFORME', 'CONVERSÃO: NÃO CONFORME → CONFORME']
+  #   QUADRO_POND_NCONF = QUADRO_POND_NCONF[
+  #       QUADRO_POND_NCONF[colunas_impacto].apply(lambda row: any(v != "" for v in row), axis=1)
+  #   ]
 
-    if QUADRO_POND_NCONF.empty:
-        QUADRO_POND_NCONF = "SEM EXPURGOS"
-    else:
-        for col in colunas_impacto:
-            if col in QUADRO_POND_NCONF.columns:
-                if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
-                    QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
+  #   if QUADRO_POND_NCONF.empty:
+  #       QUADRO_POND_NCONF = "SEM EXPURGOS"
+  #   else:
+  #       for col in colunas_impacto:
+  #           if col in QUADRO_POND_NCONF.columns:
+  #               if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
+  #                   QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(columns=[col])
 
     
-    if not TAB_EXPURGOS.empty:
+    
+  #   if not TAB_EXPURGOS.empty:
+    
+  #       QUADRO_POND_REALIZ = TAB_POND.copy()
+    
+  #       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
+  #           QUADRO_POND_REALIZ.columns[0]: "ID",
+  #           QUADRO_POND_REALIZ.columns[1]: "PONDERAÇÕES (PRESTADORA)",
+  #           QUADRO_POND_REALIZ.columns[2]: "PONDERAÇÕES (VI)",
+  #           QUADRO_POND_REALIZ.columns[3]: "PONDERAÇÕES (ARSAL)",
+  #       })
+    
+  #       # Remove possíveis colunas auxiliares já existentes
+  #       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.drop(
+  #           columns=["ID_POND", "ID_POND_x", "ID_POND_y"],
+  #           errors="ignore"
+  #       )
+    
+  #       # Contagem de expurgos por ID
+  #       contagem = (
+  #           TAB_EXPURGOS.groupby("ID_POND")
+  #           .size()
+  #           .reset_index(name="EXPURGOS")
+  #           .rename(columns={"ID_POND": "ID"})
+  #       )
+    
+  #       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+  #           contagem, on="ID", how="left"
+  #       )
+    
+  #       # Desconsiderações por ID
+  #       DESC_POR_ID_AUX = DESC_POR_ID.rename(
+  #           columns={"ID_POND": "ID"}
+  #       )
+    
+  #       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+  #           DESC_POR_ID_AUX, on="ID", how="left"
+  #       )
+    
+  #       # Reconsiderações por ID
+  #       RECON_POR_ID_AUX = RECON_POR_ID.rename(
+  #           columns={"ID_POND": "ID"}
+  #       )
+    
+  #       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+  #           RECON_POR_ID_AUX, on="ID", how="left"
+  #       )
+    
+  #       # Renomeia as colunas
+  #       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
+  #           "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)",
+  #           "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"
+  #       })
+    
+  #       # Preenche e formata os valores
+  #       for coluna in [
+  #           "EXPURGOS",
+  #           "DESCONSIDERAÇÕES (PLANO)",
+  #           "RECONSIDERAÇÕES (PLANO)"
+  #       ]:
+  #           QUADRO_POND_REALIZ[coluna] = (
+  #               QUADRO_POND_REALIZ[coluna]
+  #               .fillna(0)
+  #               .astype("Int64")
+  #               .astype("object")
+  #               .replace(0, "")
+  #           )
+    
+  #   else:
+  #       QUADRO_POND_REALIZ = "SEM EXPURGOS"
 
-      QUADRO_POND_REALIZ = TAB_POND.copy()
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
-        QUADRO_POND_REALIZ.columns[0]: "ID",
-        QUADRO_POND_REALIZ.columns[1]: "PONDERAÇÕES (PRESTADORA)",
-        QUADRO_POND_REALIZ.columns[2]: "PONDERAÇÕES (VI)",
-        QUADRO_POND_REALIZ.columns[3]: "PONDERAÇÕES (ARSAL)",
-      })
 
-      contagem = TAB_EXPURGOS.groupby('ID_POND').size().reset_index(name='EXPURGOS')
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(contagem, left_on='ID', right_on='ID_POND', how='left')
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.drop(columns=["ID_POND"])
-      QUADRO_POND_REALIZ["EXPURGOS"] = QUADRO_POND_REALIZ["EXPURGOS"].fillna(0).astype("Int64")
-      QUADRO_POND_REALIZ["EXPURGOS"] = QUADRO_POND_REALIZ["EXPURGOS"].astype("object").replace(0, "")
+  #   return QUADRO_POND_NCONF, QUADRO_POND_REALIZ
 
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(DESC_POR_ID, left_on='ID', right_on='ID_POND', how='left')
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(RECON_POR_ID, left_on='ID', right_on='ID_POND', how='left')
-      
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.drop(
-          columns=["ID_POND"],
-          errors="ignore"
+  
+  def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo):
+  
+      # =========================================================
+      # 1. VERIFICA SE EXISTEM PONDERAÇÕES
+      # =========================================================
+  
+      colunas_ponderacao = TAB_POND.columns[1:4]
+  
+      tem_ponderacoes = (
+          TAB_POND[colunas_ponderacao]
+          .apply(
+              lambda col: (
+                  col.notna() &
+                  col.astype(str).str.strip().ne("")
+              )
+          )
+          .any()
+          .any()
       )
-      
+  
+      if not tem_ponderacoes:
+          return "SEM EXPURGOS", "SEM EXPURGOS"
+  
+      # =========================================================
+      # 2. PREPARAÇÃO DAS BASES
+      # =========================================================
+  
+      TAB_REALIZADAS = TAB_REALIZADAS.copy()
+      BASE_MUN_TIPO_completo = BASE_MUN_TIPO_completo.copy()
+  
+      TAB_REALIZADAS["ID_POND"] = (
+          TAB_REALIZADAS["ID_POND"]
+          .fillna(0)
+      )
+  
+      BASE_MUN_TIPO_completo["ID_POND"] = (
+          BASE_MUN_TIPO_completo["ID_POND"]
+          .fillna("")
+          .astype(str)
+          .str.strip()
+      )
+  
+      # Desconsiderações por ID
+      DESC_POR_ID = (
+          BASE_MUN_TIPO_completo[
+              BASE_MUN_TIPO_completo["ID_POND"] != ""
+          ]
+          .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
+          .sum()
+      )
+  
+      DESC_POR_ID["ID_POND"] = (
+          pd.to_numeric(DESC_POR_ID["ID_POND"], errors="coerce")
+          .astype("Int64")
+      )
+  
+      # Reconsiderações por ID
+      RECON_POR_ID = (
+          BASE_MUN_TIPO_completo[
+              BASE_MUN_TIPO_completo["ID_POND"] != ""
+          ]
+          .groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+          .sum()
+      )
+  
+      RECON_POR_ID["ID_POND"] = (
+          pd.to_numeric(RECON_POR_ID["ID_POND"], errors="coerce")
+          .astype("Int64")
+      )
+  
+      # Padronização dos parâmetros
+      TAB_REALIZADAS["ANÁLISE"] = np.where(
+          TAB_REALIZADAS["ANÁLISE"].isin([
+              "TURBIDEZ",
+              "COR APARENTE",
+              "PH",
+              "COLIFORMES TOTAIS",
+              "ESCHERICHIA COLI"
+          ]),
+          TAB_REALIZADAS["ANÁLISE"],
+          "DEMAIS PARAMETROS"
+      )
+  
+      TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[
+          TAB_REALIZADAS["ACEITO?"] == "Validado"
+      ]
+  
+      # =========================================================
+      # 3. IDENTIFICAÇÃO DOS EXPURGOS E CONVERSÕES
+      # =========================================================
+  
+      TAB_EXPURGOS = TAB_REALIZADAS_ACEITO[
+          TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] == "EXPURGAR"
+      ]
+  
+      TAB_EXPURGOS_CONF = TAB_EXPURGOS[
+          TAB_EXPURGOS["CONFORMIDADE - VI"] == "Conforme"
+      ]
+  
+      TAB_SEM_EXPURGO = TAB_REALIZADAS_ACEITO[
+          TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR"
+      ]
+  
+      TAB_CONF_VI_NAOCONF_ARSAL = TAB_SEM_EXPURGO[
+          (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] == "Conforme") &
+          (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] != "Conforme") &
+          (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"].notna())
+      ]
+  
+      TAB_NAOCONF_VI_CONF_ARSAL = TAB_SEM_EXPURGO[
+          (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] != "Conforme") &
+          (TAB_SEM_EXPURGO["CONFORMIDADE - VI"].notna()) &
+          (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] == "Conforme")
+      ]
+  
+      # =========================================================
+      # 4. QUADRO DE PONDERAÇÕES - NAM CONF
+      # =========================================================
+  
+      QUADRO_POND_NCONF = TAB_POND.copy()
+  
+      QUADRO_POND_NCONF = QUADRO_POND_NCONF.rename(columns={
+          QUADRO_POND_NCONF.columns[0]: "ID",
+          QUADRO_POND_NCONF.columns[1]: "PONDERAÇÕES (PRESTADORA)",
+          QUADRO_POND_NCONF.columns[2]: "PONDERAÇÕES (VI)",
+          QUADRO_POND_NCONF.columns[3]: "PONDERAÇÕES (ARSAL)",
+      })
+  
+      # Padroniza o ID para os cruzamentos
+      QUADRO_POND_NCONF["ID"] = pd.to_numeric(
+          QUADRO_POND_NCONF["ID"], errors="coerce"
+      ).astype("Int64")
+  
+      # Contagem de expurgos conformes
+      contagem_exp = (
+          TAB_EXPURGOS_CONF.groupby("ID_POND")
+          .size()
+          .reset_index(name="EXPURGOS")
+          .rename(columns={"ID_POND": "ID"})
+      )
+  
+      contagem_exp["ID"] = pd.to_numeric(
+          contagem_exp["ID"], errors="coerce"
+      ).astype("Int64")
+  
+      QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(
+          contagem_exp, on="ID", how="left"
+      )
+  
+      # Conversão: Conforme -> Não Conforme
+      contagem_cv_na = (
+          TAB_CONF_VI_NAOCONF_ARSAL.groupby("ID_POND")
+          .size()
+          .reset_index(name="CONVERSÃO: CONFORME → NÃO CONFORME")
+          .rename(columns={"ID_POND": "ID"})
+      )
+  
+      contagem_cv_na["ID"] = pd.to_numeric(
+          contagem_cv_na["ID"], errors="coerce"
+      ).astype("Int64")
+  
+      QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(
+          contagem_cv_na, on="ID", how="left"
+      )
+  
+      # Conversão: Não Conforme -> Conforme
+      contagem_na_cv = (
+          TAB_NAOCONF_VI_CONF_ARSAL.groupby("ID_POND")
+          .size()
+          .reset_index(name="CONVERSÃO: NÃO CONFORME → CONFORME")
+          .rename(columns={"ID_POND": "ID"})
+      )
+  
+      contagem_na_cv["ID"] = pd.to_numeric(
+          contagem_na_cv["ID"], errors="coerce"
+      ).astype("Int64")
+  
+      QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(
+          contagem_na_cv, on="ID", how="left"
+      )
+  
+      # Formatação dos impactos
+      colunas_impacto = [
+          "EXPURGOS",
+          "CONVERSÃO: CONFORME → NÃO CONFORME",
+          "CONVERSÃO: NÃO CONFORME → CONFORME"
+      ]
+  
+      for col in colunas_impacto:
+          QUADRO_POND_NCONF[col] = (
+              QUADRO_POND_NCONF[col]
+              .fillna(0)
+              .astype("Int64")
+              .astype("object")
+              .replace(0, "")
+          )
+  
+      # Remove somente colunas de impacto totalmente vazias.
+      # Mantém todas as linhas de ponderação.
+      for col in colunas_impacto:
+          if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
+              QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(
+                  columns=[col]
+              )
+  
+      # =========================================================
+      # 5. QUADRO DE PONDERAÇÕES - NAM REALIZ
+      # =========================================================
+  
+      QUADRO_POND_REALIZ = TAB_POND.copy()
+  
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
+          QUADRO_POND_REALIZ.columns[0]: "ID",
+          QUADRO_POND_REALIZ.columns[1]: "PONDERAÇÕES (PRESTADORA)",
+          QUADRO_POND_REALIZ.columns[2]: "PONDERAÇÕES (VI)",
+          QUADRO_POND_REALIZ.columns[3]: "PONDERAÇÕES (ARSAL)",
+      })
+  
+      QUADRO_POND_REALIZ["ID"] = pd.to_numeric(
+          QUADRO_POND_REALIZ["ID"], errors="coerce"
+      ).astype("Int64")
+  
+      # Contagem de expurgos por ID
+      contagem = (
+          TAB_EXPURGOS.groupby("ID_POND")
+          .size()
+          .reset_index(name="EXPURGOS")
+          .rename(columns={"ID_POND": "ID"})
+      )
+  
+      contagem["ID"] = pd.to_numeric(
+          contagem["ID"], errors="coerce"
+      ).astype("Int64")
+  
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+          contagem, on="ID", how="left"
+      )
+  
+      # Desconsiderações por ID
+      DESC_POR_ID_AUX = DESC_POR_ID.rename(
+          columns={"ID_POND": "ID"}
+      )
+  
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+          DESC_POR_ID_AUX, on="ID", how="left"
+      )
+  
+      # Reconsiderações por ID
+      RECON_POR_ID_AUX = RECON_POR_ID.rename(
+          columns={"ID_POND": "ID"}
+      )
+  
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+          RECON_POR_ID_AUX, on="ID", how="left"
+      )
+  
+      # Renomeia as colunas
       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
           "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)",
           "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"
       })
-      
-      QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = (
-          QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"]
-          .fillna(0).astype("Int64")
-      )
-      
-      QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = (
-          QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"]
-          .astype("object").replace(0, "")
-      )
-      
-      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = (
-          QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"]
-          .fillna(0).astype("Int64")
-      )
-      
-      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = (
-          QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"]
-          .astype("object").replace(0, "")
-      )
+  
+      # Garante a existência das colunas, inclusive sem registros
+      for coluna in [
+          "EXPURGOS",
+          "DESCONSIDERAÇÕES (PLANO)",
+          "RECONSIDERAÇÕES (PLANO)"
+      ]:
+          if coluna not in QUADRO_POND_REALIZ.columns:
+              QUADRO_POND_REALIZ[coluna] = 0
+  
+          QUADRO_POND_REALIZ[coluna] = (
+              QUADRO_POND_REALIZ[coluna]
+              .fillna(0)
+              .astype("Int64")
+              .astype("object")
+              .replace(0, "")
+          )
+  
+      # =========================================================
+      # 6. RETORNO DOS QUADROS
+      # =========================================================
+  
+      return QUADRO_POND_NCONF, QUADRO_POND_REALIZ
 
-
-    else:
-      QUADRO_POND_REALIZ = "SEM EXPURGOS"
-
-    return QUADRO_POND_NCONF, QUADRO_POND_REALIZ
 
 
 
