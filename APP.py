@@ -5210,6 +5210,18 @@ def rel_iqa():
 
     fig, ax7 = plt.subplots(figsize=(12, len((TAB_TIPO["ANÁLISE"]))*0.5*espacamento))
 
+    TAB_TIPO["ANALISES CONFORMES"] = (
+        pd.to_numeric(TAB_TIPO["ANALISES CONFORMES"], errors="coerce")
+        .replace([np.inf, -np.inf], np.nan)
+        .fillna(0)
+    )
+    
+    TAB_TIPO["EXPURGOS CONFORMES"] = (
+        pd.to_numeric(TAB_TIPO["EXPURGOS CONFORMES"], errors="coerce")
+        .replace([np.inf, -np.inf], np.nan)
+        .fillna(0)
+    )
+
     bars1 = ax7.barh(y + largura/2, TAB_TIPO["ANALISES CONFORMES"] - TAB_TIPO["EXPURGOS CONFORMES"], height=largura, label="ANALISES CONFORMES (SUBTRAINDO OS EXPURGOS CONFORMES)", color="green")
     bars2 = ax7.barh(y - largura/2, TAB_TIPO["ANALISES REALIZADAS"] - TAB_TIPO["EXPURGOS TOTAIS"], height=largura, label="ANALISES REALIZADAS (SUBTRAINDO OS EXPURGOS TOTAIS)", color="orange")
 
