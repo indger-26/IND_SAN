@@ -4822,7 +4822,7 @@ def rel_iqa():
 
     contagem_tot = TAB_REALIZADAS_ACEITO.groupby('ANÁLISE').size().reset_index(name='ANALISES REALIZADAS')
     TAB_TIPO = TAB_TIPO.merge(contagem_tot, on='ANÁLISE', how='left')
-    TAB_TIPO['ANALISES REALIZADAS'] = TAB_TIPO['ANALISES REALIZADAS'].astype(int)
+    TAB_TIPO['ANALISES REALIZADAS'] = TAB_TIPO['ANALISES REALIZADAS'].astype('Int64')
 
     contagem_conf = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_conf, on='ANÁLISE', how='left')
@@ -8141,7 +8141,7 @@ def rel_iqa_iqe():
 
     TAB_TIPO = TAB_TIPO.fillna(0)
 
-    TAB_TIPO['ANALISES REALIZADAS'] = TAB_TIPO['ANALISES REALIZADAS'].astype(int)
+    TAB_TIPO['ANALISES REALIZADAS'] = TAB_TIPO['ANALISES REALIZADAS'].astype('Int64')
 
     contagem_conf = TAB_REALIZADAS_ACEITO_CONF_VI.groupby('ANÁLISE').size().reset_index(name='ANALISES CONFORMES')
     TAB_TIPO = TAB_TIPO.merge(contagem_conf, on='ANÁLISE', how='left')
