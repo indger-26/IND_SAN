@@ -743,7 +743,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   realizados.insert(1, 'mes', mes)
   realizados.insert(2, 'mes_ano', mes_ano)
 
-  realizados = realizados.drop(columns=['DESCONSIDERACOES - ARSAL', 'RECONSIDERACOES - ARSAL'])
+  #realizados = realizados.drop(columns=['DESCONSIDERACOES - ARSAL', 'RECONSIDERACOES - ARSAL'])
+  realizados["plano_ajustado"] = realizados ["PLANO"] - realizados ["DESCONSIDERACOES - ARSAL"] + realizados ["RECONSIDERACOES - ARSAL"] 
 
   realizados = realizados.rename(columns={'Parâmetros': 'parametros'})
   realizados = realizados.rename(columns={'PLANO': 'plano_de_amostragem'})
@@ -792,9 +793,11 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   )
 
   realizados['nam_realiz'] = realizados.apply(
-  lambda row: max(row['plano_de_amostragem'], row['analises_realizadas']) - (row['expurgos'] if pd.notna(row['expurgos']) else 0),
+  lambda row: max(row['plano_ajustado'], row['analises_realizadas']) - (row['expurgos'] if pd.notna(row['expurgos']) else 0),
   axis=1
   )
+
+  realizados = realizados.drop(columns=['DESCONSIDERACOES - ARSAL', 'RECONSIDERACOES - ARSAL', plano_ajustado])
 
   print(realizados)
 
@@ -902,9 +905,14 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   mun.insert(2, 'ano_mes', mes_ano)
 
   mun = mun.rename(columns={'Cidade': 'cidade'})
+
+  mun["plano_ajustado"] = mun ["PLANO"] - mun ["DESCONSIDERACOES - ARSAL"] + mun ["RECONSIDERACOES - ARSAL"] 
+
+  
   mun = mun.rename(columns={'PLANO': 'plano_de_amostragem'})
   mun = mun.rename(columns={'DESCONSIDERACOES - ARSAL': 'desconsideracoes_plano'})
   mun = mun.rename(columns={'RECONSIDERACOES - ARSAL': 'reconsideracoes_plano'})
+  
 
   mun['analises_realizadas'] = mun.apply(
       lambda row: (
@@ -939,7 +947,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
   mun['nam_realiz'] = mun.apply(
   lambda row: max(
-      row['plano_de_amostragem'] if pd.notna(row['plano_de_amostragem']) else 0,
+      row['plano_ajustado'] if pd.notna(row['plano_ajustado']) else 0,
       row['analises_realizadas'] if row['analises_realizadas'] != "" and pd.notna(row['analises_realizadas']) else 0
   ) - (row['expurgos'] if pd.notna(row['expurgos']) else 0),
   axis=1
@@ -998,6 +1006,9 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
   mun['coordenada'] = mun['latitude'].astype(str) + ',' + mun['longitude'].astype(str)
 
+  mun = mun.drop(columns=['desconsideracoes_plano', 'reconsideracoes_plano', plano_ajustado])
+
+
   mun.to_csv('mun.csv', index=False)
 
 
@@ -1015,6 +1026,9 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   plano_final = plano_final.rename(columns={'MES': 'mes'})
   plano_final = plano_final.rename(columns={'Cidade': 'cidade'})
   plano_final = plano_final.rename(columns={'Parâmetros': 'parametros'})
+
+  plano_final["plano_ajustado"] = plano_final ["PLANO"] - plano_final ["DESCONSIDERACOES - ARSAL"] + plano_final ["RECONSIDERACOES - ARSAL"]
+  
   plano_final = plano_final.rename(columns={'PLANO': 'plano_de_amostragem'})
   plano_final = plano_final.rename(columns={'DESCONSIDERACOES - ARSAL': 'desconsideracoes_plano'})
   plano_final = plano_final.rename(columns={'RECONSIDERACOES - ARSAL': 'reconsideracoes_plano'})
@@ -1063,7 +1077,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
     axis=1
   )
 
-  plano_final['nam_realiz'] = plano_final[['plano_de_amostragem', 'amostras_realizadas']].max(axis=1) - plano_final['expurgos'].fillna(0)
+  plano_final['nam_realiz'] = plano_final[['plano_ajustado', 'amostras_realizadas']].max(axis=1) - plano_final['expurgos'].fillna(0)
 
   plano_final['expurgos_conf'] = plano_final.apply(
     lambda row: (
@@ -1126,6 +1140,8 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   plano_final['coordenada'] = plano_final['latitude'].astype(str) + ',' + plano_final['longitude'].astype(str)
 
   plano_final = plano_final.rename(columns={'SAA': 'saa'})
+
+  plano_final = plano_final.drop(columns=['desconsideracoes_plano', 'reconsideracoes_plano', plano_ajustado])
 
   plano_final.to_csv('plano_final.csv', index=False)
 
@@ -4207,9 +4223,10 @@ def rel_iqa():
 
     # ---- Nam Realiz: IIQA7 (com IIQA_71 aninhado) ----
     if _num(NREA_EXPURGOS) != 0:
-        if _num(desc_plano) != 0:
+        if _num(desc_plano) != 0 or _num(recon_plano) != 0:
             IIQA_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
                        f"desconsideração de {desc_plano} amostras em relação ao plano de amostragem ajustado "
+                       f"e a reconsideração de {recon_plano} amostras em relação ao plano de amostragem ajustado "
                        f"pelo Verificador Independente.")
         else:
             IIQA_71 = ""
@@ -4428,7 +4445,7 @@ def rel_iqa():
                   larguras.append(EX_LARGA)
 
               elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
-                                "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO",
+                                "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
                                 "ANALISES REALIZADAS", "ANALISES CONFORMES", "ANALISES NÃO CONFORMES",
                                 "EXPURGOS TOTAIS", "EXPURGOS CONFORMES", "EXPURGOS NAO CONFORMES",
                                 "NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)"):
@@ -4911,6 +4928,13 @@ def rel_iqa():
     )
     DESC_POR_ID["ID_POND"] = DESC_POR_ID["ID_POND"].astype(float).astype("Int64")
 
+    RECON_POR_ID = (
+      BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
+      .groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+    )
+    RECON_POR_ID["ID_POND"] = RECON_POR_ID["ID_POND"].astype(float).astype("Int64")
+
     TAB_REALIZADAS['ANÁLISE'] = np.where(
         TAB_REALIZADAS['ANÁLISE'].isin(['TURBIDEZ', 'COR APARENTE', 'PH', 'COLIFORMES TOTAIS', 'ESCHERICHIA COLI']),
         TAB_REALIZADAS['ANÁLISE'],
@@ -5000,10 +5024,13 @@ def rel_iqa():
       QUADRO_POND_REALIZ["EXPURGOS"] = QUADRO_POND_REALIZ["EXPURGOS"].astype("object").replace(0, "")
 
       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(DESC_POR_ID, left_on='ID', right_on='ID_POND', how='left')
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(RECON_POR_ID, left_on='ID', right_on='ID_POND', how='left')
       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.drop(columns=["ID_POND"])
       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={"DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)"})
       QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"].fillna(0).astype("Int64")
       QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"].astype("object").replace(0, "")
+      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"].fillna(0).astype("Int64")
+      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"].astype("object").replace(0, "")
 
     else:
       QUADRO_POND_REALIZ = "SEM EXPURGOS"
@@ -6919,9 +6946,10 @@ def rel_iqa_iqe():
 
     # ---- Nam Realiz: IIQA7 (com IIQA_71 aninhado) ----
     if _num(NREA_EXPURGOS) != 0:
-        if _num(desc_plano) != 0:
+        if _num(desc_plano) != 0 or _num(recon_plano) != 0:
             IIQA_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
                        f"desconsideração de {desc_plano} amostras em relação ao plano de amostragem ajustado "
+                       f"e a reconsideração de {recon_plano} amostras em relação ao plano de amostragem ajustado "
                        f"pelo Verificador Independente.")
         else:
             IIQA_71 = ""
@@ -7527,7 +7555,7 @@ def rel_iqa_iqe():
                 larguras.append(EX_LARGA)
     
             elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
-                              "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO",
+                              "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
                               "ANALISES REALIZADAS", "ANALISES CONFORMES", "ANALISES NÃO CONFORMES",
                               "EXPURGOS TOTAIS", "EXPURGOS CONFORMES", "EXPURGOS NAO CONFORMES",
                               "NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)"):
@@ -8410,6 +8438,13 @@ def rel_iqa_iqe():
     )
     DESC_POR_ID["ID_POND"] = DESC_POR_ID["ID_POND"].astype(float).astype("Int64")
 
+    RECON_POR_ID = (
+      BASE_MUN_TIPO_completo[BASE_MUN_TIPO_completo["ID_POND"] != ""]
+      .groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+    )
+    RECON_POR_ID["ID_POND"] = RECON_POR_ID["ID_POND"].astype(float).astype("Int64")
+
     TAB_REALIZADAS['ANÁLISE'] = np.where(
         TAB_REALIZADAS['ANÁLISE'].isin(['TURBIDEZ', 'COR APARENTE', 'PH', 'COLIFORMES TOTAIS', 'ESCHERICHIA COLI']),
         TAB_REALIZADAS['ANÁLISE'],
@@ -8521,7 +8556,24 @@ def rel_iqa_iqe():
         .replace(0, "")
     )
 
-    if QUADRO_POND_REALIZ[["EXPURGOS", "DESCONSIDERAÇÕES (PLANO)"]].replace("", pd.NA).isna().all().all():
+    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
+        RECON_POR_ID, left_on='ID', right_on='ID_POND', how='left'
+    ).drop(columns=["ID_POND"], errors="ignore")
+
+    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(
+        columns={"RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"}
+    )
+
+    QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = (
+        QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"]
+        .fillna(0)
+        .astype("Int64")
+        .astype("object")
+        .replace(0, "")
+    )
+
+
+    if QUADRO_POND_REALIZ[["EXPURGOS", "DESCONSIDERAÇÕES (PLANO)", "RECONSIDERAÇÕES (PLANO)"]].replace("", pd.NA).isna().all().all():
         QUADRO_POND_REALIZ = "SEM EXPURGOS"
 
 
