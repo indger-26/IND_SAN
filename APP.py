@@ -4222,70 +4222,348 @@ def rel_iqa():
     IIQA6 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
 
     # ---- Nam Realiz: IIQA7 (com IIQA_71 aninhado) ----
-    if _num(NREA_EXPURGOS) != 0:
-        if _num(desc_plano) != 0 or _num(recon_plano) != 0:
-            IIQA_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
-                       f"desconsideração de {desc_plano} amostras em relação ao plano de amostragem ajustado "
-                       f"e a reconsideração de {recon_plano} amostras em relação ao plano de amostragem ajustado "
-                       f"pelo Verificador Independente.")
-        else:
-            IIQA_71 = ""
+    # if _num(NREA_EXPURGOS) != 0:
+    #     if _num(desc_plano) != 0 or _num(recon_plano) != 0:
+    #         IIQA_71 = (f"Além disso, no plano de amostragem ajustado por esta agência reguladora, houve a "
+    #                    f"desconsideração de {desc_plano} amostras em relação ao plano de amostragem ajustado "
+    #                    f"e a reconsideração de {recon_plano} amostras em relação ao plano de amostragem ajustado "
+    #                    f"pelo Verificador Independente.")
+    #     else:
+    #         IIQA_71 = ""
 
-        IIQA7 = (f"Dessa forma, a análise destas setoriais, contabiliza o valor do componente “Nam Realiz”, "
-                 f"passando de {formata_milhar(NREA_VI)} (Fipe) para {formata_milhar(NREA_ARSAL)}, mediante a "
-                 f"aplicação de {NREA_EXPURGOS} amostras expurgadas. {IIQA_71}").strip()
+    #     IIQA7 = (f"Dessa forma, a análise destas setoriais, contabiliza o valor do componente “Nam Realiz”, "
+    #              f"passando de {formata_milhar(NREA_VI)} (Fipe) para {formata_milhar(NREA_ARSAL)}, mediante a "
+    #              f"aplicação de {NREA_EXPURGOS} amostras expurgadas. {IIQA_71}").strip()
+    # else:
+    #     IIQA7 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+    #              "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+    
+    # ---- Nam Realiz: IIQA7 ----
+
+    tem_expurgos = _num(NREA_EXPURGOS) != 0
+    tem_desconsideracoes = _num(desc_plano) != 0
+    tem_reconsideracoes = _num(recon_plano) != 0
+
+    # Se não houve nenhuma alteração no NAM REALIZ
+    if not (
+        tem_expurgos or
+        tem_desconsideracoes or
+        tem_reconsideracoes
+    ):
+
+        IIQA7 = (
+            "Mediante análise das informações fornecidas, estes setores técnicos "
+            "apresentam concordância com o valor apresentado pelo Verificador "
+            "Independente para o referido componente."
+        )
+
     else:
-        IIQA7 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
-                 "com o valor apresentado pelo Verificador Independente para o referido componente.")
 
-    # ---- Nam Conf: IIQA8 a IIQA_13 e IIQA_15 ----
-    IIQA8 = "" if sem_exp_conf else (
-        "As observações apresentadas pelo Verificador Independente, juntamente com o entendimento a elas "
-        "associado, tanto pelo próprio verificar quanto por esta setorial encontram-se no quadro abaixo.")
+        # Texto principal
+        IIQA7 = (
+            f"Dessa forma, a análise destas setoriais contabiliza o valor do "
+            f"componente “Nam Realiz”, passando de {formata_milhar(NREA_VI)} "
+            f"(Fipe) para {formata_milhar(NREA_ARSAL)}."
+        )
 
-    IIQA9 = "" if sem_exp_conf else (
-        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+        # Complemento: expurgos
+        if tem_expurgos:
+            IIQA7 += (
+                f" Para tanto, foram aplicadas {formata_milhar(NREA_EXPURGOS)} "
+                f"amostras expurgadas."
+            )
 
-    IIQA_10 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+        # Complemento: desconsiderações
+        if tem_desconsideracoes:
+            IIQA7 += (
+                f" Além disso, no plano de amostragem ajustado por esta agência "
+                f"reguladora, houve a desconsideração de "
+                f"{formata_milhar(desc_plano)} amostras em relação ao plano de "
+                f"amostragem ajustado pelo Verificador Independente."
+            )
 
-    IIQA_11 = "" if sem_exp_conf else (
-        "Diante dos fatos mencionados, segue o panorama ajustado para o componente “Nam conf”, modificado por "
-        "estas setoriais mediante as observações elencadas acima:")
+        # Complemento: reconsiderações
+        if tem_reconsideracoes:
+            IIQA7 += (
+                f" Ademais, houve a reconsideração de "
+                f"{formata_milhar(recon_plano)} amostras em relação ao plano de "
+                f"amostragem ajustado pelo Verificador Independente."
+            )
 
-    IIQA_12 = "" if sem_exp_conf else (
-        "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais.")
 
-    IIQA_13 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+    # # ---- Nam Conf: IIQA8 a IIQA_13 e IIQA_15 ----
+    # IIQA8 = "" if sem_exp_conf else (
+    #     "As observações apresentadas pelo Verificador Independente, juntamente com o entendimento a elas "
+    #     "associado, tanto pelo próprio verificar quanto por esta setorial encontram-se no quadro abaixo.")
 
-    IIQA_15 = "" if sem_exp_conf else (
-        "Ressalta-se que as conversões de análises conformes para não conformes, e vice-versa, que não estejam "
-        "contempladas no quadro de ponderações decorrem de reclassificação realizada por estes setores técnicos, "
-        "com base nos valores brutos de cada tipo de análise. Tais reclassificações podem ser consultadas na base "
-        "de dados encaminhada juntamente com este relatório.")
+    # IIQA9 = "" if sem_exp_conf else (
+    #     "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
 
-    # ---- Nam Conf: IIQA_14 (com IIQA_1_14 e IIQA_2_14 aninhados) ----
-    if _num(NCONF_EXPURGOS) != 0:
-        # IIQA_2_14: conversão de não conformes (VI) para conformes (Arsal)
-        if _num(total_naoconf_vi_conf_arsal) != 0:
-            IIQA_2_14 = (f"Houve a conversão de {total_naoconf_vi_conf_arsal} amostras de não conformes "
-                         f"(Verificador Independente) para conformes (Arsal)")
+    # IIQA_10 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    # IIQA_11 = "" if sem_exp_conf else (
+    #     "Diante dos fatos mencionados, segue o panorama ajustado para o componente “Nam conf”, modificado por "
+    #     "estas setoriais mediante as observações elencadas acima:")
+
+    # IIQA_12 = "" if sem_exp_conf else (
+    #     "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais.")
+
+    # IIQA_13 = "" if sem_exp_conf else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+
+    # IIQA_15 = "" if sem_exp_conf else (
+    #     "Ressalta-se que as conversões de análises conformes para não conformes, e vice-versa, que não estejam "
+    #     "contempladas no quadro de ponderações decorrem de reclassificação realizada por estes setores técnicos, "
+    #     "com base nos valores brutos de cada tipo de análise. Tais reclassificações podem ser consultadas na base "
+    #     "de dados encaminhada juntamente com este relatório.")
+
+    # # ---- Nam Conf: IIQA_14 (com IIQA_1_14 e IIQA_2_14 aninhados) ----
+    # if _num(NCONF_EXPURGOS) != 0:
+    #     # IIQA_2_14: conversão de não conformes (VI) para conformes (Arsal)
+    #     if _num(total_naoconf_vi_conf_arsal) != 0:
+    #         IIQA_2_14 = (f"Houve a conversão de {total_naoconf_vi_conf_arsal} amostras de não conformes "
+    #                      f"(Verificador Independente) para conformes (Arsal)")
+    #     else:
+    #         IIQA_2_14 = ""
+
+    #     # IIQA_1_14: conversão de conformes (VI) para não conformes (Arsal) + IIQA_2_14
+    #     if _num(total_conf_vi_naoconf_arsal) != 0:
+    #         IIQA_1_14 = (f"Houve a conversão de {total_conf_vi_naoconf_arsal} amostras de conformes "
+    #                      f"(Verificador Independente) para não conformes (Arsal). {IIQA_2_14}").strip()
+    #     else:
+    #         IIQA_1_14 = IIQA_2_14
+
+    #     IIQA_14 = (f"Com isso, dada a análise destas setoriais, o valor do componente “Nam conf” passa de "
+    #                f"{formata_milhar(NCOF_VI)} (Fipe) para {formata_milhar(NCONF_ARSAL)}, com o expurgo de "
+    #                f"{NCONF_EXPURGOS} amostras anteriormente consideradas conformes pelo Verificador "
+    #                f"Independente. {IIQA_1_14}").strip()
+    # else:
+    #     IIQA_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
+    #                "com o valor apresentado pelo Verificador Independente para o referido componente.")
+
+
+    
+    # ---- NAM CONF: IIQA8 a IIQA15 ----
+    
+    # Verifica se existem ponderações efetivamente preenchidas no NAM CONF
+    colunas_pond_conf = [
+        "PONDERAÇÕES (PRESTADORA)",
+        "PONDERAÇÕES (VI)",
+        "PONDERAÇÕES (ARSAL)"
+    ]
+    
+    tem_ponderacoes_conf = False
+    
+    if isinstance(QUADRO_POND_NCONF, pd.DataFrame):
+    
+        colunas_existentes = [
+            col for col in colunas_pond_conf
+            if col in QUADRO_POND_NCONF.columns
+        ]
+    
+        if colunas_existentes:
+            tem_ponderacoes_conf = (
+                QUADRO_POND_NCONF[colunas_existentes]
+                .apply(
+                    lambda col: (
+                        col.notna() &
+                        col.astype(str).str.strip().ne("")
+                    )
+                )
+                .any()
+                .any()
+            )
+    
+    
+    # Verifica se existem expurgos no NAM CONF
+    tem_expurgos_conf = _num(NCONF_EXPURGOS) != 0
+    
+    
+    # Verifica se existem conversões entre Conforme e Não Conforme
+    tem_conversao_conf_nao_conf = (
+        _num(total_conf_vi_naoconf_arsal) != 0
+    )
+    
+    tem_conversao_nao_conf_conf = (
+        _num(total_naoconf_vi_conf_arsal) != 0
+    )
+    
+    tem_conversoes_conf = (
+        tem_conversao_conf_nao_conf or
+        tem_conversao_nao_conf_conf
+    )
+    
+    
+    # --------------------------------------------------
+    # IIQA8 A IIQA13 E IIQA15
+    # --------------------------------------------------
+    
+    if tem_ponderacoes_conf:
+    
+        # Existem ponderações: apresenta os quadros normalmente
+        IIQA8 = (
+            "As observações apresentadas pelo Verificador Independente, "
+            "juntamente com o entendimento a elas associado, tanto pelo "
+            "próprio verificador quanto por esta setorial, encontram-se "
+            "no quadro abaixo."
+        )
+    
+        IIQA9 = (
+            "Quadro - Ponderações elaboradas pelo Verificador Independente "
+            "e posicionamento destas setoriais."
+        )
+    
+        IIQA_10 = (
+            "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+        )
+    
+        IIQA_11 = (
+            "Diante dos fatos mencionados, segue o panorama ajustado para "
+            "o componente “Nam conf”, modificado por estas setoriais "
+            "mediante as observações elencadas acima:"
+        )
+    
+        IIQA_12 = (
+            "Quadro - Contabilização do componente “Nam Conf” do IQA, "
+            "ajustado por estas setoriais."
+        )
+    
+        IIQA_13 = (
+            "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+        )
+    
+        # Só apresenta a observação sobre reclassificações
+        # quando efetivamente existirem conversões
+        if tem_conversoes_conf:
+    
+            IIQA_15 = (
+                "Ressalta-se que as conversões de análises conformes para "
+                "não conformes, e vice-versa, que não estejam contempladas "
+                "no quadro de ponderações decorrem de reclassificação "
+                "realizada por estes setores técnicos, com base nos valores "
+                "brutos de cada tipo de análise. Tais reclassificações podem "
+                "ser consultadas na base de dados encaminhada juntamente "
+                "com este relatório."
+            )
+    
         else:
-            IIQA_2_14 = ""
-
-        # IIQA_1_14: conversão de conformes (VI) para não conformes (Arsal) + IIQA_2_14
-        if _num(total_conf_vi_naoconf_arsal) != 0:
-            IIQA_1_14 = (f"Houve a conversão de {total_conf_vi_naoconf_arsal} amostras de conformes "
-                         f"(Verificador Independente) para não conformes (Arsal). {IIQA_2_14}").strip()
-        else:
-            IIQA_1_14 = IIQA_2_14
-
-        IIQA_14 = (f"Com isso, dada a análise destas setoriais, o valor do componente “Nam conf” passa de "
-                   f"{formata_milhar(NCOF_VI)} (Fipe) para {formata_milhar(NCONF_ARSAL)}, com o expurgo de "
-                   f"{NCONF_EXPURGOS} amostras anteriormente consideradas conformes pelo Verificador "
-                   f"Independente. {IIQA_1_14}").strip()
+            IIQA_15 = ""
+    
+    
+    elif tem_conversoes_conf:
+    
+        # Não existem ponderações, mas existem conversões:
+        # apresenta somente o alerta sobre as reclassificações
+        IIQA8 = (
+            "Ressalta-se que as conversões de análises conformes para "
+            "não conformes, e vice-versa, identificadas na análise do "
+            "componente “Nam Conf”, decorreram de reclassificações "
+            "realizadas por estes setores técnicos, com base nos valores "
+            "brutos de cada tipo de amostra. Tais reclassificações podem "
+            "ser consultadas na base de dados encaminhada juntamente "
+            "com este relatório."
+        )
+    
+        IIQA9 = ""
+        IIQA_10 = ""
+        IIQA_11 = ""
+        IIQA_12 = ""
+        IIQA_13 = ""
+        IIQA_15 = ""
+    
+    
     else:
-        IIQA_14 = ("Mediante análise das informações fornecidas, estes setores técnicos apresentam concordância "
-                   "com o valor apresentado pelo Verificador Independente para o referido componente.")
+    
+        # Não existem ponderações nem conversões:
+        # apresenta concordância com o VI
+        IIQA8 = (
+            "Mediante análise das informações fornecidas, estes setores "
+            "técnicos apresentam concordância com o valor apresentado "
+            "pelo Verificador Independente para o referido componente."
+        )
+    
+        IIQA9 = ""
+        IIQA_10 = ""
+        IIQA_11 = ""
+        IIQA_12 = ""
+        IIQA_13 = ""
+        IIQA_15 = ""
+    
+    
+    # --------------------------------------------------
+    # IIQA14: RESULTADO DO NAM CONF
+    # --------------------------------------------------
+    
+    if (
+        tem_ponderacoes_conf or
+        tem_expurgos_conf or
+        tem_conversoes_conf
+    ):
+    
+        # Texto principal: alteração do quantitativo de amostras conformes
+        IIQA_14_PARTES = [
+            (
+                f"Dessa forma, dada a análise destas setoriais, "
+                f"o valor do componente “Nam conf” passa de "
+                f"{formata_milhar(NCOF_VI)} (Verificador Independente) "
+                f"para {formata_milhar(NCONF_ARSAL)}."
+            )
+        ]
+    
+        # Acrescenta a informação sobre os expurgos, se houver
+        if tem_expurgos_conf:
+    
+            IIQA_14_PARTES.append(
+                f"Para tanto, foram expurgadas {formata_milhar(NCONF_EXPURGOS)} "
+                f"amostras anteriormente consideradas conformes pelo "
+                f"Verificador Independente."
+            )
+    
+        # Acrescenta a conversão de Conforme para Não Conforme, se houver
+        if tem_conversao_conf_nao_conf:
+    
+            IIQA_14_PARTES.append(
+                f"Houve a conversão de "
+                f"{formata_milhar(total_conf_vi_naoconf_arsal)} "
+                f"amostras de conformes (Verificador Independente) "
+                f"para não conformes (ARSAL)."
+            )
+    
+        # Acrescenta a conversão de Não Conforme para Conforme, se houver
+        if tem_conversao_nao_conf_conf:
+    
+            IIQA_14_PARTES.append(
+                f"Houve a conversão de "
+                f"{formata_milhar(total_naoconf_vi_conf_arsal)} "
+                f"amostras de não conformes (Verificador Independente) "
+                f"para conformes (ARSAL)."
+            )
+    
+        # Caso existam ponderações, mas não ocorram expurgos ou conversões
+        if (
+            tem_ponderacoes_conf and
+            not tem_expurgos_conf and
+            not tem_conversoes_conf
+        ):
+    
+            IIQA_14_PARTES.append(
+                "Embora tenham sido registradas ponderações, não houve "
+                "expurgos ou conversões que alterassem o quantitativo "
+                "de amostras conformes."
+            )
+    
+        IIQA14 = " ".join(IIQA_14_PARTES)
+    
+    
+    else:
+    
+        # Ausência de ponderações, expurgos e conversões
+        IIQA14 = (
+            "Mediante análise das informações fornecidas, estes setores "
+            "técnicos apresentam concordância com o valor apresentado "
+            "pelo Verificador Independente para o referido componente."
+        )
+    
 
 
     var_dic = {
@@ -4307,7 +4585,7 @@ def rel_iqa():
 
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
               '$QUADRO_NREA_OBS': "" if sem_exp_rea else QUADRO_POND_REALIZ,
-              '$QUADRO_NCONF_OBS': "" if sem_exp_conf else QUADRO_POND_NCONF,
+              '$QUADRO_NCONF_OBS': (QUADRO_POND_NCONF if tem_ponderacoes_conf else ""),
 
               '$QUADRO_NREA_VI': TAB_MUN_VI,
               '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
