@@ -278,10 +278,15 @@ def ler_ajustar_arquivo ():
    
   # ---------- Flag de reclassificação ----------
   # True só onde o resultado realmente mudou
-  df["Reclassificado ARSAL?"] = ~(
-      (df["resultado"] == resultado_original)
-      | (df["resultado"].isna() & resultado_original.isna())
-  )
+  def _classe(s):
+      t = (s.astype(str).str.strip().str.lower()
+            .map(lambda x: "".join(c for c in unicodedata.normalize("NFKD", x) if not unicodedata.combining(c))))
+      return t.map({"conforme": "C", "nao conforme": "NC"})   # qualquer outra coisa vira NaN
+  
+  classe_antes  = _classe(resultado_original)
+  classe_depois = _classe(df["resultado"])
+  
+  df["Reclassificado ARSAL?"] = classe_antes.notna() & classe_depois.notna() & (classe_antes != classe_depois)
    
   # ---------- Remove colunas auxiliares ----------
   df_conferido = df.drop(columns=["PARAMETRO", "V_MIN", "V_MAX", "_merge"])
