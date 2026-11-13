@@ -8858,31 +8858,31 @@ def rel_iqa_iqe():
       })
     )
 
-        TAB_MUN_IQE = TAB_MUN_IQE.merge(
-          DESC_MUN, on="MUNICÍPIO", how="left"
-        )
-    
-        TAB_MUN_IQE = TAB_MUN_IQE.merge(
-          RECON_MUN_IQE, on="MUNICÍPIO", how="left"
-        )
-    
-        TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = (
-          TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]
-          .fillna(0)
-          .astype("Int64")
-        )
-    
-        TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"] = (
-          TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"]
-          .fillna(0)
-          .astype("Int64")
-        )
-    
-        TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (
-          TAB_MUN_IQE["PLANO DE AMOSTRAGEM"]
-          - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]
-          + TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"]
-        ).astype("Int64")
+    TAB_MUN_IQE = TAB_MUN_IQE.merge(
+      DESC_MUN, on="MUNICÍPIO", how="left"
+    )
+
+    TAB_MUN_IQE = TAB_MUN_IQE.merge(
+      RECON_MUN_IQE, on="MUNICÍPIO", how="left"
+    )
+
+    TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"] = (
+      TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]
+      .fillna(0)
+      .astype("Int64")
+    )
+
+    TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"] = (
+      TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"]
+      .fillna(0)
+      .astype("Int64")
+    )
+
+    TAB_MUN_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (
+      TAB_MUN_IQE["PLANO DE AMOSTRAGEM"]
+      - TAB_MUN_IQE["DESCONSIDERAÇÕES DO PLANO"]
+      + TAB_MUN_IQE["RECONSIDERAÇÕES DO PLANO"]
+    ).astype("Int64")
 
     TAB_REALIZADAS_ACEITO_IQE          = TAB_REALIZADAS_IQE[TAB_REALIZADAS_IQE["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF_IQE     = TAB_REALIZADAS_ACEITO_IQE[TAB_REALIZADAS_IQE["CONFORMIDADE - ARSAL"] == "Conforme"]
