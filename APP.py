@@ -370,7 +370,7 @@ def ler_ajustar_arquivo ():
   )
 
   colunas_chave = ["Cidade", "Parâmetros", "SAA"]
-  plano_agrupado = plano.groupby(colunas_chave, as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum()
+  plano_agrupado = plano.groupby(colunas_chave, as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL", "RECONSIDERACOES - ARSAL"]].sum()
 
   plano_agrupado.insert(0, "MES", mes)
   plano_agrupado.insert(1, "ANO", ano)
@@ -389,7 +389,8 @@ def ler_ajustar_arquivo ():
 
   plano_principais["PLANO"] = plano_principais["PLANO"].fillna(0)
   plano_principais["DESCONSIDERACOES - ARSAL"] = plano_principais["DESCONSIDERACOES - ARSAL"].fillna(0)  # NOVO
-
+  plano_principais["RECONSIDERACOES - ARSAL"] = plano_principais["DESCONSIDERACOES - ARSAL"].fillna(0)  # NOVO
+  
   plano_demais = plano_agrupado[plano_agrupado["Parâmetros"] == "Demais Parâmetros"]
 
   plano_completo = pd.concat([plano_principais, plano_demais], ignore_index=True)
@@ -401,23 +402,28 @@ def ler_ajustar_arquivo ():
           plano_dados_tratados["PLANO"].fillna(0).eq(0)
           &
           plano_dados_tratados["DESCONSIDERACOES - ARSAL"].fillna(0).eq(0)
+          &
+          plano_dados_tratados["RECONSIDERACOES - ARSAL"].fillna(0).eq(0)
       )
   ]
 
   plano_dados_tratados["PLANO"] = plano_dados_tratados["PLANO"].astype("Int64")
   plano_dados_tratados["DESCONSIDERACOES - ARSAL"] = plano_dados_tratados["DESCONSIDERACOES - ARSAL"].astype("Int64")
+  plano_dados_tratados["RECONSIDERACOES - ARSAL"] = plano_dados_tratados["RECONSIDERACOES - ARSAL"].astype("Int64")
 
-  plano_totais_municipio = (plano_completo.groupby("Cidade", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum())
+  plano_totais_municipio = (plano_completo.groupby("Cidade", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL", "RECONSIDERACOES - ARSAL"]].sum())
 
   plano_totais_municipio["PLANO"] = plano_totais_municipio["PLANO"].astype("Int64")
   plano_totais_municipio["DESCONSIDERACOES - ARSAL"] = plano_totais_municipio["DESCONSIDERACOES - ARSAL"].astype("Int64")
+  plano_totais_municipio["RECONSIDERACOES - ARSAL"] = plano_totais_municipio["RECONSIDERACOES - ARSAL"].astype("Int64")
 
-  plano_totais_parametros = (plano_completo.groupby("Parâmetros", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum())
+  plano_totais_parametros = (plano_completo.groupby("Parâmetros", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL", "RECONSIDERACOES - ARSAL"]].sum())
 
   plano_totais_parametros["PLANO"] = plano_totais_parametros["PLANO"].astype("Int64")
   plano_totais_parametros["DESCONSIDERACOES - ARSAL"] = plano_totais_parametros["DESCONSIDERACOES - ARSAL"].astype("Int64")
+  plano_totais_parametros["RECONSIDERACOES - ARSAL"] = plano_totais_parametros["RECONSIDERACOES - ARSAL"].astype("Int64")
 
-  plano_totais_saa = (plano_completo.groupby("SAA", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL"]].sum())
+  plano_totais_saa = (plano_completo.groupby("SAA", as_index=False)[["PLANO", "DESCONSIDERACOES - ARSAL", "RECONSIDERACOES - ARSAL"]].sum())
 
   
 
@@ -737,7 +743,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   realizados.insert(1, 'mes', mes)
   realizados.insert(2, 'mes_ano', mes_ano)
 
-  realizados = realizados.drop('DESCONSIDERACOES - ARSAL', axis=1)
+  realizados = realizados.drop(columns=['DESCONSIDERACOES - ARSAL', 'RECONSIDERACOES - ARSAL'])
 
   realizados = realizados.rename(columns={'Parâmetros': 'parametros'})
   realizados = realizados.rename(columns={'PLANO': 'plano_de_amostragem'})
@@ -898,6 +904,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   mun = mun.rename(columns={'Cidade': 'cidade'})
   mun = mun.rename(columns={'PLANO': 'plano_de_amostragem'})
   mun = mun.rename(columns={'DESCONSIDERACOES - ARSAL': 'desconsideracoes_plano'})
+  mun = mun.rename(columns={'RECONSIDERACOES - ARSAL': 'reconsideracoes_plano'})
 
   mun['analises_realizadas'] = mun.apply(
       lambda row: (
@@ -1010,6 +1017,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
   plano_final = plano_final.rename(columns={'Parâmetros': 'parametros'})
   plano_final = plano_final.rename(columns={'PLANO': 'plano_de_amostragem'})
   plano_final = plano_final.rename(columns={'DESCONSIDERACOES - ARSAL': 'desconsideracoes_plano'})
+  plano_final = plano_final.rename(columns={'RECONSIDERACOES - ARSAL': 'reconsideracoes_plano'})
 
   plano_final['amostras_realizadas'] = plano_final.apply(
       lambda row: (
@@ -3857,6 +3865,7 @@ def rel_iqa():
     arquivo_saida   = "PLANO_TRATADO.xlsx"
     coluna_valor    = "PLANO"
     coluna_desc     = "DESCONSIDERAÇÕES - ARSAL"
+    coluna_recons   = "RECONSIDERAÇÕES - ARSAL"
     coluna_id_pond  = "ID_POND"
 
     BASE_MUN_TIPO = PLAN_MUN_TIPO
@@ -3902,6 +3911,7 @@ def rel_iqa():
       **{
         coluna_valor: (coluna_valor, "sum"),
         coluna_desc:  (coluna_desc,  "sum"),
+        coluna_recons:  (coluna_recons,  "sum"),
       }
     )
 
@@ -3923,6 +3933,7 @@ def rel_iqa():
     )
     BASE_MUN_TIPO_principais[coluna_valor] = BASE_MUN_TIPO_principais[coluna_valor].fillna(0)
     BASE_MUN_TIPO_principais[coluna_desc]  = BASE_MUN_TIPO_principais[coluna_desc].fillna(0)
+    BASE_MUN_TIPO_principais[coluna_recons]  = BASE_MUN_TIPO_principais[coluna_recons].fillna(0)
 
     BASE_COM_ID = BASE_MUN_TIPO_agrupado[
       BASE_MUN_TIPO_agrupado[coluna_id_pond] != ""
@@ -4559,9 +4570,20 @@ def rel_iqa():
       })
     )
 
+    RECON_MUN = (
+      BASE_MUN_TIPO_completo
+      .groupby("Cidade", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+      .rename(columns={
+        "Cidade": "MUNICÍPIO",
+        "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES DO PLANO"
+      })
+    )
+
     TAB_MUN = TAB_MUN.merge(DESC_MUN, on="MUNICÍPIO", how="left")
     TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_MUN["RECONSIDERAÇÕES DO PLANO"] = TAB_MUN["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
+    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] + TAB_MUN["RECONSIDERAÇÕES DO PLANO"]).astype(int)
 
     TAB_REALIZADAS_ACEITO          = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF     = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
@@ -4638,7 +4660,7 @@ def rel_iqa():
     TAB_MUN["IQA (%)"] = (((TAB_MUN["NAM CONF"]) / (TAB_MUN["NAM REALIZ"])) * 100).round(1)
 
     TAB_MUN_FINAL = TAB_MUN[[
-      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ",
       "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF", "IQA (%)"
@@ -4648,6 +4670,7 @@ def rel_iqa():
     TAB_MUN_FINAL["IQA (%)"].iat[-1] = (((TAB_MUN_FINAL["NAM CONF"].iat[-1]) / (TAB_MUN_FINAL["NAM REALIZ"].iat[-1])) * 100).round(1)
 
     desc_plano = int(TAB_MUN_FINAL["DESCONSIDERAÇÕES DO PLANO"].iloc[-1])
+    recon_plano = int(TAB_MUN_FINAL["RECONSIDERAÇÕES DO PLANO"].iloc[-1])
 
     TAB_MUN_NCONF = TAB_MUN[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF"]]
     TAB_MUN_NCONF_VI = TAB_MUN[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES"]]
@@ -4680,7 +4703,7 @@ def rel_iqa():
     TAB_MUN_RESUMIDA_VI.loc['Total'] = TAB_MUN_RESUMIDA_VI.sum()
     TAB_MUN_RESUMIDA_VI.iloc[-1, TAB_MUN_RESUMIDA_VI.columns.get_loc("MUNICÍPIO")] = "TOTAL"
 
-    return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI
+    return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI
 
 
 
@@ -4704,15 +4727,29 @@ def rel_iqa():
       .groupby("Parâmetros", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
       .sum()
     )
+
+    RECON_TIPO = (
+      BASE_MUN_TIPO_completo
+      .groupby("Parâmetros", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+    )
+    
     DESC_TIPO["Parâmetros"] = DESC_TIPO["Parâmetros"].map(mapa_parametros)
     DESC_TIPO = DESC_TIPO.rename(columns={
       "Parâmetros":              "ANÁLISE",
       "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES DO PLANO"
     })
 
+    RECON_TIPO["Parâmetros"] = RECON_TIPO["Parâmetros"].map(mapa_parametros)
+    RECON_TIPO = RECON_TIPO.rename(columns={
+      "Parâmetros":              "ANÁLISE",
+      "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES DO PLANO"
+    })
+
     TAB_TIPO = TAB_TIPO.merge(DESC_TIPO, on="ANÁLISE", how="left")
     TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_TIPO["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
+    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] + TAB_TIPO["RECONSIDERAÇÕES DO PLANO"]).astype(int)
 
     TAB_REALIZADAS = TAB_REALIZADAS.replace("CLORO", "CLORO RESIDUAL LIVRE")
 
@@ -4792,7 +4829,7 @@ def rel_iqa():
     TAB_TIPO["IQA (%)"] = (((TAB_TIPO["NAM CONF"]) / (TAB_TIPO["NAM REALIZ"])) * 100).round(1)
 
     TAB_TIPO_FINAL = TAB_TIPO[[
-      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO"
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES",
       "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME", "NAM CONF"
@@ -4844,7 +4881,7 @@ def rel_iqa():
     TAB_TIPO_VI["IQA (%)"] = (((TAB_TIPO_VI["NAM CONF"]) / (TAB_TIPO_VI["NAM REALIZ"])) * 100).round(1)
 
     TAB_TIPO_FINAL_VI = TAB_TIPO_VI[[
-      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "NAM CONF"
     ]]
@@ -5343,7 +5380,7 @@ def rel_iqa():
 
     #PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
-    PLAN_MUN_TIPO = PLAN_MUN_TIPO.rename(columns={'DESCONSIDERACOES - ARSAL' : 'DESCONSIDERAÇÕES - ARSAL'})
+    PLAN_MUN_TIPO = PLAN_MUN_TIPO.rename(columns={'DESCONSIDERACOES - ARSAL' : 'DESCONSIDERAÇÕES - ARSAL', 'RECONSIDERACOES - ARSAL' : 'RECONSIDERAÇÕES - ARSAL'})
 
     # AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
 
@@ -5369,7 +5406,7 @@ def rel_iqa():
 
     TAB_MUN, TAB_TIPO, TAB_REALIZADAS, TAB_POND, BASE_MUN_TIPO_completo = base(PLAN_MUN_TIPO, AMOSTRAS_REALIZADAS, PONDERACOES, MES_ANO)
 
-    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
+    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
 
     AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
 
@@ -5433,6 +5470,7 @@ def rel_iqa_iqe():
     arquivo_saida   = "PLANO_TRATADO.xlsx"
     coluna_valor    = "PLANO"
     coluna_desc     = "DESCONSIDERAÇÕES - ARSAL"
+    coluna_recons    = "RECONSIDERAÇÕES - ARSAL"
     coluna_id_pond  = "ID_POND"
 
     BASE_MUN_TIPO = PLAN_MUN_TIPO
@@ -5478,6 +5516,7 @@ def rel_iqa_iqe():
       **{
         coluna_valor: (coluna_valor, "sum"),
         coluna_desc:  (coluna_desc,  "sum"),
+        coluna_recons:  (coluna_recons,  "sum")
       }
     )
 
@@ -5499,6 +5538,7 @@ def rel_iqa_iqe():
     )
     BASE_MUN_TIPO_principais[coluna_valor] = BASE_MUN_TIPO_principais[coluna_valor].fillna(0)
     BASE_MUN_TIPO_principais[coluna_desc]  = BASE_MUN_TIPO_principais[coluna_desc].fillna(0)
+    BASE_MUN_TIPO_principais[coluna_recons]  = BASE_MUN_TIPO_principais[coluna_recons].fillna(0)
 
     BASE_COM_ID = BASE_MUN_TIPO_agrupado[
       BASE_MUN_TIPO_agrupado[coluna_id_pond] != ""
@@ -7665,9 +7705,20 @@ def rel_iqa_iqe():
       })
     )
 
+    RECON_MUN = (
+      BASE_MUN_TIPO_completo
+      .groupby("Cidade", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+      .rename(columns={
+        "Cidade": "MUNICÍPIO",
+        "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES DO PLANO"
+      })
+    )
+
     TAB_MUN = TAB_MUN.merge(DESC_MUN, on="MUNICÍPIO", how="left")
     TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] = TAB_MUN["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_MUN["RECONSIDERAÇÕES DO PLANO"] = TAB_MUN["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
+    TAB_MUN["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_MUN["PLANO DE AMOSTRAGEM"] - TAB_MUN["DESCONSIDERAÇÕES DO PLANO"] + TAB_MUN["RECONSIDERAÇÕES DO PLANO"]).astype(int)
 
     TAB_REALIZADAS_ACEITO          = TAB_REALIZADAS[TAB_REALIZADAS["ACEITO?"] == "Validado"]
     TAB_REALIZADAS_ACEITO_CONF     = TAB_REALIZADAS_ACEITO[TAB_REALIZADAS["CONFORMIDADE - ARSAL"] == "Conforme"]
@@ -7743,7 +7794,7 @@ def rel_iqa_iqe():
     TAB_MUN["IQA (%)"] = (((TAB_MUN["NAM CONF"]) / (TAB_MUN["NAM REALIZ"])) * 100).round(1)
 
     TAB_MUN_FINAL = TAB_MUN[[
-      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "MUNICÍPIO", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "EXPURGOS TOTAIS", "NAM REALIZ",
       "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF", "IQA (%)"
@@ -7753,6 +7804,7 @@ def rel_iqa_iqe():
     TAB_MUN_FINAL["IQA (%)"].iat[-1] = (((TAB_MUN_FINAL["NAM CONF"].iat[-1]) / (TAB_MUN_FINAL["NAM REALIZ"].iat[-1])) * 100).round(1)
 
     desc_plano = int(TAB_MUN_FINAL["DESCONSIDERAÇÕES DO PLANO"].iloc[-1])
+    recon_plano = int(TAB_MUN_FINAL["RECONSIDERAÇÕES DO PLANO"].iloc[-1])
 
     TAB_MUN_NCONF = TAB_MUN[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "CONF VI → NÃO CONF ARSAL", "NÃO CONF VI → CONF ARSAL", "NAM CONF"]]
     TAB_MUN_NCONF_VI = TAB_MUN[["MUNICÍPIO", "ANALISES REALIZADAS", "ANALISES CONFORMES"]]
@@ -7931,7 +7983,7 @@ def rel_iqa_iqe():
     TAB_MUN_RESUMIDA_VI_IQE.iloc[-1, TAB_MUN_RESUMIDA_VI_IQE.columns.get_loc("MUNICÍPIO")] = "TOTAL"
     TAB_MUN_RESUMIDA_VI_IQE["ANALISES REALIZADAS"] = TAB_MUN_RESUMIDA_VI_IQE["ANALISES REALIZADAS"].round(0)
 
-    return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_RESUMIDA_IQE, TAB_MUN_RESUMIDA_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE
+    return TAB_MUN_FINAL, TAB_MUN_RESUMIDA, TAB_MUN_RESUMIDA_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_RESUMIDA_IQE, TAB_MUN_RESUMIDA_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE
 
 
 
@@ -7962,9 +8014,21 @@ def rel_iqa_iqe():
       "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES DO PLANO"
     })
 
+    RECON_TIPO = (
+      BASE_MUN_TIPO_completo
+      .groupby("Parâmetros", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+    )
+    RECON_TIPO["Parâmetros"] = RECON_TIPO["Parâmetros"].map(mapa_parametros)
+    RECON_TIPO = DESC_TIPO.rename(columns={
+      "Parâmetros":              "ANÁLISE",
+      "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES DO PLANO"
+    })
+
     TAB_TIPO = TAB_TIPO.merge(DESC_TIPO, on="ANÁLISE", how="left")
     TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
-    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"]).astype(int)
+    TAB_TIPO["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype(int)
+    TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (TAB_TIPO["PLANO DE AMOSTRAGEM"] - TAB_TIPO["DESCONSIDERAÇÕES DO PLANO"] + TAB_TIPO["RECONSIDERAÇÕES DO PLANO"]).astype(int)
 
     TAB_REALIZADAS = TAB_REALIZADAS.replace("CLORO", "CLORO RESIDUAL LIVRE")
 
@@ -8073,7 +8137,7 @@ def rel_iqa_iqe():
     TAB_TIPO["IQA (%)"] = (((TAB_TIPO["NAM CONF"]) / (TAB_TIPO["NAM REALIZ"])) * 100).round(1)
 
     TAB_TIPO_FINAL = TAB_TIPO[[
-      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES",
       "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME", "NAM CONF"
@@ -8124,7 +8188,7 @@ def rel_iqa_iqe():
     TAB_TIPO_VI["IQA (%)"] = (((TAB_TIPO_VI["NAM CONF"]) / (TAB_TIPO_VI["NAM REALIZ"])) * 100).round(1)
 
     TAB_TIPO_FINAL_VI = TAB_TIPO_VI[[
-      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "NAM CONF"
     ]]
@@ -9400,7 +9464,7 @@ def rel_iqa_iqe():
 
     # PLAN_MUN_TIPO = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_PLANO')
 
-    PLAN_MUN_TIPO = PLAN_MUN_TIPO.rename(columns={'DESCONSIDERACOES - ARSAL' : 'DESCONSIDERAÇÕES - ARSAL'})
+    PLAN_MUN_TIPO = PLAN_MUN_TIPO.rename(columns={'DESCONSIDERACOES - ARSAL' : 'DESCONSIDERAÇÕES - ARSAL', 'RECONSIDERACOES - ARSAL' : 'RECONSIDERAÇÕES - ARSAL'})
 
     # AMOSTRAS_REALIZADAS = pd.read_excel ('ATT_SQL.xlsx', sheet_name='IQA_DETALHADO')
 
@@ -9765,7 +9829,7 @@ def rel_iqa_iqe():
       
 
     
-    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
+    TAB_MUN_FINAL, TAB_MUN_ARSAL, TAB_MUN_VI, desc_plano, recon_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI, TAB_MUN_FINAL_IQE, TAB_MUN_ARSAL_IQE, TAB_MUN_VI_IQE, desc_plano_IQE, TAB_MUN_NCONF_IQE, TAB_MUN_NCONF_VI_IQE = analise_mun(TAB_MUN, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_MUN_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     AN_TIPO, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, AN_TIPO_IQE, TAB_TIPO_FINAL_IQE, TAB_TIPO_RESUMIDA_VI_IQE, total_conf_vi_naoconf_arsal_IQE, total_naoconf_vi_conf_arsal_IQE  = analise_tipo(TAB_TIPO, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_TIPO_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
