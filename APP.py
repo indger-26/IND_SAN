@@ -5027,12 +5027,37 @@ def rel_iqa():
 
       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(DESC_POR_ID, left_on='ID', right_on='ID_POND', how='left')
       QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(RECON_POR_ID, left_on='ID', right_on='ID_POND', how='left')
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.drop(columns=["ID_POND"], errors="ignore")
-      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={"DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)"})
-      QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"].fillna(0).astype("Int64")
-      QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"].astype("object").replace(0, "")
-      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"].fillna(0).astype("Int64")
-      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"].astype("object").replace(0, "")
+      
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.drop(
+          columns=["ID_POND"],
+          errors="ignore"
+      )
+      
+      QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
+          "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)",
+          "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"
+      })
+      
+      QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = (
+          QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"]
+          .fillna(0).astype("Int64")
+      )
+      
+      QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"] = (
+          QUADRO_POND_REALIZ["DESCONSIDERAÇÕES (PLANO)"]
+          .astype("object").replace(0, "")
+      )
+      
+      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = (
+          QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"]
+          .fillna(0).astype("Int64")
+      )
+      
+      QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"] = (
+          QUADRO_POND_REALIZ["RECONSIDERAÇÕES (PLANO)"]
+          .astype("object").replace(0, "")
+      )
+
 
     else:
       QUADRO_POND_REALIZ = "SEM EXPURGOS"
