@@ -4155,10 +4155,10 @@ def rel_iqa():
 
   def var_doc (MES_ANO, ANO_CONTRAT, PRESTADORA, META, NCOF_P, NREA_P, IQA_P, NCOF_VI, NREA_VI, IQA_VI, FONTE_NREALIZ, FONTE_PLANO, FONT_NCONF, ACREDITAÇÃO, TAB_MUN_FINAL, QUADRO_POND_NCONF, QUADRO_POND_REALIZ, TAB_MUN_ARSAL, TAB_MUN_VI, TAB_TIPO_FINAL, TAB_TIPO_RESUMIDA_VI, MESMIN_ANO, total_conf_vi_naoconf_arsal, total_naoconf_vi_conf_arsal, desc_plano, TAB_MUN_NCONF, TAB_MUN_NCONF_VI):
 
-    NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype('Int64')
-    NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
-    NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype('Int64')
-    NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
+    NREA_ARSAL = (TAB_MUN_FINAL["NAM REALIZ"].iloc[-1]).astype(int)
+    NREA_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS TOTAIS"].iloc[-1]).astype(int)
+    NCONF_ARSAL = (TAB_MUN_FINAL["NAM CONF"].iloc[-1]).astype(int)
+    NCONF_EXPURGOS = (TAB_MUN_FINAL["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
     IQA_ARSAL = (NCONF_ARSAL/NREA_ARSAL)*100
     IQA_ARSAL_TXT = "100%" if IQA_ARSAL >= 99.95 else f"{IQA_ARSAL:.1f}%".replace('.', ',')
 
