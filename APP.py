@@ -1234,7 +1234,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
                   (iqe_detalhado2['ano_contratual'] == row['ano_contratual']) &
                   (
                       ~iqe_detalhado2['analise'].isin(['DBO', 'DQO', 'Materiais Flutuantes', 'Óleos e Graxas', 'pH', 'Temperatura'])
-                      if row['parametros'] == "Demais parâmetros"
+                      if row['parametros'] == "Demais Parâmetros"
                       else iqe_detalhado2['analise'] == row['parametros']
                   )
               ]['trimestre'].notna().sum()
@@ -1244,7 +1244,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
                   (iqe_detalhado2['ano_contratual'] == row['ano_contratual']) &
                   (
                       ~iqe_detalhado2['analise'].isin(['DBO', 'DQO', 'Materiais Flutuantes', 'Óleos e Graxas', 'pH', 'Temperatura'])
-                      if row['parametros'] == "Demais parâmetros"
+                      if row['parametros'] == "Demais Parâmetros"
                       else iqe_detalhado2['analise'] == row['parametros']
                   )
               ]['trimestre'].notna().sum()
@@ -1308,7 +1308,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
                 (iqe_detalhado2['resultado'] == "Conforme") &
                 (
                     ~iqe_detalhado2['analise'].isin(['DBO', 'DQO', 'Materiais Flutuantes', 'Óleos e Graxas', 'pH', 'Temperatura'])
-                    if row['parametros'] == "Demais parâmetros"
+                    if row['parametros'] == "Demais Parâmetros"
                     else iqe_detalhado2['analise'] == row['parametros']
                 )
             ]['trimestre'].notna().sum() - (row['expurgos_conformes'] if pd.notna(row['expurgos_conformes']) else 0)
@@ -1319,7 +1319,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
                 (iqe_detalhado2['resultado'] == "Conforme") &
                 (
                     ~iqe_detalhado2['analise'].isin(['DBO', 'DQO', 'Materiais Flutuantes', 'Óleos e Graxas', 'pH', 'Temperatura'])
-                    if row['parametros'] == "Demais parâmetros"
+                    if row['parametros'] == "Demais Parâmetros"
                     else iqe_detalhado2['analise'] == row['parametros']
                 )
             ]['trimestre'].notna().sum() - (row['expurgos_conformes'] if pd.notna(row['expurgos_conformes']) else 0)
@@ -1336,7 +1336,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
             (iqe_detalhado2['expurgos'] == "EXPURGAR") &
             ~iqe_detalhado2['analise'].isin(['DBO', 'DQO', 'Materiais Flutuantes', 'Óleos e Graxas', 'pH', 'Temperatura'])
         ].shape[0]
-    ) if row['parametros'] == "Demais parâmetros" else (
+    ) if row['parametros'] == "Demais Parâmetros" else (
         iqe_detalhado2[
             (iqe_detalhado2['trimestre'] == row['trimestre']) &
             (iqe_detalhado2['ano_contratual'] == row['ano_contratual']) &
@@ -1495,7 +1495,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
     plano_final_iqe['expurgos'] = plano_final_iqe.apply(
       lambda row: (
-          iqe_detalhado[
+          iqe_detalhado2[
               (iqe_detalhado2['trimestre'] == row['trimestre']) &
               (iqe_detalhado2['ano_contratual'] == row['ano_contratual']) &
               (iqe_detalhado2['cidade'] == row['cidade']) &
@@ -1520,7 +1520,7 @@ def criar_tabelas (prestadora_sigla, ano, ano_contratual, mes, iqa_prest, iqa_vi
 
     plano_final_iqe['expurgos_conf'] = plano_final_iqe.apply(
       lambda row: (
-          iqe_detalhado[
+          iqe_detalhado2[
               (iqe_detalhado2['trimestre'] == row['trimestre']) &
               (iqe_detalhado2['ano_contratual'] == row['ano_contratual']) &
               (iqe_detalhado2['cidade'] == row['cidade']) &
@@ -6183,6 +6183,7 @@ def rel_iqa_iqe():
     arquivo_saida  = "PLANO_TRATADO_IQE.xlsx"
     coluna_valor   = "PLANO"
     coluna_desc    = "DESCONSIDERAÇÕES - ARSAL"
+    coluna_recons  = "RECONSIDERAÇÕES - ARSAL"
     coluna_id_pond = "ID_POND"
 
     BASE_MUN_TIPO_IQE = PLAN_MUN_TIPO_IQE
@@ -6224,6 +6225,7 @@ def rel_iqa_iqe():
       **{
         coluna_valor : (coluna_valor, "sum"),
         coluna_desc  : (coluna_desc,  "sum"),
+        coluna_recons : (coluna_recons, "sum"),
       }
     )
 
@@ -6245,6 +6247,7 @@ def rel_iqa_iqe():
     )
     BASE_MUN_TIPO_IQE_principais[coluna_valor] = BASE_MUN_TIPO_IQE_principais[coluna_valor].fillna(0)
     BASE_MUN_TIPO_IQE_principais[coluna_desc]  = BASE_MUN_TIPO_IQE_principais[coluna_desc].fillna(0)
+    BASE_MUN_TIPO_IQE_principais[coluna_recons] = BASE_MUN_TIPO_IQE_principais[coluna_recons].fillna(0)
 
     BASE_COM_ID_IQE = BASE_MUN_TIPO_IQE_agrupado[
       BASE_MUN_TIPO_IQE_agrupado[coluna_id_pond] != ""
@@ -8331,7 +8334,7 @@ def rel_iqa_iqe():
               '$ACREDITA_IQE': str (ACREDITA_IQE),
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
               '$QUADRO__NREA_OBS_IQE': "" if sem_exp_rea_iqe else QUADRO_POND_REALIZ_IQE,
-              '$QUADRO__NCONF_OBS_IQE': "" if sem_exp_conf_iqe else QUADRO_POND_NCONF_IQE,
+              '$QUADRO__NCONF_OBS_IQE': (QUADRO_POND_NCONF_IQE if tem_ponderacoes_conf_iqe else ""),
               '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
               '$QUADRO__NREA_ARSAL_IQE': TAB_MUN_ARSAL_IQE,
               '$QUADRO__NCONF_VI_IQE': TAB_TIPO_RESUMIDA_VI_IQE,
@@ -9250,10 +9253,25 @@ def rel_iqa_iqe():
       "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES DO PLANO"
     })
 
+    RECON_TIPO_IQE = (
+      BASE_MUN_TIPO_IQE_completo
+      .groupby("Parâmetros", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
+      .sum()
+    )
+    RECON_TIPO_IQE["Parâmetros"] = RECON_TIPO_IQE["Parâmetros"].map(mapa_parametros_IQE)
+    RECON_TIPO_IQE = RECON_TIPO_IQE.rename(columns={
+      "Parâmetros":               "ANÁLISE",
+      "RECONSIDERAÇÕES - ARSAL":  "RECONSIDERAÇÕES DO PLANO"
+    })
+
     TAB_TIPO_IQE = TAB_TIPO_IQE.merge(DESC_TIPO_IQE, on="ANÁLISE", how="left")
+    TAB_TIPO_IQE = TAB_TIPO_IQE.merge(RECON_TIPO_IQE, on="ANÁLISE", how="left")
     TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"] = TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
+    TAB_TIPO_IQE["RECONSIDERAÇÕES DO PLANO"] = TAB_TIPO_IQE["RECONSIDERAÇÕES DO PLANO"].fillna(0).astype('Int64')
     TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"] = (
-      TAB_TIPO_IQE["PLANO DE AMOSTRAGEM"] - TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"]
+      TAB_TIPO_IQE["PLANO DE AMOSTRAGEM"]
+      - TAB_TIPO_IQE["DESCONSIDERAÇÕES DO PLANO"]
+      + TAB_TIPO_IQE["RECONSIDERAÇÕES DO PLANO"]
     ).astype('Int64')
 
     TAB_REALIZADAS_IQE['ANÁLISE'] = np.where(
@@ -9345,7 +9363,7 @@ def rel_iqa_iqe():
     ).round(1)
 
     TAB_TIPO_FINAL_IQE = TAB_TIPO_IQE[[
-      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES",
       "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME", "NAM CONF"
@@ -9405,7 +9423,7 @@ def rel_iqa_iqe():
     ).round(1)
 
     TAB_TIPO_FINAL_VI_IQE = TAB_TIPO_VI_IQE[[
-      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO",
+      "ANÁLISE", "PLANO DE AMOSTRAGEM", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
       "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL",
       "ANALISES REALIZADAS", "ANALISES CONFORMES", "EXPURGOS CONFORMES", "NAM CONF"
     ]]
@@ -10889,6 +10907,7 @@ def rel_iqa_iqe():
 
     PLAN_MUN_TIPO_IQE = PLAN_MUN_TIPO_IQE.rename(columns={
     'desconsideracoes_arsal': 'DESCONSIDERAÇÕES - ARSAL',
+    'reconsideracoes_arsal': 'RECONSIDERAÇÕES - ARSAL',
     'id_pond': 'ID_POND',
     'plano': 'PLANO',
     'ETE': 'SES',
