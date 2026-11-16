@@ -8133,44 +8133,80 @@ def rel_iqa_iqe():
     def validar(valor):
         return valor if valor is not None else ""
 
-    # ---------------------------------------------------------
-    # NAM REALIZ: IIQE1 A IIQE7
-    # ---------------------------------------------------------
+    
+    # =========================================================
+    # IQE: TEXTOS CONDICIONAIS - NAM REALIZ
+    # =========================================================
 
-    sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)
+    # Verifica se existem alterações no NAM REALIZ
+    tem_expurgos_rea_iqe = _num(NREA_EXPURGOS_IQE) != 0
+    tem_desconsideracoes_iqe = _num(desc_plano_IQE) != 0
+    tem_reconsideracoes_iqe = _num(recon_plano_IQE) != 0
 
-    IIQE1 = "" if sem_exp_rea_iqe else (
-        "Para facilitar a compreensão das ações adotadas na análise do indicador, "
-        "o quadro a seguir apresenta, de forma sequencial, as observações "
-        "registradas pela prestadora, os entendimentos do Verificador "
-        "Independente e o posicionamento final dos setores técnicos, incluindo "
-        "os detalhamentos das tratativas realizadas e o quantitativo de "
-        "expurgos considerados cabíveis."
+    tem_alteracoes_rea_iqe = (
+        tem_expurgos_rea_iqe
+        or tem_desconsideracoes_iqe
+        or tem_reconsideracoes_iqe
     )
 
-    IIQE2 = "" if sem_exp_rea_iqe else (
-        "Quadro - Ponderações elaboradas pelo Verificador Independente "
-        "e posicionamento destas setoriais."
+    # Verifica se existem ponderações textuais efetivas
+    tem_ponderacoes_rea_iqe = (
+        isinstance(QUADRO_POND_REALIZ_IQE, pd.DataFrame)
+        and any(
+            QUADRO_POND_REALIZ_IQE[col].fillna("").astype(str).str.strip().ne("").any()
+            for col in [
+                "PONDERAÇÕES (PRESTADORA)",
+                "PONDERAÇÕES (VI)",
+                "PONDERAÇÕES (ARSAL)"
+            ]
+        )
     )
 
-    IIQE3 = "" if sem_exp_rea_iqe else (
+    # IIQE1
+    IIQE1 = "" if not tem_alteracoes_rea_iqe else (
+        "Para facilitar a compreensão das alterações adotadas na análise "
+        "do indicador, são apresentados a seguir os registros das "
+        "ponderações, quando existentes, bem como os ajustes realizados "
+        "por estas setoriais no plano de amostragem."
+    )
+
+    # IIQE2
+    if tem_ponderacoes_rea_iqe:
+        IIQE2 = (
+            "Quadro - Ponderações elaboradas pelo Verificador Independente "
+            "e posicionamento destas setoriais."
+        )
+    elif tem_alteracoes_rea_iqe:
+        IIQE2 = (
+            "Quadro - Ajustes no plano de amostragem considerados por "
+            "estas setoriais."
+        )
+    else:
+        IIQE2 = ""
+
+    # IIQE3
+    IIQE3 = "" if not tem_alteracoes_rea_iqe else (
         "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
     )
 
-    IIQE4 = "" if sem_exp_rea_iqe else (
+    # IIQE4
+    IIQE4 = "" if not tem_alteracoes_rea_iqe else (
         "Diante do exposto, segue o panorama ajustado para o componente "
-        "“Nam Realiz”, modificado por estas setoriais mediante as "
-        "observações mencionadas acima:"
+        "“Nam Realiz”, considerando as alterações realizadas por estas "
+        "setoriais."
     )
 
-    IIQE5 = "" if sem_exp_rea_iqe else (
+    # IIQE5
+    IIQE5 = "" if not tem_alteracoes_rea_iqe else (
         "Quadro - Contabilização do componente “Nam Realiz” do IQE, "
         "ajustado por estas setoriais."
     )
 
-    IIQE6 = "" if sem_exp_rea_iqe else (
+    # IIQE6
+    IIQE6 = "" if not tem_alteracoes_rea_iqe else (
         "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
     )
+
 
     # Verificação das alterações no NAM REALIZ
     tem_expurgos_rea_iqe = NREA_EXPURGOS_IQE != 0
@@ -8219,18 +8255,19 @@ def rel_iqa_iqe():
                 f"ao plano de amostragem ajustado pelo Verificador Independente."
             )
 
+    
     # ---------------------------------------------------------
     # NAM CONF: IIQE8 A IIQE15
     # ---------------------------------------------------------
 
-    # Existem ponderações a apresentar?
+    # Existem ponderações efetivamente apresentadas no quadro?
     tem_ponderacoes_conf_iqe = (
         isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
         and not QUADRO_POND_NCONF_IQE.empty
     )
 
     # Existem expurgos de amostras conformes?
-    tem_expurgos_conf_iqe = NCONF_EXPURGOS_IQE != 0
+    tem_expurgos_conf_iqe = _num(NCONF_EXPURGOS_IQE) != 0
 
     # Existem conversões entre Conforme e Não Conforme?
     tem_conversao_conf_nao_conf_iqe = (
@@ -8246,13 +8283,20 @@ def rel_iqa_iqe():
         or tem_conversao_nao_conf_conf_iqe
     )
 
+    # Existem alterações no NAM CONF?
+    tem_alteracoes_conf_iqe = (
+        tem_ponderacoes_conf_iqe
+        or tem_expurgos_conf_iqe
+        or tem_conversoes_conf_iqe
+    )
+
     # ---------------------------------------------------------
     # IIQE8 A IIQE13 E IIQE15
     # ---------------------------------------------------------
 
     if tem_ponderacoes_conf_iqe:
 
-        # Com ponderações: apresenta os quadros normalmente
+        # Com ponderações: apresenta os quadros normalmente.
 
         IIQE8 = (
             "As observações apresentadas pelo Verificador Independente, "
@@ -8285,7 +8329,7 @@ def rel_iqa_iqe():
             "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
         )
 
-        # Alerta adicional somente quando houver conversões
+        # Alerta adicional somente quando houver conversões.
         if tem_conversoes_conf_iqe:
 
             IIQE_15 = (
@@ -8340,11 +8384,7 @@ def rel_iqa_iqe():
     # IIQE14: RESULTADO DO NAM CONF
     # ---------------------------------------------------------
 
-    if (
-        tem_ponderacoes_conf_iqe
-        or tem_expurgos_conf_iqe
-        or tem_conversoes_conf_iqe
-    ):
+    if tem_alteracoes_conf_iqe:
 
         partes_14_iqe = [
             (
@@ -8356,7 +8396,7 @@ def rel_iqa_iqe():
             )
         ]
 
-        # Expurgos de amostras conformes
+        # Expurgos de amostras conformes.
         if tem_expurgos_conf_iqe:
             partes_14_iqe.append(
                 f"Para tanto, foram expurgadas "
@@ -8365,7 +8405,7 @@ def rel_iqa_iqe():
                 f"Verificador Independente."
             )
 
-        # Conversões de Conforme para Não Conforme
+        # Conversões de Conforme para Não Conforme.
         if tem_conversao_conf_nao_conf_iqe:
             partes_14_iqe.append(
                 f"Houve a conversão de "
@@ -8374,7 +8414,7 @@ def rel_iqa_iqe():
                 f"para não conformes (ARSAL)."
             )
 
-        # Conversões de Não Conforme para Conforme
+        # Conversões de Não Conforme para Conforme.
         if tem_conversao_nao_conf_conf_iqe:
             partes_14_iqe.append(
                 f"Houve a conversão de "
@@ -8383,7 +8423,7 @@ def rel_iqa_iqe():
                 f"para conformes (ARSAL)."
             )
 
-        # Ponderações sem impacto no quantitativo
+        # Ponderações sem impacto no quantitativo.
         if (
             tem_ponderacoes_conf_iqe
             and not tem_expurgos_conf_iqe
@@ -8404,6 +8444,7 @@ def rel_iqa_iqe():
             "técnicos apresentam concordância com o valor apresentado "
             "pelo Verificador Independente para o referido componente."
         )
+
 
 
 
@@ -10087,6 +10128,13 @@ def rel_iqa_iqe():
         (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - VI"].notna()) &
         (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - ARSAL"] == "Conforme")
     ]
+
+        # Padroniza os identificadores antes dos cruzamentos do IQE
+    TAB_POND_IQE["ID"] = pd.to_numeric(TAB_POND_IQE["ID"], errors="coerce").astype("Int64")
+
+    TAB_REALIZADAS_IQE["ID_POND"] = pd.to_numeric(TAB_REALIZADAS_IQE["ID_POND"], errors="coerce").astype("Int64")
+
+    DESC_POR_ID_IQE["ID_POND"] = pd.to_numeric(DESC_POR_ID_IQE["ID_POND"], errors="coerce").astype("Int64")
 
     QUADRO_POND_NCONF_IQE = TAB_POND_IQE.copy()
     QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.rename(columns={
