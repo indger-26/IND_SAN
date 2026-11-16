@@ -8100,238 +8100,105 @@ def rel_iqa_iqe():
 
     
     # =========================================================
-    # IQE: APURAÇÃO DOS RESULTADOS E TEXTOS CONDICIONAIS
-    # MESMA LÓGICA UTILIZADA NO IQA
+    # IQE: MESMA LÓGICA DO IQA
     # =========================================================
 
-    NREA_ARSAL_IQE = _num(TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1])
-    NREA_EXPURGOS_IQE = _num(TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1])
-    NCONF_ARSAL_IQE = _num(TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1])
-    NCONF_EXPURGOS_IQE = _num(TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1])
+    NREA_ARSAL_IQE = int(_num(TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]))
+    NREA_EXPURGOS_IQE = int(_num(TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]))
+    NCONF_ARSAL_IQE = int(_num(TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]))
+    NCONF_EXPURGOS_IQE = int(_num(TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]))
 
-    # Resultado do IQE calculado pela ARSAL
-    IQE_ARSAL = (
-        (NCONF_ARSAL_IQE / NREA_ARSAL_IQE) * 100
-        if NREA_ARSAL_IQE != 0 else 0
-    )
+    IQE_ARSAL = (NCONF_ARSAL_IQE / NREA_ARSAL_IQE) * 100 if NREA_ARSAL_IQE != 0 else 0
+    IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace(".", ",")
+    IS_SATISF_IQE = "satisfatório" if str(IQE_VI).strip() == IQE_ARSAL_TXT.strip() else "divergente"
 
-    IQE_ARSAL_TXT = (
-        "100%" if IQE_ARSAL >= 99.95
-        else f"{IQE_ARSAL:.1f}%".replace(".", ",")
-    )
+    sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)    # $QUADRO__NREA_OBS_IQE
 
-    IS_SATISF_IQE = (
-        "satisfatório"
-        if str(IQE_VI).strip() == IQE_ARSAL_TXT.strip()
-        else "divergente"
-    )
+    # ---- Nam Realiz: IIQE1 a IIQE6 (mesma condição do IQA) ----
+    IIQE1 = "" if sem_exp_rea_iqe else (
+        "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
+        "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
+        "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
+        "realizadas e o quantitativo de expurgos considerados cabíveis.")
 
-    # ---------------------------------------------------------
-    # FUNÇÕES AUXILIARES
-    # ---------------------------------------------------------
+    IIQE2 = "" if sem_exp_rea_iqe else (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
 
-    def validar(valor):
-        return valor if valor is not None else ""
+    IIQE3 = "" if sem_exp_rea_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
 
-    
-    # =========================================================
-    # IQE: TEXTOS CONDICIONAIS - NAM REALIZ
-    # =========================================================
+    IIQE4 = "" if sem_exp_rea_iqe else (
+        "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
+        "setoriais mediante as observações mencionadas acima:")
 
-    # Verifica se existem alterações no NAM REALIZ
+    IIQE5 = "" if sem_exp_rea_iqe else (
+        "Quadro - Contabilização do componente “Nam Realiz” do IQE, ajustado por estas setoriais.")
+
+    IIQE6 = "" if sem_exp_rea_iqe else "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
+
+    # ---- Nam Realiz: IIQE7 ----
     tem_expurgos_rea_iqe = _num(NREA_EXPURGOS_IQE) != 0
     tem_desconsideracoes_iqe = _num(desc_plano_IQE) != 0
     tem_reconsideracoes_iqe = _num(recon_plano_IQE) != 0
 
-    tem_alteracoes_rea_iqe = (
-        tem_expurgos_rea_iqe
-        or tem_desconsideracoes_iqe
-        or tem_reconsideracoes_iqe
-    )
-
-    # Verifica se existem ponderações textuais efetivas
-    tem_ponderacoes_rea_iqe = (
-        isinstance(QUADRO_POND_REALIZ_IQE, pd.DataFrame)
-        and any(
-            QUADRO_POND_REALIZ_IQE[col].fillna("").astype(str).str.strip().ne("").any()
-            for col in [
-                "PONDERAÇÕES (PRESTADORA)",
-                "PONDERAÇÕES (VI)",
-                "PONDERAÇÕES (ARSAL)"
-            ]
-        )
-    )
-
-    # IIQE1
-    IIQE1 = "" if not tem_alteracoes_rea_iqe else (
-        "Para facilitar a compreensão das alterações adotadas na análise "
-        "do indicador, são apresentados a seguir os registros das "
-        "ponderações, quando existentes, bem como os ajustes realizados "
-        "por estas setoriais no plano de amostragem."
-    )
-
-    # IIQE2
-    if tem_ponderacoes_rea_iqe:
-        IIQE2 = (
-            "Quadro - Ponderações elaboradas pelo Verificador Independente "
-            "e posicionamento destas setoriais."
-        )
-    elif tem_alteracoes_rea_iqe:
-        IIQE2 = (
-            "Quadro - Ajustes no plano de amostragem considerados por "
-            "estas setoriais."
+    if not (tem_expurgos_rea_iqe or tem_desconsideracoes_iqe or tem_reconsideracoes_iqe):
+        IIQE7 = (
+            "Mediante análise das informações fornecidas, estes setores técnicos "
+            "apresentam concordância com o valor apresentado pelo Verificador "
+            "Independente para o referido componente."
         )
     else:
-        IIQE2 = ""
-
-    # IIQE3
-    IIQE3 = "" if not tem_alteracoes_rea_iqe else (
-        "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
-    )
-
-    # IIQE4
-    IIQE4 = "" if not tem_alteracoes_rea_iqe else (
-        "Diante do exposto, segue o panorama ajustado para o componente "
-        "“Nam Realiz”, considerando as alterações realizadas por estas "
-        "setoriais."
-    )
-
-    # IIQE5
-    IIQE5 = "" if not tem_alteracoes_rea_iqe else (
-        "Quadro - Contabilização do componente “Nam Realiz” do IQE, "
-        "ajustado por estas setoriais."
-    )
-
-    # IIQE6
-    IIQE6 = "" if not tem_alteracoes_rea_iqe else (
-        "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
-    )
-
-
-    # Verificação das alterações no NAM REALIZ
-    tem_expurgos_rea_iqe = NREA_EXPURGOS_IQE != 0
-    tem_desconsideracoes_iqe = _num(desc_plano_IQE) != 0
-    tem_reconsideracoes_iqe = _num(recon_plano_IQE) != 0
-
-    if not (
-        tem_expurgos_rea_iqe
-        or tem_desconsideracoes_iqe
-        or tem_reconsideracoes_iqe
-    ):
-
         IIQE7 = (
-            "Mediante análise das informações fornecidas, estes setores "
-            "técnicos apresentam concordância com o valor apresentado "
-            "pelo Verificador Independente para o referido componente."
+            f"Dessa forma, a análise destas setoriais contabiliza o valor do "
+            f"componente “Nam Realiz”, passando de {formata_milhar(NREA_VI_IQE)} "
+            f"(Fipe) para {formata_milhar(NREA_ARSAL_IQE)}."
         )
-
-    else:
-
-        IIQE7 = (
-            f"Dessa forma, a análise destas setoriais contabiliza o valor "
-            f"do componente “Nam Realiz”, passando de "
-            f"{formata_milhar(NREA_VI_IQE)} (Verificador Independente) "
-            f"para {formata_milhar(NREA_ARSAL_IQE)}."
-        )
-
         if tem_expurgos_rea_iqe:
             IIQE7 += (
-                f" Para tanto, foram aplicadas "
-                f"{formata_milhar(NREA_EXPURGOS_IQE)} amostras expurgadas."
+                f" Para tanto, foram aplicadas {formata_milhar(NREA_EXPURGOS_IQE)} "
+                f"amostras expurgadas."
             )
-
         if tem_desconsideracoes_iqe:
             IIQE7 += (
-                f" Além disso, no plano de amostragem ajustado por esta "
-                f"agência reguladora, houve a desconsideração de "
-                f"{formata_milhar(desc_plano_IQE)} amostras em relação "
-                f"ao plano de amostragem ajustado pelo Verificador Independente."
+                f" Além disso, no plano de amostragem ajustado por esta agência "
+                f"reguladora, houve a desconsideração de "
+                f"{formata_milhar(desc_plano_IQE)} amostras em relação ao plano de "
+                f"amostragem ajustado pelo Verificador Independente."
             )
-
         if tem_reconsideracoes_iqe:
             IIQE7 += (
                 f" Ademais, houve a reconsideração de "
-                f"{formata_milhar(recon_plano_IQE)} amostras em relação "
-                f"ao plano de amostragem ajustado pelo Verificador Independente."
+                f"{formata_milhar(recon_plano_IQE)} amostras em relação ao plano de "
+                f"amostragem ajustado pelo Verificador Independente."
             )
 
-    
-    # ---------------------------------------------------------
-    # NAM CONF: IIQE8 A IIQE15
-    # ---------------------------------------------------------
-
-    # Existem ponderações efetivamente apresentadas no quadro?
+    # ---- Nam Conf: IIQE8 a IIQE_15 ----
     tem_ponderacoes_conf_iqe = (
         isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
         and not QUADRO_POND_NCONF_IQE.empty
     )
-
-    # Existem expurgos de amostras conformes?
     tem_expurgos_conf_iqe = _num(NCONF_EXPURGOS_IQE) != 0
-
-    # Existem conversões entre Conforme e Não Conforme?
-    tem_conversao_conf_nao_conf_iqe = (
-        _num(total_conf_vi_naoconf_arsal_IQE) != 0
-    )
-
-    tem_conversao_nao_conf_conf_iqe = (
-        _num(total_naoconf_vi_conf_arsal_IQE) != 0
-    )
-
-    tem_conversoes_conf_iqe = (
-        tem_conversao_conf_nao_conf_iqe
-        or tem_conversao_nao_conf_conf_iqe
-    )
-
-    # Existem alterações no NAM CONF?
-    tem_alteracoes_conf_iqe = (
-        tem_ponderacoes_conf_iqe
-        or tem_expurgos_conf_iqe
-        or tem_conversoes_conf_iqe
-    )
-
-    # ---------------------------------------------------------
-    # IIQE8 A IIQE13 E IIQE15
-    # ---------------------------------------------------------
+    tem_conversao_conf_nao_conf_iqe = _num(total_conf_vi_naoconf_arsal_IQE) != 0
+    tem_conversao_nao_conf_conf_iqe = _num(total_naoconf_vi_conf_arsal_IQE) != 0
+    tem_conversoes_conf_iqe = tem_conversao_conf_nao_conf_iqe or tem_conversao_nao_conf_conf_iqe
 
     if tem_ponderacoes_conf_iqe:
-
-        # Com ponderações: apresenta os quadros normalmente.
-
         IIQE8 = (
             "As observações apresentadas pelo Verificador Independente, "
             "juntamente com o entendimento a elas associado, tanto pelo "
             "próprio verificador quanto por esta setorial, encontram-se "
             "no quadro abaixo."
         )
-
-        IIQE9 = (
-            "Quadro - Ponderações elaboradas pelo Verificador Independente "
-            "e posicionamento destas setoriais."
-        )
-
-        IIQE_10 = (
-            "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
-        )
-
+        IIQE9 = "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
+        IIQE_10 = "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
         IIQE_11 = (
             "Diante dos fatos mencionados, segue o panorama ajustado para "
             "o componente “Nam conf”, modificado por estas setoriais "
             "mediante as observações elencadas acima:"
         )
+        IIQE_12 = "Quadro - Contabilização do componente “Nam Conf” do IQE, ajustado por estas setoriais."
+        IIQE_13 = "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
 
-        IIQE_12 = (
-            "Quadro - Contabilização do componente “Nam Conf” do IQE, "
-            "ajustado por estas setoriais."
-        )
-
-        IIQE_13 = (
-            "Fonte: Adaptado do arquivo Eletrônico IQE. Elaboração: ARSAL."
-        )
-
-        # Alerta adicional somente quando houver conversões.
         if tem_conversoes_conf_iqe:
-
             IIQE_15 = (
                 "Ressalta-se que as conversões de análises conformes para "
                 "não conformes, e vice-versa, que não estejam contempladas "
@@ -8341,15 +8208,10 @@ def rel_iqa_iqe():
                 "ser consultadas na base de dados encaminhada juntamente "
                 "com este relatório."
             )
-
         else:
             IIQE_15 = ""
 
     elif tem_conversoes_conf_iqe:
-
-        # Sem ponderações, mas com conversões:
-        # apresenta somente o alerta de reclassificação.
-
         IIQE8 = (
             "Ressalta-se que as conversões de análises conformes para "
             "não conformes, e vice-versa, identificadas na análise do "
@@ -8359,86 +8221,43 @@ def rel_iqa_iqe():
             "ser consultadas na base de dados encaminhada juntamente "
             "com este relatório."
         )
-
-        IIQE9 = ""
-        IIQE_10 = ""
-        IIQE_11 = ""
-        IIQE_12 = ""
-        IIQE_13 = ""
-        IIQE_15 = ""
+        IIQE9 = IIQE_10 = IIQE_11 = IIQE_12 = IIQE_13 = IIQE_15 = ""
 
     else:
+        IIQE8 = IIQE9 = IIQE_10 = IIQE_11 = IIQE_12 = IIQE_13 = IIQE_15 = ""
 
-        # Sem ponderações e sem conversões:
-        # não apresenta os quadros nem o alerta.
-
-        IIQE8 = ""
-        IIQE9 = ""
-        IIQE_10 = ""
-        IIQE_11 = ""
-        IIQE_12 = ""
-        IIQE_13 = ""
-        IIQE_15 = ""
-
-    # ---------------------------------------------------------
-    # IIQE14: RESULTADO DO NAM CONF
-    # ---------------------------------------------------------
-
-    if tem_alteracoes_conf_iqe:
-
+    # ---- IIQE_14 ----
+    if tem_ponderacoes_conf_iqe or tem_expurgos_conf_iqe or tem_conversoes_conf_iqe:
         partes_14_iqe = [
-            (
-                f"Dessa forma, dada a análise destas setoriais, "
-                f"o valor do componente “Nam conf” passa de "
-                f"{formata_milhar(NCOF_VI_IQE)} "
-                f"(Verificador Independente) para "
-                f"{formata_milhar(NCONF_ARSAL_IQE)}."
-            )
+            f"Dessa forma, dada a análise destas setoriais, "
+            f"o valor do componente “Nam conf” passa de "
+            f"{formata_milhar(NCOF_VI_IQE)} (Verificador Independente) "
+            f"para {formata_milhar(NCONF_ARSAL_IQE)}."
         ]
-
-        # Expurgos de amostras conformes.
         if tem_expurgos_conf_iqe:
             partes_14_iqe.append(
-                f"Para tanto, foram expurgadas "
-                f"{formata_milhar(NCONF_EXPURGOS_IQE)} amostras "
-                f"anteriormente consideradas conformes pelo "
+                f"Para tanto, foram expurgadas {formata_milhar(NCONF_EXPURGOS_IQE)} "
+                f"amostras anteriormente consideradas conformes pelo "
                 f"Verificador Independente."
             )
-
-        # Conversões de Conforme para Não Conforme.
         if tem_conversao_conf_nao_conf_iqe:
             partes_14_iqe.append(
-                f"Houve a conversão de "
-                f"{formata_milhar(total_conf_vi_naoconf_arsal_IQE)} "
-                f"amostras de conformes (Verificador Independente) "
-                f"para não conformes (ARSAL)."
+                f"Houve a conversão de {formata_milhar(total_conf_vi_naoconf_arsal_IQE)} "
+                f"amostras de conformes (Verificador Independente) para não conformes (ARSAL)."
             )
-
-        # Conversões de Não Conforme para Conforme.
         if tem_conversao_nao_conf_conf_iqe:
             partes_14_iqe.append(
-                f"Houve a conversão de "
-                f"{formata_milhar(total_naoconf_vi_conf_arsal_IQE)} "
-                f"amostras de não conformes (Verificador Independente) "
-                f"para conformes (ARSAL)."
+                f"Houve a conversão de {formata_milhar(total_naoconf_vi_conf_arsal_IQE)} "
+                f"amostras de não conformes (Verificador Independente) para conformes (ARSAL)."
             )
-
-        # Ponderações sem impacto no quantitativo.
-        if (
-            tem_ponderacoes_conf_iqe
-            and not tem_expurgos_conf_iqe
-            and not tem_conversoes_conf_iqe
-        ):
+        if tem_ponderacoes_conf_iqe and not tem_expurgos_conf_iqe and not tem_conversoes_conf_iqe:
             partes_14_iqe.append(
                 "Embora tenham sido registradas ponderações, não houve "
                 "expurgos ou conversões que alterassem o quantitativo "
                 "de amostras conformes."
             )
-
         IIQE_14 = " ".join(partes_14_iqe)
-
     else:
-
         IIQE_14 = (
             "Mediante análise das informações fornecidas, estes setores "
             "técnicos apresentam concordância com o valor apresentado "
@@ -8695,7 +8514,7 @@ def rel_iqa_iqe():
               '$FONTE__NCONF_IQE': str(FONT_NCONF_IQE),
               '$ACREDITA_IQE': str (ACREDITA_IQE),
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
-              '$QUADRO__NREA_OBS_IQE': "" if not tem_alteracoes_rea_iqe else QUADRO_POND_REALIZ_IQE,
+              '$QUADRO__NREA_OBS_IQE': "" if sem_exp_rea_iqe else QUADRO_POND_REALIZ_IQE,
               '$QUADRO__NCONF_OBS_IQE': (QUADRO_POND_NCONF_IQE if tem_ponderacoes_conf_iqe else ""),
               '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
               '$QUADRO__NREA_ARSAL_IQE': TAB_MUN_ARSAL_IQE,
@@ -9804,418 +9623,114 @@ def rel_iqa_iqe():
 
   def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo):
 
-    # IQA
+    COLS_TXT = ["PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"]
 
-    # =========================================================
-    # 1. VERIFICA SE EXISTEM PONDERAÇÕES
-    # =========================================================
+    # célula "vazia": NaN, "", "0" (fillna(0) das planilhas), "nan"...
+    def _vazio(s):
+      return s.isna() | s.astype(str).str.strip().isin(["", "0", "0.0", "nan", "None", "<NA>"])
 
-    colunas_ponderacao = TAB_POND.columns[1:4]
+    def _renomeia(tab):
+      q = tab.copy()
+      q = q.rename(columns={
+          q.columns[0]: "ID",
+          q.columns[1]: COLS_TXT[0],
+          q.columns[2]: COLS_TXT[1],
+          q.columns[3]: COLS_TXT[2],
+      })
+      q["ID"] = pd.to_numeric(q["ID"], errors="coerce").astype("Int64")
+      return q
 
-    tem_ponderacoes = (
-        TAB_POND[colunas_ponderacao]
-        .apply(
-            lambda col: (
-                col.notna() &
-                col.astype(str).str.strip().ne("")
-            )
-        )
-        .any()
-        .any()
-    )
+    def _tem_ponderacoes(q):
+      return bool((~q[COLS_TXT].apply(_vazio)).any().any())
 
-    if not tem_ponderacoes:
+    def _conta(df, nome):
+      c = (df.groupby("ID_POND").size().reset_index(name=nome)
+             .rename(columns={"ID_POND": "ID"}))
+      c["ID"] = c["ID"].astype("Int64")
+      return c
+
+    def _fmt(q, col):
+      q[col] = q[col].fillna(0).astype("Int64").astype("object").replace(0, "")
+      return q
+
+    # Mesma lógica para IQA e IQE
+    def _quadros(TAB_POND, TAB_REALIZADAS, BASE_PLANO):
+
+      q_base = _renomeia(TAB_POND)
+
+      # Sem ponderações -> "SEM EXPURGOS" (o var_doc apaga as linhas/quadros)
+      if not _tem_ponderacoes(q_base):
         return "SEM EXPURGOS", "SEM EXPURGOS"
 
-    # =========================================================
-    # 2. PREPARAÇÃO DAS BASES
-    # =========================================================
-
-    TAB_REALIZADAS = TAB_REALIZADAS.copy()
-    BASE_MUN_TIPO_completo = BASE_MUN_TIPO_completo.copy()
-
-    TAB_REALIZADAS["ID_POND"] = (
-        TAB_REALIZADAS["ID_POND"]
-        .fillna(0)
-    )
-
-    BASE_MUN_TIPO_completo["ID_POND"] = (
-        BASE_MUN_TIPO_completo["ID_POND"]
-        .fillna("")
-        .astype(str)
-        .str.strip()
-    )
-
-    # Desconsiderações por ID
-    DESC_POR_ID = (
-        BASE_MUN_TIPO_completo[
-            BASE_MUN_TIPO_completo["ID_POND"] != ""
-        ]
-        .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
-        .sum()
-    )
-
-    DESC_POR_ID["ID_POND"] = (
-        pd.to_numeric(DESC_POR_ID["ID_POND"], errors="coerce")
-        .astype("Int64")
-    )
-
-    # Reconsiderações por ID
-    RECON_POR_ID = (
-        BASE_MUN_TIPO_completo[
-            BASE_MUN_TIPO_completo["ID_POND"] != ""
-        ]
-        .groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"]
-        .sum()
-    )
-
-    RECON_POR_ID["ID_POND"] = (
-        pd.to_numeric(RECON_POR_ID["ID_POND"], errors="coerce")
-        .astype("Int64")
-    )
-
-    # Padronização dos parâmetros
-    TAB_REALIZADAS["ANÁLISE"] = np.where(
-        TAB_REALIZADAS["ANÁLISE"].isin([
-            "TURBIDEZ",
-            "COR APARENTE",
-            "PH",
-            "COLIFORMES TOTAIS",
-            "ESCHERICHIA COLI"
-        ]),
-        TAB_REALIZADAS["ANÁLISE"],
-        "DEMAIS PARAMETROS"
-    )
-
-    TAB_REALIZADAS_ACEITO = TAB_REALIZADAS[
-        TAB_REALIZADAS["ACEITO?"] == "Validado"
-    ]
-
-    # =========================================================
-    # 3. IDENTIFICAÇÃO DOS EXPURGOS E CONVERSÕES
-    # =========================================================
-
-    TAB_EXPURGOS = TAB_REALIZADAS_ACEITO[
-        TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] == "EXPURGAR"
-    ]
-
-    TAB_EXPURGOS_CONF = TAB_EXPURGOS[
-        TAB_EXPURGOS["CONFORMIDADE - VI"] == "Conforme"
-    ]
-
-    TAB_SEM_EXPURGO = TAB_REALIZADAS_ACEITO[
-        TAB_REALIZADAS_ACEITO["EXPURGOS - ARSAL"] != "EXPURGAR"
-    ]
-
-    TAB_CONF_VI_NAOCONF_ARSAL = TAB_SEM_EXPURGO[
-        (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] == "Conforme") &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] != "Conforme") &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"].notna())
-    ]
-
-    TAB_NAOCONF_VI_CONF_ARSAL = TAB_SEM_EXPURGO[
-        (TAB_SEM_EXPURGO["CONFORMIDADE - VI"] != "Conforme") &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - VI"].notna()) &
-        (TAB_SEM_EXPURGO["CONFORMIDADE - ARSAL"] == "Conforme")
-    ]
-
-    # =========================================================
-    # 4. QUADRO DE PONDERAÇÕES - NAM CONF
-    # =========================================================
-
-    QUADRO_POND_NCONF = TAB_POND.copy()
-
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.rename(columns={
-        QUADRO_POND_NCONF.columns[0]: "ID",
-        QUADRO_POND_NCONF.columns[1]: "PONDERAÇÕES (PRESTADORA)",
-        QUADRO_POND_NCONF.columns[2]: "PONDERAÇÕES (VI)",
-        QUADRO_POND_NCONF.columns[3]: "PONDERAÇÕES (ARSAL)",
-    })
-
-    # Padroniza o ID para os cruzamentos
-    QUADRO_POND_NCONF["ID"] = pd.to_numeric(
-        QUADRO_POND_NCONF["ID"], errors="coerce"
-    ).astype("Int64")
-
-    # Contagem de expurgos conformes
-    contagem_exp = (
-        TAB_EXPURGOS_CONF.groupby("ID_POND")
-        .size()
-        .reset_index(name="EXPURGOS")
-        .rename(columns={"ID_POND": "ID"})
-    )
-
-    contagem_exp["ID"] = pd.to_numeric(
-        contagem_exp["ID"], errors="coerce"
-    ).astype("Int64")
-
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(
-        contagem_exp, on="ID", how="left"
-    )
-
-    # Conversão: Conforme -> Não Conforme
-    contagem_cv_na = (
-        TAB_CONF_VI_NAOCONF_ARSAL.groupby("ID_POND")
-        .size()
-        .reset_index(name="CONVERSÃO: CONFORME → NÃO CONFORME")
-        .rename(columns={"ID_POND": "ID"})
-    )
-
-    contagem_cv_na["ID"] = pd.to_numeric(
-        contagem_cv_na["ID"], errors="coerce"
-    ).astype("Int64")
-
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(
-        contagem_cv_na, on="ID", how="left"
-    )
-
-    # Conversão: Não Conforme -> Conforme
-    contagem_na_cv = (
-        TAB_NAOCONF_VI_CONF_ARSAL.groupby("ID_POND")
-        .size()
-        .reset_index(name="CONVERSÃO: NÃO CONFORME → CONFORME")
-        .rename(columns={"ID_POND": "ID"})
-    )
-
-    contagem_na_cv["ID"] = pd.to_numeric(
-        contagem_na_cv["ID"], errors="coerce"
-    ).astype("Int64")
-
-    QUADRO_POND_NCONF = QUADRO_POND_NCONF.merge(
-        contagem_na_cv, on="ID", how="left"
-    )
-
-    # Formatação dos impactos
-    colunas_impacto = [
-        "EXPURGOS",
-        "CONVERSÃO: CONFORME → NÃO CONFORME",
-        "CONVERSÃO: NÃO CONFORME → CONFORME"
-    ]
-
-    for col in colunas_impacto:
-        QUADRO_POND_NCONF[col] = (
-            QUADRO_POND_NCONF[col]
-            .fillna(0)
-            .astype("Int64")
-            .astype("object")
-            .replace(0, "")
-        )
-
-    # Remove somente colunas de impacto totalmente vazias.
-    # Mantém todas as linhas de ponderação.
-    for col in colunas_impacto:
-        if QUADRO_POND_NCONF[col].replace("", pd.NA).isna().all():
-            QUADRO_POND_NCONF = QUADRO_POND_NCONF.drop(
-                columns=[col]
-            )
-
-    # =========================================================
-    # 5. QUADRO DE PONDERAÇÕES - NAM REALIZ
-    # =========================================================
-
-    QUADRO_POND_REALIZ = TAB_POND.copy()
-
-    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
-        QUADRO_POND_REALIZ.columns[0]: "ID",
-        QUADRO_POND_REALIZ.columns[1]: "PONDERAÇÕES (PRESTADORA)",
-        QUADRO_POND_REALIZ.columns[2]: "PONDERAÇÕES (VI)",
-        QUADRO_POND_REALIZ.columns[3]: "PONDERAÇÕES (ARSAL)",
-    })
-
-    QUADRO_POND_REALIZ["ID"] = pd.to_numeric(
-        QUADRO_POND_REALIZ["ID"], errors="coerce"
-    ).astype("Int64")
-
-    # Contagem de expurgos por ID
-    contagem = (
-        TAB_EXPURGOS.groupby("ID_POND")
-        .size()
-        .reset_index(name="EXPURGOS")
-        .rename(columns={"ID_POND": "ID"})
-    )
-
-    contagem["ID"] = pd.to_numeric(
-        contagem["ID"], errors="coerce"
-    ).astype("Int64")
-
-    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
-        contagem, on="ID", how="left"
-    )
-
-    # Desconsiderações por ID
-    DESC_POR_ID_AUX = DESC_POR_ID.rename(
-        columns={"ID_POND": "ID"}
-    )
-
-    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
-        DESC_POR_ID_AUX, on="ID", how="left"
-    )
-
-    # Reconsiderações por ID
-    RECON_POR_ID_AUX = RECON_POR_ID.rename(
-        columns={"ID_POND": "ID"}
-    )
-
-    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.merge(
-        RECON_POR_ID_AUX, on="ID", how="left"
-    )
-
-    # Renomeia as colunas
-    QUADRO_POND_REALIZ = QUADRO_POND_REALIZ.rename(columns={
-        "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)",
-        "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"
-    })
-
-    # Garante a existência das colunas, inclusive sem registros
-    for coluna in [
-        "EXPURGOS",
-        "DESCONSIDERAÇÕES (PLANO)",
-        "RECONSIDERAÇÕES (PLANO)"
-    ]:
-        if coluna not in QUADRO_POND_REALIZ.columns:
-            QUADRO_POND_REALIZ[coluna] = 0
-
-        QUADRO_POND_REALIZ[coluna] = (
-            QUADRO_POND_REALIZ[coluna]
-            .fillna(0)
-            .astype("Int64")
-            .astype("object")
-            .replace(0, "")
-        )
-
-   
-    # IQE
-
-    TAB_REALIZADAS_IQE["ID_POND"] = TAB_REALIZADAS_IQE["ID_POND"].fillna(0)
-
-    BASE_MUN_TIPO_IQE_completo["ID_POND"] = BASE_MUN_TIPO_IQE_completo["ID_POND"].fillna("").astype(str).str.strip()
-
-    DESC_POR_ID_IQE = (
-      BASE_MUN_TIPO_IQE_completo[BASE_MUN_TIPO_IQE_completo["ID_POND"] != ""]
-      .groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"]
-      .sum()
-    )
-    DESC_POR_ID_IQE["ID_POND"] = DESC_POR_ID_IQE["ID_POND"].astype(float).astype("Int64")
-
-    TAB_REALIZADAS_IQE['ANÁLISE'] = np.where(
-        TAB_REALIZADAS_IQE['ANÁLISE'].isin(['DBO', 'DQO', 'PH', 'MATERIAIS FLUTUANTES', 'OLEOS E GRAXAS', 'TEMPERATURA']),
-        TAB_REALIZADAS_IQE['ANÁLISE'],
-        'DEMAIS PARAMETROS'
-    )
-
-    TAB_REALIZADAS_ACEITO_IQE = TAB_REALIZADAS_IQE[TAB_REALIZADAS_IQE["ACEITO?"] == "Validado"]
-
-    TAB_EXPURGOS_IQE = TAB_REALIZADAS_ACEITO_IQE[
-        TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] == "EXPURGAR"
-    ]
-
-    TAB_EXPURGOS_CONF_IQE = TAB_EXPURGOS_IQE[
-        TAB_EXPURGOS_IQE["CONFORMIDADE - VI"] == "Conforme"
-    ]
-
-    TAB_SEM_EXPURGO_IQE = TAB_REALIZADAS_ACEITO_IQE[
-        TAB_REALIZADAS_ACEITO_IQE["EXPURGOS - ARSAL"] != "EXPURGAR"
-    ]
-
-    TAB_CONF_VI_NAOCONF_ARSAL_IQE = TAB_SEM_EXPURGO_IQE[
-        (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - VI"] == "Conforme") &
-        (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - ARSAL"] != "Conforme") &
-        (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - ARSAL"].notna())
-    ]
-
-    TAB_NAOCONF_VI_CONF_ARSAL_IQE = TAB_SEM_EXPURGO_IQE[
-        (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - VI"] != "Conforme") &
-        (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - VI"].notna()) &
-        (TAB_SEM_EXPURGO_IQE["CONFORMIDADE - ARSAL"] == "Conforme")
-    ]
-
-        # Padroniza os identificadores antes dos cruzamentos do IQE
-    TAB_POND_IQE["ID"] = pd.to_numeric(TAB_POND_IQE["ID"], errors="coerce").astype("Int64")
-
-    TAB_REALIZADAS_IQE["ID_POND"] = pd.to_numeric(TAB_REALIZADAS_IQE["ID_POND"], errors="coerce").astype("Int64")
-
-    DESC_POR_ID_IQE["ID_POND"] = pd.to_numeric(DESC_POR_ID_IQE["ID_POND"], errors="coerce").astype("Int64")
-
-    QUADRO_POND_NCONF_IQE = TAB_POND_IQE.copy()
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.rename(columns={
-      QUADRO_POND_NCONF_IQE.columns[0]: "ID",
-      QUADRO_POND_NCONF_IQE.columns[1]: "PONDERAÇÕES (PRESTADORA)",
-      QUADRO_POND_NCONF_IQE.columns[2]: "PONDERAÇÕES (VI)",
-      QUADRO_POND_NCONF_IQE.columns[3]: "PONDERAÇÕES (ARSAL)",
-    })
-
-    contagem_exp_IQE = TAB_EXPURGOS_CONF_IQE.groupby('ID_POND').size().reset_index(name='EXPURGOS')
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.merge(contagem_exp_IQE, left_on='ID', right_on='ID_POND', how='left')
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.drop(columns=["ID_POND"])
-    QUADRO_POND_NCONF_IQE["EXPURGOS"] = QUADRO_POND_NCONF_IQE["EXPURGOS"].fillna(0).astype("Int64")
-    QUADRO_POND_NCONF_IQE["EXPURGOS"] = QUADRO_POND_NCONF_IQE["EXPURGOS"].astype("object").replace(0, "")
-
-    contagem_cv_na_IQE = TAB_CONF_VI_NAOCONF_ARSAL_IQE.groupby('ID_POND').size().reset_index(name='CONVERSÃO: CONFORME → NÃO CONFORME')
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.merge(contagem_cv_na_IQE, left_on='ID', right_on='ID_POND', how='left')
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.drop(columns=["ID_POND"], errors="ignore")
-    QUADRO_POND_NCONF_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"].fillna(0).astype("Int64")
-    QUADRO_POND_NCONF_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"] = QUADRO_POND_NCONF_IQE["CONVERSÃO: CONFORME → NÃO CONFORME"].astype("object").replace(0, "")
-
-    contagem_na_cv_IQE = TAB_NAOCONF_VI_CONF_ARSAL_IQE.groupby('ID_POND').size().reset_index(name='CONVERSÃO: NÃO CONFORME → CONFORME')
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.merge(contagem_na_cv_IQE, left_on='ID', right_on='ID_POND', how='left')
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.drop(columns=["ID_POND"], errors="ignore")
-    QUADRO_POND_NCONF_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"].fillna(0).astype("Int64")
-    QUADRO_POND_NCONF_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"] = QUADRO_POND_NCONF_IQE["CONVERSÃO: NÃO CONFORME → CONFORME"].astype("object").replace(0, "")
-
-    colunas_impacto_IQE = ['EXPURGOS', 'CONVERSÃO: CONFORME → NÃO CONFORME', 'CONVERSÃO: NÃO CONFORME → CONFORME']
-    QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE[
-        QUADRO_POND_NCONF_IQE[colunas_impacto_IQE].apply(lambda row: any(v != "" for v in row), axis=1)
-    ]
-
-    if QUADRO_POND_NCONF_IQE.empty:
-        QUADRO_POND_NCONF_IQE = "SEM EXPURGOS"
-    else:
-      for col in colunas_impacto_IQE:
-          if col in QUADRO_POND_NCONF_IQE.columns:
-              if QUADRO_POND_NCONF_IQE[col].replace("", pd.NA).isna().all():
-                  QUADRO_POND_NCONF_IQE = QUADRO_POND_NCONF_IQE.drop(columns=[col])
-
-    QUADRO_POND_REALIZ_IQE = TAB_POND_IQE.copy()
-
-    QUADRO_POND_REALIZ_IQE = QUADRO_POND_REALIZ_IQE.rename(columns={
-      QUADRO_POND_REALIZ_IQE.columns[0]: "ID",
-      QUADRO_POND_REALIZ_IQE.columns[1]: "PONDERAÇÕES (PRESTADORA)",
-      QUADRO_POND_REALIZ_IQE.columns[2]: "PONDERAÇÕES (VI)",
-      QUADRO_POND_REALIZ_IQE.columns[3]: "PONDERAÇÕES (ARSAL)",
-    })
-
-    contagem_IQE = TAB_EXPURGOS_IQE.groupby('ID_POND').size().reset_index(name='EXPURGOS')
-
-    QUADRO_POND_REALIZ_IQE = QUADRO_POND_REALIZ_IQE.merge(
-        contagem_IQE, left_on='ID', right_on='ID_POND', how='left'
-    ).drop(columns=["ID_POND"], errors="ignore")
-
-    QUADRO_POND_REALIZ_IQE["EXPURGOS"] = (
-        QUADRO_POND_REALIZ_IQE["EXPURGOS"]
-        .fillna(0)
-        .astype("Int64")
-        .astype("object")
-        .replace(0, "")
-    )
-
-    QUADRO_POND_REALIZ_IQE = QUADRO_POND_REALIZ_IQE.merge(
-        DESC_POR_ID_IQE, left_on='ID', right_on='ID_POND', how='left'
-    ).drop(columns=["ID_POND"], errors="ignore")
-
-    QUADRO_POND_REALIZ_IQE = QUADRO_POND_REALIZ_IQE.rename(
-        columns={"DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)"}
-    )
-
-    QUADRO_POND_REALIZ_IQE["DESCONSIDERAÇÕES (PLANO)"] = (
-        QUADRO_POND_REALIZ_IQE["DESCONSIDERAÇÕES (PLANO)"]
-        .fillna(0)
-        .astype("Int64")
-        .astype("object")
-        .replace(0, "")
-    )
-
-    if QUADRO_POND_REALIZ_IQE[["EXPURGOS", "DESCONSIDERAÇÕES (PLANO)"]].replace("", pd.NA).isna().all().all():
-      QUADRO_POND_REALIZ_IQE = "SEM EXPURGOS"
+      q_base = q_base[q_base["ID"].notna()].copy()
+      for c in COLS_TXT:
+        q_base[c] = q_base[c].astype(object).where(~_vazio(q_base[c]), "")
+
+      # ---- amostras ----
+      real = TAB_REALIZADAS.copy()
+      real["ID_POND"] = pd.to_numeric(real["ID_POND"], errors="coerce").astype("Int64")
+
+      aceitas = real[real["ACEITO?"] == "Validado"]
+
+      expurgos = aceitas[aceitas["EXPURGOS - ARSAL"] == "EXPURGAR"]
+      expurgos_conf = expurgos[expurgos["CONFORMIDADE - VI"] == "Conforme"]
+
+      sem_exp = aceitas[aceitas["EXPURGOS - ARSAL"] != "EXPURGAR"]
+
+      conf_nc = sem_exp[
+          (sem_exp["CONFORMIDADE - VI"] == "Conforme") &
+          (sem_exp["CONFORMIDADE - ARSAL"] != "Conforme") &
+          (sem_exp["CONFORMIDADE - ARSAL"].notna())
+      ]
+      nc_conf = sem_exp[
+          (sem_exp["CONFORMIDADE - VI"] != "Conforme") &
+          (sem_exp["CONFORMIDADE - VI"].notna()) &
+          (sem_exp["CONFORMIDADE - ARSAL"] == "Conforme")
+      ]
+
+      # ---- desconsiderações / reconsiderações do plano por ID ----
+      plano = BASE_PLANO.copy()
+      plano["ID_POND"] = plano["ID_POND"].fillna("").astype(str).str.strip()
+      plano = plano[plano["ID_POND"] != ""].copy()
+      plano["ID_POND"] = pd.to_numeric(plano["ID_POND"], errors="coerce").astype("Int64")
+
+      desc = (plano.groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"].sum()
+                   .rename(columns={"ID_POND": "ID", "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)"}))
+      recon = (plano.groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"].sum()
+                    .rename(columns={"ID_POND": "ID", "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"}))
+      desc["ID"] = desc["ID"].astype("Int64")
+      recon["ID"] = recon["ID"].astype("Int64")
+
+      # ---- QUADRO NAM CONF ----
+      q_nconf = q_base.copy()
+      q_nconf = q_nconf.merge(_conta(expurgos_conf, "EXPURGOS"), on="ID", how="left")
+      q_nconf = q_nconf.merge(_conta(conf_nc, "CONVERSÃO: CONFORME → NÃO CONFORME"), on="ID", how="left")
+      q_nconf = q_nconf.merge(_conta(nc_conf, "CONVERSÃO: NÃO CONFORME → CONFORME"), on="ID", how="left")
+
+      impactos = ["EXPURGOS", "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME"]
+      for col in impactos:
+        q_nconf = _fmt(q_nconf, col)
+      # remove só colunas de impacto totalmente vazias (mantém todas as linhas)
+      for col in impactos:
+        if (q_nconf[col] == "").all():
+          q_nconf = q_nconf.drop(columns=[col])
+
+      # ---- QUADRO NAM REALIZ ----
+      q_real = q_base.copy()
+      q_real = q_real.merge(_conta(expurgos, "EXPURGOS"), on="ID", how="left")
+      q_real = q_real.merge(desc, on="ID", how="left")
+      q_real = q_real.merge(recon, on="ID", how="left")
+
+      for col in ["EXPURGOS", "DESCONSIDERAÇÕES (PLANO)", "RECONSIDERAÇÕES (PLANO)"]:
+        q_real = _fmt(q_real, col)
+
+      return q_nconf, q_real
+
+    QUADRO_POND_NCONF, QUADRO_POND_REALIZ = _quadros(
+        TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
+
+    QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = _quadros(
+        TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
     return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
 
