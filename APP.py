@@ -8415,6 +8415,22 @@ def rel_iqa_iqe():
     #     IIQE_14 = " ".join(partes_14_iqe)
 
 
+    if (IQE_VI).strip() == (IQE_ARSAL_TXT).strip():
+      IS_SATISF_IQE = "satisfatório"
+
+    if (IQE_VI).strip() != (IQE_ARSAL_TXT).strip():
+      IS_SATISF_IQE = "divergente"
+
+    if PRESTADORA == "BRK Ambiental":
+      legis = '5'
+
+    if PRESTADORA != "BRK Ambiental":
+      legis = '7'
+
+    def validar(valor):
+      return valor if valor is not None else ""
+
+                 
 
     # ---------- IQE: textos condicionais (IIQE) ----------
     NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype(int)
