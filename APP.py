@@ -7706,10 +7706,10 @@ def rel_iqa_iqe():
             "pelo Verificador Independente para o referido componente."
         )
 
-    NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1]).astype('Int64')
-    NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1]).astype('Int64')
-    NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype('Int64')
-    NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype('Int64')
+    NREA_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM REALIZ"].iloc[-1])
+    NREA_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"].iloc[-1])
+    NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1])
+    NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1])
     IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
     IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
 
@@ -8101,71 +8101,83 @@ def rel_iqa_iqe():
 
     # soma das colunas numéricas (os índices serão sobrescritos abaixo)
     #st.dataframe(TAB_MUN_IUA_IUE_ARSAL, use_container_width=True, hide_index=True)
-    
-    cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
-    total = TAB_MUN_IUA_IUE_ARSAL[cols_num].sum()
-    
-    # IUA e IUE totais = divisão dos somatórios dos componentes
-    iua_total = total["E potencial agua"] / total["E total agua"] if total["E total agua"] else 0
-    iue_total = total["E potencial esgoto"] / total["E total esgoto"] if total["E total esgoto"] else 0
-    
-    linha_total = {
-        "Municipio": "TOTAL",
-        "E potencial agua": total["E potencial agua"],
-        "E total agua": total["E total agua"],
-        "IUA": iua_total,
-        "E potencial esgoto": total["E potencial esgoto"],
-        "E total esgoto": total["E total esgoto"],
-        "IUE": iue_total,
-    }
-    
-    TAB_MUN_IUA_IUE_ARSAL = pd.concat(
-        [TAB_MUN_IUA_IUE_ARSAL, pd.DataFrame([linha_total])],
-        ignore_index=True,
-    )
-    
 
-    E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1]).astype('Int64')
-    E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1]).astype('Int64')
-    IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
-    IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
+    eh_agosto = isinstance(TAB_MUN_IUA_IUE_ARSAL, pd.DataFrame)
+
+    if eh_agosto:
                  
-    if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
-      EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
-      REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
+      cols_num = ["E potencial agua", "E total agua", "E potencial esgoto", "E total esgoto"]
+      total = TAB_MUN_IUA_IUE_ARSAL[cols_num].sum()
       
-    if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
-      EXP_IUA = 0
-      REC_IUA = 0
-
-
-    E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1]).astype('Int64')
-    E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1]).astype('Int64')
-    IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
-    IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
-    
-    if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
-      EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
-      REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
-
-    if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
-      EXP_IUE = 0
-      REC_IUE = 0
-                  
+      # IUA e IUE totais = divisão dos somatórios dos componentes
+      iua_total = total["E potencial agua"] / total["E total agua"] if total["E total agua"] else 0
+      iue_total = total["E potencial esgoto"] / total["E total esgoto"] if total["E total esgoto"] else 0
       
-    if str(IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
-      IS_SATISF_IUA = "satisfatório"
+      linha_total = {
+          "Municipio": "TOTAL",
+          "E potencial agua": total["E potencial agua"],
+          "E total agua": total["E total agua"],
+          "IUA": iua_total,
+          "E potencial esgoto": total["E potencial esgoto"],
+          "E total esgoto": total["E total esgoto"],
+          "IUE": iue_total,
+      }
+      
+      TAB_MUN_IUA_IUE_ARSAL = pd.concat(
+          [TAB_MUN_IUA_IUE_ARSAL, pd.DataFrame([linha_total])],
+          ignore_index=True,
+      )
+      
+  
+      E_POT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial agua"].iloc[-1])
+      E_TOT_IUA_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total agua"].iloc[-1])
+      IUA_ARSAL = (E_POT_IUA_ARSAL/E_TOT_IUA_ARSAL)*100
+      IUA_ARSAL_TXT = "100%" if IUA_ARSAL >= 99.95 else f"{IUA_ARSAL:.1f}%".replace('.', ',')
+                   
+      if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+        EXP_IUA = QUADRO_IUA_IUE_POND["Economias expurgadas IUA"].sum()
+        REC_IUA = QUADRO_IUA_IUE_POND["Economias reconsideradas IUA"].sum()
+        
+      if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+        EXP_IUA = 0
+        REC_IUA = 0
+  
+  
+      E_POT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E potencial esgoto"].iloc[-1])
+      E_TOT_IUE_ARSAL = (TAB_MUN_IUA_IUE_ARSAL["E total esgoto"].iloc[-1])
+      IUE_ARSAL = (E_POT_IUE_ARSAL/E_TOT_IUE_ARSAL)*100
+      IUE_ARSAL_TXT = "100%" if IUE_ARSAL >= 99.95 else f"{IUE_ARSAL:.1f}%".replace('.', ',')
+      
+      if isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+        EXP_IUE = QUADRO_IUA_IUE_POND["Economias expurgadas IUE"].sum()
+        REC_IUE = QUADRO_IUA_IUE_POND["Economias reconsideradas IUE"].sum()
+  
+      if not isinstance(QUADRO_IUA_IUE_POND, pd.DataFrame):
+        EXP_IUE = 0
+        REC_IUE = 0
+                    
+        
+      if str(IUA_VI).strip() == (IUA_ARSAL_TXT).strip():
+        IS_SATISF_IUA = "satisfatório"
+  
+      if str(IUA_VI).strip() != (IUA_ARSAL_TXT).strip():
+        IS_SATISF_IUA = "divergente"
+  
+  
+      if str(IUE_VI).strip() == (IUE_ARSAL_TXT).strip():
+        IS_SATISF_IUE = "satisfatório"
+  
+      if str(IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
+        IS_SATISF_IUE = "divergente"
 
-    if str(IUA_VI).strip() != (IUA_ARSAL_TXT).strip():
-      IS_SATISF_IUA = "divergente"
 
-
-    if str(IUE_VI).strip() == (IUE_ARSAL_TXT).strip():
-      IS_SATISF_IUE = "satisfatório"
-
-    if str(IUE_VI).strip() != (IUE_ARSAL_TXT).strip():
-      IS_SATISF_IUE = "divergente"
-
+    else:
+      E_POT_IUA_ARSAL = E_TOT_IUA_ARSAL = E_POT_IUE_ARSAL = E_TOT_IUE_ARSAL = 0
+      IUA_ARSAL_TXT = IUE_ARSAL_TXT = ""
+      IS_SATISF_IUA = IS_SATISF_IUE = ""
+      EXP_IUA = REC_IUA = EXP_IUE = REC_IUE = 0
+                 
+                 
     DIFERENTE = "Entretanto, observa-se que os valores de economias totais apresentados pelo Verificador Independente possuem diferenças em relação ao EVTE projetado para o ano contratual em questão ou sofreram alterações mediante os pontos elencados no quadro de ponderações apresentados anteriormente."
 
     IGUAL = "Aferindo-se as projeções contidas no EVTE, observa-se que os valores informados na tabela acima estão coerentes para o ano contratual em questão"
@@ -8215,7 +8227,7 @@ def rel_iqa_iqe():
 
     sem_pond = isinstance(QUADRO_IUA_IUE_POND, str) and QUADRO_IUA_IUE_POND == "SEM PONDERACOES"
     tem_pond = not sem_pond          # se a lógica for a que você escreveu, use: tem_pond = sem_pond
-    tabs_iguais = TAB_ETOT_VI.equals(TAB_ETOT_ARSAL)
+    tabs_iguais = (isinstance(TAB_ETOT_VI, pd.DataFrame) and TAB_ETOT_VI.equals(TAB_ETOT_ARSAL))
 
     def preenchido(x):
         return x is not None and not pd.isna(x)
