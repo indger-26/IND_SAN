@@ -8668,7 +8668,7 @@ def rel_iqa_iqe():
               '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
               '$QUADRO__NREA_ARSAL_IQE': ("" if sem_ponderacao_realiz_iqe else TAB_MUN_ARSAL_IQE),
               '$QUADRO__NCONF_VI_IQE': TAB_TIPO_RESUMIDA_VI_IQE,
-              '$QUADRO__NCONF_ARSAL_IQE': (TAB_TIPO_FINAL_IQE if tem_ajuste_quadro_nconf_iqe else "")
+              '$QUADRO__NCONF_ARSAL_IQE': (TAB_TIPO_FINAL_IQE if tem_ajuste_quadro_nconf_iqe else ""),
               # '$QUADRO_NCONFMUN_VI': TAB_MUN_NCONF_VI,
               # '$QUADRO_NCONFMUN_ARSAL': TAB_MUN_NCONF,
               '$NREA__ARSAL_IQE': formata_milhar(NREA_ARSAL_IQE),
