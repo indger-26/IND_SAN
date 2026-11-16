@@ -8438,6 +8438,27 @@ def rel_iqa_iqe():
     NCONF_ARSAL_IQE = (TAB_MUN_FINAL_IQE["NAM CONF"].iloc[-1]).astype(int)
     NCONF_EXPURGOS_IQE = (TAB_MUN_FINAL_IQE["EXPURGOS CONFORMES"].iloc[-1]).astype(int)
 
+    IQE_ARSAL = (NCONF_ARSAL_IQE/NREA_ARSAL_IQE)*100
+    IQE_ARSAL_TXT = "100%" if IQE_ARSAL >= 99.95 else f"{IQE_ARSAL:.1f}%".replace('.', ',')
+
+                 
+
+    if (IQE_VI).strip() == (IQE_ARSAL_TXT).strip():
+      IS_SATISF_IQE = "satisfatório"
+
+    if (IQE_VI).strip() != (IQE_ARSAL_TXT).strip():
+      IS_SATISF_IQE = "divergente"
+
+    if PRESTADORA == "BRK Ambiental":
+      legis = '5'
+
+    if PRESTADORA != "BRK Ambiental":
+      legis = '7'
+
+    def validar(valor):
+      return valor if valor is not None else ""
+  
+
     sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)
 
     # ---- Nam Realiz IQE: IIQE1 a IIQE6 ----
