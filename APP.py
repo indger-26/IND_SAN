@@ -7236,7 +7236,7 @@ def rel_iqa_iqe():
               '$FONTE__NCONF_IQE': str(FONT_NCONF_IQE),
               '$ACREDITA_IQE': str (ACREDITA_IQE),
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
-              '$QUADRO__NREA_OBS_IQE': ("" if sem_exp_rea_iqe else QUADRO_POND_REALIZ_IQE), ########################
+              '$QUADRO__NCONF_OBS_IQE': ("" if _sem_ponderacoes_conf_iqe(QUADRO_POND_NCONF_IQE) else QUADRO_POND_NCONF_IQE), ########################
               '$QUADRO__NREA_OBS_IQE': QUADRO_POND_REALIZ_IQE if tem_ponderacoes_realiz_iqe else "", #########################
               '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
               '$QUADRO__NREA_ARSAL_IQE': ("" if sem_exp_rea_iqe else TAB_MUN_ARSAL_IQE),
@@ -8443,6 +8443,11 @@ def rel_iqa_iqe():
 
     QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = _quadros(
         TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
+
+    st.dataframe(QUADRO_POND_NCONF)
+    st.dataframe(QUADRO_POND_REALIZ)
+    st.dataframe(QUADRO_POND_NCONF_IQE)
+    st.dataframe(QUADRO_POND_REALIZ_IQE)
 
     return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
 
