@@ -4390,6 +4390,9 @@ def rel_iqa():
     TAB_TIPO_FINAL = restaurar_nomes_parametros(TAB_TIPO_FINAL, 'ANÁLISE')
     TAB_TIPO_RESUMIDA_VI = restaurar_nomes_parametros(TAB_TIPO_RESUMIDA_VI, 'ANÁLISE')
 
+    def _sem_ponderacoes_conf(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
+
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
@@ -4409,8 +4412,8 @@ def rel_iqa():
               '$ACREDITAÇÃO': str (ACREDITAÇÃO),
 
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
-              '$QUADRO_NREA_OBS': "" if sem_exp_rea else QUADRO_POND_REALIZ,
-              '$QUADRO_NCONF_OBS': (QUADRO_POND_NCONF if tem_ponderacoes_conf else ""),
+              '$QUADRO_NREA_OBS': QUADRO_POND_REALIZ if tem_ponderacoes_realiz_iqa else "",
+              '$QUADRO_NCONF_OBS': ("" if _sem_ponderacoes_conf(QUADRO_POND_NCONF) else QUADRO_POND_NCONF),
 
               '$QUADRO_NREA_VI': TAB_MUN_VI,
               '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
@@ -6529,6 +6532,16 @@ def rel_iqa_iqe():
     # ---- NAM CONF: IIQA8 a IIQA_15 ----
     def _sem_ponderacoes_conf(q):
         return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
+
+    tem_ponderacoes_conf = (
+        isinstance(QUADRO_POND_NCONF, pd.DataFrame)
+        and not QUADRO_POND_NCONF.empty
+    )
+    
+    tem_ponderacoes_conf_iqe = (
+        isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
+        and not QUADRO_POND_NCONF_IQE.empty
+    )
                  
     tem_expurgos_conf = _num(NCONF_EXPURGOS) != 0
     tem_conversao_conf_nao_conf = _num(total_conf_vi_naoconf_arsal) != 0
