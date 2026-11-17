@@ -6791,11 +6791,20 @@ def rel_iqa_iqe():
     # SÓ deve aparecer se houver expurgos ou conversões efetivas
     # --------------------------------------------------
     if tem_expurgos_conf_iqe or tem_conversoes_conf_iqe:
-        IIQE_11 = (
-            "Diante dos fatos mencionados, segue o panorama ajustado para "
-            "o componente “Nam conf”, modificado por estas setoriais "
-            "mediante as observações elencadas acima:"
-        )
+        if tem_ponderacoes_conf_iqe:
+            IIQE_11 = (
+                "Diante dos fatos mencionados, segue o panorama ajustado para "
+                "o componente “Nam conf”, modificado por estas setoriais "
+                "mediante as observações elencadas acima:"
+            )
+        else:
+            IIQE_11 = (
+                "Ressalta-se que não foram registradas manifestações "
+                "das partes interessadas no fluxo de aferição do indicador. "
+                "Diante disso, apresenta-se o panorama ajustado para "
+                "o componente “Nam conf”, modificado por estas setoriais "
+                "com base na reclassificação técnica:"
+            )
 
         IIQE_12 = (
             "Quadro - Contabilização do componente “Nam Conf” do IQE, "
