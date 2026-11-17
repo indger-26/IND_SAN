@@ -4142,105 +4142,74 @@ def rel_iqa():
 
     
     # ---- NAM CONF: IIQA8 a IIQA_15 ----
+    def _sem_ponderacoes_conf(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
 
-    # Existem ponderações a apresentar? (a função pond devolve "SEM EXPURGOS"
-    # quando não há nenhuma linha com impacto)
     tem_ponderacoes_conf = (
         isinstance(QUADRO_POND_NCONF, pd.DataFrame)
         and not QUADRO_POND_NCONF.empty
     )
-
-    # Existem expurgos conformes?
+         
     tem_expurgos_conf = _num(NCONF_EXPURGOS) != 0
-
-    # Existem conversões entre Conforme e Não Conforme?
     tem_conversao_conf_nao_conf = _num(total_conf_vi_naoconf_arsal) != 0
     tem_conversao_nao_conf_conf = _num(total_naoconf_vi_conf_arsal) != 0
     tem_conversoes_conf = tem_conversao_conf_nao_conf or tem_conversao_nao_conf_conf
 
     # --------------------------------------------------
-    # IIQA8 a IIQA_13 e IIQA_15
+    # 1. Ponderações (IIQA8 a IIQA_10)
+    # Aparece sempre que houver ponderações, mesmo sem expurgos ou conversões
     # --------------------------------------------------
-
     if tem_ponderacoes_conf:
-
-        # Existem ponderações: apresenta os quadros normalmente
         IIQA8 = (
             "As observações apresentadas pelo Verificador Independente, "
             "juntamente com o entendimento a elas associado, tanto pelo "
             "próprio verificador quanto por esta setorial, encontram-se "
             "no quadro abaixo."
         )
-
-        IIQA9 = (
-            "Quadro - Ponderações elaboradas pelo Verificador Independente "
-            "e posicionamento destas setoriais."
-        )
-
+        IIQA9 = "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
         IIQA_10 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+    else:
+        IIQA8 = ""
+        IIQA9 = ""
+        IIQA_10 = ""
 
+    # --------------------------------------------------
+    # 2. Panorama Ajustado / Contabilização (IIQA_11 a IIQA_13)
+    # SÓ deve aparecer se houver expurgos ou conversões efetivas
+    # --------------------------------------------------
+    if tem_expurgos_conf or tem_conversoes_conf:
         IIQA_11 = (
             "Diante dos fatos mencionados, segue o panorama ajustado para "
             "o componente “Nam conf”, modificado por estas setoriais "
             "mediante as observações elencadas acima:"
         )
-
-        IIQA_12 = (
-            "Quadro - Contabilização do componente “Nam Conf” do IQA, "
-            "ajustado por estas setoriais."
-        )
-
+        IIQA_12 = "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais."
         IIQA_13 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+    else:
+        IIQA_11 = ""
+        IIQA_12 = ""
+        IIQA_13 = ""
 
-        # Só ressalta as reclassificações quando existirem conversões
-        if tem_conversoes_conf:
-            IIQA_15 = (
-                "Ressalta-se que as conversões de análises conformes para "
-                "não conformes, e vice-versa, que não estejam contempladas "
-                "no quadro de ponderações decorrem de reclassificação "
-                "realizada por estes setores técnicos, com base nos valores "
-                "brutos de cada tipo de análise. Tais reclassificações podem "
-                "ser consultadas na base de dados encaminhada juntamente "
-                "com este relatório."
-            )
-        else:
-            IIQA_15 = ""
-
-    elif tem_conversoes_conf:
-
-        # Sem ponderações, mas com conversões: apenas o alerta de reclassificação
-        IIQA8 = (
+    # --------------------------------------------------
+    # 3. Observações / Ressalvas (IIQA_15)
+    # Condicionado estritamente ao que foi modificado/convertido
+    # --------------------------------------------------
+    if tem_conversoes_conf:
+        IIQA_15 = (
             "Ressalta-se que as conversões de análises conformes para "
-            "não conformes, e vice-versa, identificadas na análise do "
-            "componente “Nam Conf”, decorreram de reclassificações "
-            "realizadas por estes setores técnicos, com base nos valores "
-            "brutos de cada tipo de amostra. Tais reclassificações podem "
+            "não conformes, e vice-versa, que não estejam contempladas "
+            "no quadro de ponderações decorrem de reclassificação "
+            "realizada por estes setores técnicos, com base nos valores "
+            "brutos de cada tipo de análise. Tais reclassificações podem "
             "ser consultadas na base de dados encaminhada juntamente "
             "com este relatório."
         )
-
-        IIQA9 = ""
-        IIQA_10 = ""
-        IIQA_11 = ""
-        IIQA_12 = ""
-        IIQA_13 = ""
-        IIQA_15 = ""
-
     else:
-
-        # Sem ponderações nem conversões: a concordância é dita em IIQA_14
-        IIQA8 = ""
-        IIQA9 = ""
-        IIQA_10 = ""
-        IIQA_11 = ""
-        IIQA_12 = ""
-        IIQA_13 = ""
         IIQA_15 = ""
 
     # --------------------------------------------------
-    # IIQA_14: resultado do NAM CONF
+    # 4. IIQA_14: Resultado do NAM CONF
     # --------------------------------------------------
-
     if tem_ponderacoes_conf or tem_expurgos_conf or tem_conversoes_conf:
 
         partes_14 = [
@@ -4286,7 +4255,6 @@ def rel_iqa():
         IIQA_14 = " ".join(partes_14)
 
     else:
-
         IIQA_14 = (
             "Mediante análise das informações fornecidas, estes setores "
             "técnicos apresentam concordância com o valor apresentado "
@@ -6537,17 +6505,16 @@ def rel_iqa_iqe():
         isinstance(QUADRO_POND_NCONF, pd.DataFrame)
         and not QUADRO_POND_NCONF.empty
     )
-    
-    tem_ponderacoes_conf_iqe = (
-        isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
-        and not QUADRO_POND_NCONF_IQE.empty
-    )
-                 
+         
     tem_expurgos_conf = _num(NCONF_EXPURGOS) != 0
     tem_conversao_conf_nao_conf = _num(total_conf_vi_naoconf_arsal) != 0
     tem_conversao_nao_conf_conf = _num(total_naoconf_vi_conf_arsal) != 0
     tem_conversoes_conf = tem_conversao_conf_nao_conf or tem_conversao_nao_conf_conf
 
+    # --------------------------------------------------
+    # 1. Ponderações (IIQA8 a IIQA_10)
+    # Aparece sempre que houver ponderações, mesmo sem expurgos ou conversões
+    # --------------------------------------------------
     if tem_ponderacoes_conf:
         IIQA8 = (
             "As observações apresentadas pelo Verificador Independente, "
@@ -6557,28 +6524,8 @@ def rel_iqa_iqe():
         )
         IIQA9 = "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
         IIQA_10 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
-        IIQA_11 = (
-            "Diante dos fatos mencionados, segue o panorama ajustado para "
-            "o componente “Nam conf”, modificado por estas setoriais "
-            "mediante as observações elencadas acima:"
-        )
-        IIQA_12 = "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais."
-        IIQA_13 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
-
-        if tem_conversoes_conf:
-            IIQA_15 = (
-                "Ressalta-se que as conversões de análises conformes para "
-                "não conformes, e vice-versa, que não estejam contempladas "
-                "no quadro de ponderações decorrem de reclassificação "
-                "realizada por estes setores técnicos, com base nos valores "
-                "brutos de cada tipo de análise. Tais reclassificações podem "
-                "ser consultadas na base de dados encaminhada juntamente "
-                "com este relatório."
-            )
-        else:
-            IIQA_15 = ""
-
     elif tem_conversoes_conf:
+        # Caso especial onde não há ponderações, mas há conversões diretas por reclassificação
         IIQA8 = (
             "Ressalta-se que as conversões de análises conformes para "
             "não conformes, e vice-versa, identificadas na análise do "
@@ -6588,12 +6535,73 @@ def rel_iqa_iqe():
             "ser consultadas na base de dados encaminhada juntamente "
             "com este relatório."
         )
-        IIQA9 = IIQA_10 = IIQA_11 = IIQA_12 = IIQA_13 = IIQA_15 = ""
-
+        IIQA9 = ""
+        IIQA_10 = ""
     else:
-        IIQA8 = IIQA9 = IIQA_10 = IIQA_11 = IIQA_12 = IIQA_13 = IIQA_15 = ""
+        IIQA8 = ""
+        IIQA9 = ""
+        IIQA_10 = ""
 
-    # ---- IIQA_14 ----
+    # --------------------------------------------------
+    # 2. Panorama Ajustado / Contabilização (IIQA_11 a IIQA_13)
+    # SÓ deve aparecer se houver expurgos ou conversões efetivas
+    # --------------------------------------------------
+    if tem_expurgos_conf or tem_conversoes_conf:
+        IIQA_11 = (
+            "Diante dos fatos mencionados, segue o panorama ajustado para "
+            "o componente “Nam conf”, modificado por estas setoriais "
+            "mediante as observações elencadas acima:"
+        )
+        IIQA_12 = "Quadro - Contabilização do componente “Nam Conf” do IQA, ajustado por estas setoriais."
+        IIQA_13 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+    else:
+        IIQA_11 = ""
+        IIQA_12 = ""
+        IIQA_13 = ""
+
+    # --------------------------------------------------
+    # 3. Observações / Ressalvas (IIQA_15)
+    # Condicionado estritamente ao que foi modificado/convertido
+    # --------------------------------------------------
+    if tem_ponderacoes_conf:
+        if tem_conversao_conf_nao_conf and tem_conversao_nao_conf_conf:
+            IIQA_15 = (
+                "Ressalta-se que as conversões de análises conformes para "
+                "não conformes, e vice-versa, que não estejam contempladas "
+                "no quadro de ponderações decorrem de reclassificação "
+                "realizada por estes setores técnicos, com base nos valores "
+                "brutos de cada tipo de análise. Tais reclassificações podem "
+                "ser consultadas na base de dados encaminhada juntamente "
+                "com este relatório."
+            )
+        elif tem_conversao_conf_nao_conf:
+            IIQA_15 = (
+                "Ressalta-se que as conversões de análises conformes para "
+                "não conformes que não estejam contempladas "
+                "no quadro de ponderações decorrem de reclassificação "
+                "realizada por estes setores técnicos, com base nos valores "
+                "brutos de cada tipo de análise. Tais reclassificações podem "
+                "ser consultadas na base de dados encaminhada juntamente "
+                "com este relatório."
+            )
+        elif tem_conversao_nao_conf_conf:
+            IIQA_15 = (
+                "Ressalta-se que as conversões de análises não conformes para "
+                "conformes que não estejam contempladas "
+                "no quadro de ponderações decorrem de reclassificação "
+                "realizada por estes setores técnicos, com base nos valores "
+                "brutos de cada tipo de análise. Tais reclassificações podem "
+                "ser consultadas na base de dados encaminhada juntamente "
+                "com este relatório."
+            )
+        else:
+            IIQA_15 = ""
+    else:
+        IIQA_15 = ""
+
+    # --------------------------------------------------
+    # 4. IIQA_14: Resultado do NAM CONF IQA
+    # --------------------------------------------------
     if tem_ponderacoes_conf or tem_expurgos_conf or tem_conversoes_conf:
         partes_14 = [
             f"Dessa forma, dada a análise destas setoriais, "
@@ -6741,24 +6749,11 @@ def rel_iqa_iqe():
                 f"amostragem ajustado pelo Verificador Independente."
             )
 
-    # ---- NAM CONF IQE: IIQE8 a IIQE_15 ----
-    def _sem_ponderacoes_conf_iqe(q):
-        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
-
-    # Existem expurgos conformes?
-    tem_expurgos_conf_iqe = _num(NCONF_EXPURGOS_IQE) != 0
-
-    # Existem conversões entre Conforme e Não Conforme?
-    tem_conversao_conf_nao_conf_iqe = _num(total_conf_vi_naoconf_arsal_IQE) != 0
-    tem_conversao_nao_conf_conf_iqe = _num(total_naoconf_vi_conf_arsal_IQE) != 0
-    tem_conversoes_conf_iqe = tem_conversao_conf_nao_conf_iqe or tem_conversao_nao_conf_conf_iqe
-
     # --------------------------------------------------
-    # IIQE8 a IIQE_13 e IIQE_15
+    # 1. Ponderações (IIQE8 a IIQE_10)
+    # Aparece sempre que houver ponderações, mesmo sem expurgos ou conversões
     # --------------------------------------------------
-    if tem_ponderacoes_conf_iqe or tem_conversoes_conf_iqe:
-
-        # Apresenta todas as inserções de IIQE8 a IIQE_13 (com ponderações OU com conversões)
+    if tem_ponderacoes_conf_iqe:
         IIQE8 = (
             "As observações apresentadas pelo Verificador Independente, "
             "juntamente com o entendimento a elas associado, tanto pelo "
@@ -6772,7 +6767,16 @@ def rel_iqa_iqe():
         )
 
         IIQE_10 = "Fonte: Adaptado arquivo Eletrônico IQE. Elaboração: ARSAL."
+    else:
+        IIQE8 = ""
+        IIQE9 = ""
+        IIQE_10 = ""
 
+    # --------------------------------------------------
+    # 2. Panorama Ajustado / Contabilização (IIQE_11 a IIQE_13)
+    # SÓ deve aparecer se houver expurgos ou conversões efetivas
+    # --------------------------------------------------
+    if tem_expurgos_conf_iqe or tem_conversoes_conf_iqe:
         IIQE_11 = (
             "Diante dos fatos mencionados, segue o panorama ajustado para "
             "o componente “Nam conf”, modificado por estas setoriais "
@@ -6785,54 +6789,50 @@ def rel_iqa_iqe():
         )
 
         IIQE_13 = "Fonte: Adaptado arquivo Eletrônico IQE. Elaboração: ARSAL."
-
-        # IIQE_15 condicionada ao que foi efetivamente convertido
-        if tem_conversao_conf_nao_conf_iqe and tem_conversao_nao_conf_conf_iqe:
-            IIQE_15 = (
-                "Ressalta-se que as conversões de análises conformes para "
-                "não conformes, e vice-versa, que não estejam contempladas "
-                "no quadro de ponderações decorrem de reclassificação "
-                "realizada por estes setores técnicos, com base nos valores "
-                "brutos de cada tipo de análise. Tais reclassificações podem "
-                "ser consultadas na base de dados encaminhada juntamente "
-                "com este relatório."
-            )
-        elif tem_conversao_conf_nao_conf_iqe:
-            IIQE_15 = (
-                "Ressalta-se que as conversões de análises conformes para "
-                "não conformes que não estejam contempladas "
-                "no quadro de ponderações decorrem de reclassificação "
-                "realizada por estes setores técnicos, com base nos valores "
-                "brutos de cada tipo de análise. Tais reclassificações podem "
-                "ser consultadas na base de dados encaminhada juntamente "
-                "com este relatório."
-            )
-        elif tem_conversao_nao_conf_conf_iqe:
-            IIQE_15 = (
-                "Ressalta-se que as conversões de análises não conformes para "
-                "conformes que não estejam contempladas "
-                "no quadro de ponderações decorrem de reclassificação "
-                "realizada por estes setores técnicos, com base nos valores "
-                "brutos de cada tipo de análise. Tais reclassificações podem "
-                "ser consultadas na base de dados encaminhada juntamente "
-                "com este relatório."
-            )
-        else:
-            IIQE_15 = ""
-
     else:
-
-        # Sem ponderações nem conversões: a concordância é dita em IIQE_14
-        IIQE8 = ""
-        IIQE9 = ""
-        IIQE_10 = ""
         IIQE_11 = ""
         IIQE_12 = ""
         IIQE_13 = ""
+
+    # --------------------------------------------------
+    # 3. Observações / Ressalvas (IIQE_15)
+    # Condicionado estritamente ao que foi modificado/convertido
+    # --------------------------------------------------
+    if tem_conversao_conf_nao_conf_iqe and tem_conversao_nao_conf_conf_iqe:
+        IIQE_15 = (
+            "Ressalta-se que as conversões de análises conformes para "
+            "não conformes, e vice-versa, que não estejam contempladas "
+            "no quadro de ponderações decorrem de reclassificação "
+            "realizada por estes setores técnicos, com base nos valores "
+            "brutos de cada tipo de análise. Tais reclassificações podem "
+            "ser consultadas na base de dados encaminhada juntamente "
+            "com este relatório."
+        )
+    elif tem_conversao_conf_nao_conf_iqe:
+        IIQE_15 = (
+            "Ressalta-se que as conversões de análises conformes para "
+            "não conformes que não estejam contempladas "
+            "no quadro de ponderações decorrem de reclassificação "
+            "realizada por estes setores técnicos, com base nos valores "
+            "brutos de cada tipo de análise. Tais reclassificações podem "
+            "ser consultadas na base de dados encaminhada juntamente "
+            "com este relatório."
+        )
+    elif tem_conversao_nao_conf_conf_iqe:
+        IIQE_15 = (
+            "Ressalta-se que as conversões de análises não conformes para "
+            "conformes que não estejam contempladas "
+            "no quadro de ponderações decorrem de reclassificação "
+            "realizada por estes setores técnicos, com base nos valores "
+            "brutos de cada tipo de análise. Tais reclassificações podem "
+            "ser consultadas na base de dados encaminhada juntamente "
+            "com este relatório."
+        )
+    else:
         IIQE_15 = ""
 
     # --------------------------------------------------
-    # IIQE_14: resultado do NAM CONF IQE
+    # 4. IIQE_14: Resultado do NAM CONF IQE
     # --------------------------------------------------
     if tem_ponderacoes_conf_iqe or tem_expurgos_conf_iqe or tem_conversoes_conf_iqe:
 
@@ -6879,7 +6879,7 @@ def rel_iqa_iqe():
         IIQE_14 = " ".join(partes_14_iqe)
 
     else:
-
+        # Se não houver absolutamente nenhuma ponderação, expurgo ou conversão: só exibe a concordância com o VI
         IIQE_14 = (
             "Mediante análise das informações fornecidas, estes setores "
             "técnicos apresentam concordância com o valor apresentado "
