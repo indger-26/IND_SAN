@@ -6758,7 +6758,15 @@ def rel_iqa_iqe():
         isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
         and not QUADRO_POND_NCONF_IQE.empty
     )
-    
+
+                 
+    # Definição das variáveis de controle do IQE
+    tem_expurgos_conf_iqe = _num(NCONF_EXPURGOS_IQE) != 0
+    tem_conversao_conf_nao_conf_iqe = _num(total_conf_vi_naoconf_arsal_IQE) != 0
+    tem_conversao_nao_conf_conf_iqe = _num(total_naoconf_vi_conf_arsal_IQE) != 0
+    tem_conversoes_conf_iqe = tem_conversao_conf_nao_conf_iqe or tem_conversao_nao_conf_conf_iqe
+
+                 
     if tem_ponderacoes_conf_iqe:
         IIQE8 = (
             "As observações apresentadas pelo Verificador Independente, "
