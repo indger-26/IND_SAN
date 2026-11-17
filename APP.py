@@ -8583,6 +8583,7 @@ def rel_iqa_iqe():
 
       # ---- QUADRO NCONF (Sem colunas de conversão, desconsiderações e reconsiderações) ----
       cols_nconf = [c for c in q_realiz.columns if c not in [
+          "EXPURGOS",
           "DESCONSIDERAÇÕES (PLANO)",
           "RECONSIDERAÇÕES (PLANO)"
       ]]
