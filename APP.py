@@ -8341,6 +8341,117 @@ def rel_iqa_iqe():
 
 
 
+  # def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo):
+
+  #   COLS_TXT = ["PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"]
+
+  #   # célula "vazia": NaN, "", "0" (fillna(0) das planilhas), "nan"...
+  #   def _vazio(s):
+  #     return s.isna() | s.astype(str).str.strip().isin(["", "0", "0.0", "nan", "None", "<NA>"])
+
+  #   def _renomeia(tab):
+  #     q = tab.copy()
+  #     q = q.rename(columns={
+  #         q.columns[0]: "ID",
+  #         q.columns[1]: COLS_TXT[0],
+  #         q.columns[2]: COLS_TXT[1],
+  #         q.columns[3]: COLS_TXT[2],
+  #     })
+  #     q["ID"] = pd.to_numeric(q["ID"], errors="coerce").astype("Int64")
+  #     return q
+
+  #   def _tem_ponderacoes(q):
+  #     return bool((~q[COLS_TXT].apply(_vazio)).any().any())
+
+  #   def _conta(df, nome):
+  #     c = (df.groupby("ID_POND").size().reset_index(name=nome)
+  #            .rename(columns={"ID_POND": "ID"}))
+  #     c["ID"] = c["ID"].astype("Int64")
+  #     return c
+
+  #   def _fmt(q, col):
+  #     q[col] = q[col].fillna(0).astype("Int64").astype("object").replace(0, "")
+  #     return q
+
+  #   # Mesma lógica para IQA e IQE — gera quadro único idêntico para NCONF e REALIZ
+  #   def _quadros(TAB_POND, TAB_REALIZADAS, BASE_PLANO):
+
+  #     q_base = _renomeia(TAB_POND)
+
+  #     # Sem ponderações -> "SEM EXPURGOS" (o var_doc apaga as linhas/quadros)
+  #     if not _tem_ponderacoes(q_base):
+  #       return "SEM EXPURGOS", "SEM EXPURGOS"
+
+  #     q_base = q_base[q_base["ID"].notna()].copy()
+  #     for c in COLS_TXT:
+  #       q_base[c] = q_base[c].astype(object).where(~_vazio(q_base[c]), "")
+
+  #     # ---- amostras ----
+  #     real = TAB_REALIZADAS.copy()
+  #     real["ID_POND"] = pd.to_numeric(real["ID_POND"], errors="coerce").astype("Int64")
+
+  #     aceitas = real[real["ACEITO?"] == "Validado"]
+
+  #     expurgos = aceitas[aceitas["EXPURGOS - ARSAL"] == "EXPURGAR"]
+  #     sem_exp = aceitas[aceitas["EXPURGOS - ARSAL"] != "EXPURGAR"]
+
+  #     conf_nc = sem_exp[
+  #         (sem_exp["CONFORMIDADE - VI"] == "Conforme") &
+  #         (sem_exp["CONFORMIDADE - ARSAL"] != "Conforme") &
+  #         (sem_exp["CONFORMIDADE - ARSAL"].notna())
+  #     ]
+  #     nc_conf = sem_exp[
+  #         (sem_exp["CONFORMIDADE - VI"] != "Conforme") &
+  #         (sem_exp["CONFORMIDADE - VI"].notna()) &
+  #         (sem_exp["CONFORMIDADE - ARSAL"] == "Conforme")
+  #     ]
+
+  #     # ---- desconsiderações / reconsiderações do plano por ID ----
+  #     plano = BASE_PLANO.copy()
+  #     plano["ID_POND"] = plano["ID_POND"].fillna("").astype(str).str.strip()
+  #     plano = plano[plano["ID_POND"] != ""].copy()
+  #     plano["ID_POND"] = pd.to_numeric(plano["ID_POND"], errors="coerce").astype("Int64")
+
+  #     desc = (plano.groupby("ID_POND", as_index=False)["DESCONSIDERAÇÕES - ARSAL"].sum()
+  #                  .rename(columns={"ID_POND": "ID", "DESCONSIDERAÇÕES - ARSAL": "DESCONSIDERAÇÕES (PLANO)"}))
+  #     recon = (plano.groupby("ID_POND", as_index=False)["RECONSIDERAÇÕES - ARSAL"].sum()
+  #                   .rename(columns={"ID_POND": "ID", "RECONSIDERAÇÕES - ARSAL": "RECONSIDERAÇÕES (PLANO)"}))
+  #     desc["ID"] = desc["ID"].astype("Int64")
+  #     recon["ID"] = recon["ID"].astype("Int64")
+
+  #     # ---- QUADRO UNIFICADO (IGUAL PARA NAM REALIZ E NAM CONF) ----
+  #     q_unico = q_base.copy()
+  #     q_unico = q_unico.merge(_conta(expurgos, "EXPURGOS"), on="ID", how="left")
+  #     q_unico = q_unico.merge(_conta(conf_nc, "CONVERSÃO: CONFORME → NÃO CONFORME"), on="ID", how="left")
+  #     q_unico = q_unico.merge(_conta(nc_conf, "CONVERSÃO: NÃO CONFORME → CONFORME"), on="ID", how="left")
+  #     q_unico = q_unico.merge(desc, on="ID", how="left")
+  #     q_unico = q_unico.merge(recon, on="ID", how="left")
+
+  #     for col in [
+  #         "EXPURGOS",
+  #         "CONVERSÃO: CONFORME → NÃO CONFORME",
+  #         "CONVERSÃO: NÃO CONFORME → CONFORME",
+  #         "DESCONSIDERAÇÕES (PLANO)",
+  #         "RECONSIDERAÇÕES (PLANO)",
+  #     ]:
+  #       q_unico = _fmt(q_unico, col)
+
+  #     return q_unico.copy(), q_unico.copy()
+
+  #   QUADRO_POND_NCONF, QUADRO_POND_REALIZ = _quadros(
+  #       TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
+
+  #   QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = _quadros(
+  #       TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
+
+  #   st.dataframe(QUADRO_POND_NCONF)
+  #   st.dataframe(QUADRO_POND_REALIZ)
+  #   st.dataframe(QUADRO_POND_NCONF_IQE)
+  #   st.dataframe(QUADRO_POND_REALIZ_IQE)
+
+  #   return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
+
+
   def pond(TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo, TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo):
 
     COLS_TXT = ["PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"]
@@ -8361,7 +8472,8 @@ def rel_iqa_iqe():
       return q
 
     def _tem_ponderacoes(q):
-      return bool((~q[COLS_TXT].apply(_vazio)).any().any())
+      q_validos = q[q["ID"].notna()]
+      return len(q_validos) > 0
 
     def _conta(df, nome):
       c = (df.groupby("ID_POND").size().reset_index(name=nome)
@@ -8370,15 +8482,15 @@ def rel_iqa_iqe():
       return c
 
     def _fmt(q, col):
-      q[col] = q[col].fillna(0).astype("Int64").astype("object").replace(0, "")
+      if col in q.columns:
+        q[col] = q[col].fillna(0).astype("Int64").astype("object").replace(0, "")
       return q
 
-    # Mesma lógica para IQA e IQE — gera quadro único idêntico para NCONF e REALIZ
+    # Gera os quadros com separação correta de colunas para NCONF e REALIZ
     def _quadros(TAB_POND, TAB_REALIZADAS, BASE_PLANO):
 
       q_base = _renomeia(TAB_POND)
 
-      # Sem ponderações -> "SEM EXPURGOS" (o var_doc apaga as linhas/quadros)
       if not _tem_ponderacoes(q_base):
         return "SEM EXPURGOS", "SEM EXPURGOS"
 
@@ -8419,7 +8531,7 @@ def rel_iqa_iqe():
       desc["ID"] = desc["ID"].astype("Int64")
       recon["ID"] = recon["ID"].astype("Int64")
 
-      # ---- QUADRO UNIFICADO (IGUAL PARA NAM REALIZ E NAM CONF) ----
+      # ---- QUADRO COMPLETO BASE ----
       q_unico = q_base.copy()
       q_unico = q_unico.merge(_conta(expurgos, "EXPURGOS"), on="ID", how="left")
       q_unico = q_unico.merge(_conta(conf_nc, "CONVERSÃO: CONFORME → NÃO CONFORME"), on="ID", how="left")
@@ -8436,7 +8548,21 @@ def rel_iqa_iqe():
       ]:
         q_unico = _fmt(q_unico, col)
 
-      return q_unico.copy(), q_unico.copy()
+      # ---- QUADRO REALIZ (Sem colunas de conversão) ----
+      cols_realiz = [c for c in q_unico.columns if c not in [
+          "CONVERSÃO: CONFORME → NÃO CONFORME",
+          "CONVERSÃO: NÃO CONFORME → CONFORME"
+      ]]
+      q_realiz = q_unico[cols_realiz].copy()
+
+      # ---- QUADRO NCONF (Sem colunas de conversão, desconsiderações e reconsiderações) ----
+      cols_nconf = [c for c in q_realiz.columns if c not in [
+          "DESCONSIDERAÇÕES (PLANO)",
+          "RECONSIDERAÇÕES (PLANO)"
+      ]]
+      q_nconf = q_realiz[cols_nconf].copy()
+
+      return q_nconf, q_realiz
 
     QUADRO_POND_NCONF, QUADRO_POND_REALIZ = _quadros(
         TAB_POND, TAB_REALIZADAS, BASE_MUN_TIPO_completo)
@@ -8444,10 +8570,15 @@ def rel_iqa_iqe():
     QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = _quadros(
         TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
-    st.dataframe(QUADRO_POND_NCONF)
-    st.dataframe(QUADRO_POND_REALIZ)
-    st.dataframe(QUADRO_POND_NCONF_IQE)
-    st.dataframe(QUADRO_POND_REALIZ_IQE)
+    # Exibição segura no Streamlit
+    if isinstance(QUADRO_POND_NCONF, pd.DataFrame):
+      st.dataframe(QUADRO_POND_NCONF)
+    if isinstance(QUADRO_POND_REALIZ, pd.DataFrame):
+      st.dataframe(QUADRO_POND_REALIZ)
+    if isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame):
+      st.dataframe(QUADRO_POND_NCONF_IQE)
+    if isinstance(QUADRO_POND_REALIZ_IQE, pd.DataFrame):
+      st.dataframe(QUADRO_POND_REALIZ_IQE)
 
     return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
 
