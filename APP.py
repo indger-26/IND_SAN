@@ -8597,16 +8597,6 @@ def rel_iqa_iqe():
     QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE = _quadros(
         TAB_POND_IQE, TAB_REALIZADAS_IQE, BASE_MUN_TIPO_IQE_completo)
 
-    # Exibição segura no Streamlit
-    if isinstance(QUADRO_POND_NCONF, pd.DataFrame):
-      st.dataframe(QUADRO_POND_NCONF)
-    if isinstance(QUADRO_POND_REALIZ, pd.DataFrame):
-      st.dataframe(QUADRO_POND_REALIZ)
-    if isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame):
-      st.dataframe(QUADRO_POND_NCONF_IQE)
-    if isinstance(QUADRO_POND_REALIZ_IQE, pd.DataFrame):
-      st.dataframe(QUADRO_POND_REALIZ_IQE)
-
     return QUADRO_POND_NCONF, QUADRO_POND_REALIZ, QUADRO_POND_NCONF_IQE, QUADRO_POND_REALIZ_IQE
 
 
