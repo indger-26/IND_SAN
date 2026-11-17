@@ -4196,7 +4196,7 @@ def rel_iqa():
     # --------------------------------------------------
     if tem_conversoes_conf:
         IIQA_15 = (
-            "Ressalta-se que as conversões de análises conformes para "
+            "Destaca-se que as conversões de análises conformes para "
             "não conformes, e vice-versa, que não estejam contempladas "
             "no quadro de ponderações decorrem de reclassificação "
             "realizada por estes setores técnicos, com base nos valores "
@@ -6527,7 +6527,7 @@ def rel_iqa_iqe():
     elif tem_conversoes_conf:
         # Caso especial onde não há ponderações, mas há conversões diretas por reclassificação
         IIQA8 = (
-            "Ressalta-se que as conversões de análises conformes para "
+            "Destaca-se que as conversões de análises conformes para "
             "não conformes, e vice-versa, identificadas na análise do "
             "componente “Nam Conf”, decorreram de reclassificações "
             "realizadas por estes setores técnicos, com base nos valores "
@@ -6566,7 +6566,7 @@ def rel_iqa_iqe():
     if tem_ponderacoes_conf:
         if tem_conversao_conf_nao_conf and tem_conversao_nao_conf_conf:
             IIQA_15 = (
-                "Ressalta-se que as conversões de análises conformes para "
+                "Destaca-se que as conversões de análises conformes para "
                 "não conformes, e vice-versa, que não estejam contempladas "
                 "no quadro de ponderações decorrem de reclassificação "
                 "realizada por estes setores técnicos, com base nos valores "
@@ -6576,7 +6576,7 @@ def rel_iqa_iqe():
             )
         elif tem_conversao_conf_nao_conf:
             IIQA_15 = (
-                "Ressalta-se que as conversões de análises conformes para "
+                "Destaca-se que as conversões de análises conformes para "
                 "não conformes que não estejam contempladas "
                 "no quadro de ponderações decorrem de reclassificação "
                 "realizada por estes setores técnicos, com base nos valores "
@@ -6586,7 +6586,7 @@ def rel_iqa_iqe():
             )
         elif tem_conversao_nao_conf_conf:
             IIQA_15 = (
-                "Ressalta-se que as conversões de análises não conformes para "
+                "Destaca-se que as conversões de análises não conformes para "
                 "conformes que não estejam contempladas "
                 "no quadro de ponderações decorrem de reclassificação "
                 "realizada por estes setores técnicos, com base nos valores "
@@ -6799,7 +6799,7 @@ def rel_iqa_iqe():
             )
         else:
             IIQE_11 = (
-                "Ressalta-se que não foram registradas manifestações "
+                "Ressalta-se que não foram registradas manifestações relevantes "
                 "das partes interessadas no fluxo de aferição do indicador. "
                 "Diante disso, apresenta-se o panorama ajustado para "
                 "o componente “Nam conf”, modificado por estas setoriais "
@@ -6823,7 +6823,7 @@ def rel_iqa_iqe():
     # --------------------------------------------------
     if tem_conversao_conf_nao_conf_iqe and tem_conversao_nao_conf_conf_iqe:
         IIQE_15 = (
-            "Ressalta-se que as conversões de análises conformes para "
+            "Destaca-se que as conversões de análises conformes para "
             "não conformes, e vice-versa, que não estejam contempladas "
             "no quadro de ponderações decorrem de reclassificação "
             "realizada por estes setores técnicos, com base nos valores "
@@ -6833,7 +6833,7 @@ def rel_iqa_iqe():
         )
     elif tem_conversao_conf_nao_conf_iqe:
         IIQE_15 = (
-            "Ressalta-se que as conversões de análises conformes para "
+            "Destaca-se que as conversões de análises conformes para "
             "não conformes que não estejam contempladas "
             "no quadro de ponderações decorrem de reclassificação "
             "realizada por estes setores técnicos, com base nos valores "
@@ -6843,7 +6843,7 @@ def rel_iqa_iqe():
         )
     elif tem_conversao_nao_conf_conf_iqe:
         IIQE_15 = (
-            "Ressalta-se que as conversões de análises não conformes para "
+            "Destaca-se que as conversões de análises não conformes para "
             "conformes que não estejam contempladas "
             "no quadro de ponderações decorrem de reclassificação "
             "realizada por estes setores técnicos, com base nos valores "
