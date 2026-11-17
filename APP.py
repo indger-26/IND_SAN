@@ -6753,6 +6753,12 @@ def rel_iqa_iqe():
     # 1. Ponderações (IIQE8 a IIQE_10)
     # Aparece sempre que houver ponderações, mesmo sem expurgos ou conversões
     # --------------------------------------------------
+
+    tem_ponderacoes_conf_iqe = (
+        isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
+        and not QUADRO_POND_NCONF_IQE.empty
+    )
+    
     if tem_ponderacoes_conf_iqe:
         IIQE8 = (
             "As observações apresentadas pelo Verificador Independente, "
