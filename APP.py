@@ -4205,17 +4205,25 @@ def rel_iqa():
     sem_exp_rea = _sem_exp(QUADRO_POND_REALIZ)    # $QUADRO_NREA_OBS
     sem_exp_conf = _sem_exp(QUADRO_POND_NCONF)    # $QUADRO_NCONF_OBS
 
-    # ---- Nam Realiz: IIQA1 a IIQA6 ----
-    IIQA1 = "" if sem_exp_rea else (
+    tem_ponderacoes_realiz_iqa = (
+        isinstance(QUADRO_POND_REALIZ, pd.DataFrame) and not QUADRO_POND_REALIZ.empty
+    ) or (
+        isinstance(QUADRO_POND_REALIZ, str) and QUADRO_POND_REALIZ.strip() not in ["", "SEM EXPURGOS"]
+    )
+
+    # IIQA1 a IIQA3 aplicados somente quando há quadro/ponderações no Nam Realiz do IQA
+    IIQA1 = (
         "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
         "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
         "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
-        "realizadas e o quantitativo de expurgos considerados cabíveis.")
+        "realizadas e o quantitativo de expurgos considerados cabíveis."
+    ) if tem_ponderacoes_realiz_iqa else ""
 
-    IIQA2 = "" if sem_exp_rea else (
-        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+    IIQA2 = (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
+    ) if tem_ponderacoes_realiz_iqa else ""
 
-    IIQA3 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+    IIQA3 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL." if tem_ponderacoes_realiz_iqa else ""
 
     IIQA4 = "" if sem_exp_rea else (
         "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
@@ -4499,6 +4507,95 @@ def rel_iqa():
             "técnicos apresentam concordância com o valor apresentado "
             "pelo Verificador Independente para o referido componente."
         )
+
+
+    lista_oficial = [
+        "Atalaia", "Barra de Santo Antônio", "Barra de São Miguel", "Coqueiro Seco", 
+        "Maceió", "Marechal Deodoro", "Messias", "Murici", "Paripueira", "Pilar", 
+        "Rio Largo", "Santa Luzia do Norte", "Satuba", "Água Branca", "Belo Monte", 
+        "Cacimbinhas", "Carneiros", "Delmiro Gouveia", "Dois Riachos", "Feira Grande", 
+        "Igaci", "Igreja Nova", "Inhapi", "Jaramataia", "Junqueiro", "Maravilha", 
+        "Mata Grande", "Monteirópolis", "Olho d'Água do Casado", "Olivença", "Ouro Branco", 
+        "Palestina", "Palmeira dos Índios", "Pão de Açúcar", "Pariconha", "Penedo", 
+        "Piaçabuçu", "Piranhas", "Poço das Trincheiras", "Porto Real do Colégio", 
+        "Quebrangulo", "Santana do Ipanema", "São Brás", "São José da Tapera", 
+        "São Miguel dos Campos", "Senador Rui Palmeira", "Traipu", "Anadia", "Branquinha", 
+        "Campestre", "Capela", "Chã Preta", "Colonia Leopoldina", "Feliz Deserto", 
+        "Ibateguara", "Jacuípe", "Japaratinga", "Joaquim Gomes", "Jundiá", "Mar Vermelho", 
+        "Maragogi", "Maribondo", "Matriz de Camaragibe", "Novo Lino", "Passo de Camaragibe", 
+        "Paulo Jacinto", "Pindoba", "Porto Calvo", "Porto de Pedras", "São Luis do Quitunde", 
+        "São Miguel dos Milagres", "Tanque Darca", "Taquarana", "União dos Palmares"
+    ]
+    
+    mapa_municipios = {normalizar(m): m for m in lista_oficial}
+    
+    def restaurar_nomes_municipios(df, nome_coluna):
+        """
+        Restaura os nomes originais dos municípios em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_municipios)
+            .fillna(df[nome_coluna])
+        )
+        return df
+
+    TAB_MUN_VI = restaurar_nomes_municipios(TAB_MUN_VI, 'MUNICÍPIO')
+    TAB_MUN_ARSAL = restaurar_nomes_municipios(TAB_MUN_ARSAL, 'MUNICÍPIO')
+
+
+
+    lista_oficial_parametros = [
+        "DBO", 
+        "DQO", 
+        "Materiais Flutuantes", 
+        "Temperatura", 
+        "pH", 
+        "Óleos e Graxas", 
+        "Demais Parâmetros", 
+        "Escherichia coli", 
+        "Coliformes Totais", 
+        "Cor Aparente", 
+        "Cloro residual livre", 
+        "Turbidez"
+    ]
+    
+    # Cria o dicionário de mapeamento: {'CHAVE_NORMALIZADA': 'Nome Original'}
+    mapa_parametros = {normalizar(p): p for p in lista_oficial_parametros}
+    
+    def restaurar_nomes_parametros(df, nome_coluna):
+        """
+        Restaura os nomes originais dos parâmetros em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_parametros)
+            .fillna(df[nome_coluna]) # Mantém o valor anterior se não encontrar correspondência
+        )
+        return df
+
+    TAB_TIPO_FINAL = restaurar_nomes_parametros(TAB_TIPO_FINAL, 'ANÁLISE')
+    TAB_TIPO_RESUMIDA_VI = restaurar_nomes_parametros(TAB_TIPO_RESUMIDA_VI, 'ANÁLISE')
 
 
     var_dic = {
@@ -5588,6 +5685,92 @@ def rel_iqa():
   # CONSTRUÇÃO DOS GRÁFICOS
 
   def graf(TAB_MUN_FINAL, TAB_TIPO):
+
+    lista_oficial = [
+        "Atalaia", "Barra de Santo Antônio", "Barra de São Miguel", "Coqueiro Seco", 
+        "Maceió", "Marechal Deodoro", "Messias", "Murici", "Paripueira", "Pilar", 
+        "Rio Largo", "Santa Luzia do Norte", "Satuba", "Água Branca", "Belo Monte", 
+        "Cacimbinhas", "Carneiros", "Delmiro Gouveia", "Dois Riachos", "Feira Grande", 
+        "Igaci", "Igreja Nova", "Inhapi", "Jaramataia", "Junqueiro", "Maravilha", 
+        "Mata Grande", "Monteirópolis", "Olho d'Água do Casado", "Olivença", "Ouro Branco", 
+        "Palestina", "Palmeira dos Índios", "Pão de Açúcar", "Pariconha", "Penedo", 
+        "Piaçabuçu", "Piranhas", "Poço das Trincheiras", "Porto Real do Colégio", 
+        "Quebrangulo", "Santana do Ipanema", "São Brás", "São José da Tapera", 
+        "São Miguel dos Campos", "Senador Rui Palmeira", "Traipu", "Anadia", "Branquinha", 
+        "Campestre", "Capela", "Chã Preta", "Colonia Leopoldina", "Feliz Deserto", 
+        "Ibateguara", "Jacuípe", "Japaratinga", "Joaquim Gomes", "Jundiá", "Mar Vermelho", 
+        "Maragogi", "Maribondo", "Matriz de Camaragibe", "Novo Lino", "Passo de Camaragibe", 
+        "Paulo Jacinto", "Pindoba", "Porto Calvo", "Porto de Pedras", "São Luis do Quitunde", 
+        "São Miguel dos Milagres", "Tanque Darca", "Taquarana", "União dos Palmares"
+    ]
+    
+    mapa_municipios = {normalizar(m): m for m in lista_oficial}
+    
+    def restaurar_nomes_municipios(df, nome_coluna):
+        """
+        Restaura os nomes originais dos municípios em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_municipios)
+            .fillna(df[nome_coluna])
+        )
+        return df
+
+    TAB_MUN_FINAL = restaurar_nomes_municipios(TAB_MUN_FINAL, 'MUNICÍPIO')
+
+    
+    lista_oficial_parametros = [
+        "DBO", 
+        "DQO", 
+        "Materiais Flutuantes", 
+        "Temperatura", 
+        "pH", 
+        "Óleos e Graxas", 
+        "Demais Parâmetros", 
+        "Escherichia coli", 
+        "Coliformes Totais", 
+        "Cor Aparente", 
+        "Cloro residual livre", 
+        "Turbidez"
+    ]
+    
+    # Cria o dicionário de mapeamento: {'CHAVE_NORMALIZADA': 'Nome Original'}
+    mapa_parametros = {normalizar(p): p for p in lista_oficial_parametros}
+    
+    def restaurar_nomes_parametros(df, nome_coluna):
+        """
+        Restaura os nomes originais dos parâmetros em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_parametros)
+            .fillna(df[nome_coluna]) # Mantém o valor anterior se não encontrar correspondência
+        )
+        return df
+
+    TAB_TIPO = restaurar_nomes_parametros(TAB_TIPO, 'ANÁLISE')
+    
 
     TAB_MUN_FINAL = TAB_MUN_FINAL[:-1]
 
@@ -7490,17 +7673,25 @@ def rel_iqa_iqe():
     sem_exp_rea = _sem_exp(QUADRO_POND_REALIZ)    # $QUADRO_NREA_OBS
     sem_exp_conf = _sem_exp(QUADRO_POND_NCONF)    # $QUADRO_NCONF_OBS
 
-    # ---- Nam Realiz: IIQA1 a IIQA6 ----
-    IIQA1 = "" if sem_exp_rea else (
+    tem_ponderacoes_realiz_iqa = (
+        isinstance(QUADRO_POND_REALIZ, pd.DataFrame) and not QUADRO_POND_REALIZ.empty
+    ) or (
+        isinstance(QUADRO_POND_REALIZ, str) and QUADRO_POND_REALIZ.strip() not in ["", "SEM EXPURGOS"]
+    )
+
+    # IIQA1 a IIQA3 aplicados somente quando há quadro/ponderações no Nam Realiz do IQA
+    IIQA1 = (
         "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
         "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
         "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
-        "realizadas e o quantitativo de expurgos considerados cabíveis.")
+        "realizadas e o quantitativo de expurgos considerados cabíveis."
+    ) if tem_ponderacoes_realiz_iqa else ""
 
-    IIQA2 = "" if sem_exp_rea else (
-        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais.")
+    IIQA2 = (
+        "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
+    ) if tem_ponderacoes_realiz_iqa else ""
 
-    IIQA3 = "" if sem_exp_rea else "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL."
+    IIQA3 = "Fonte: Adaptado arquivo Eletrônico IQA. Elaboração: ARSAL." if tem_ponderacoes_realiz_iqa else ""
 
     IIQA4 = "" if sem_exp_rea else (
         "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
@@ -7614,10 +7805,9 @@ def rel_iqa_iqe():
             )
 
     # ---- NAM CONF: IIQA8 a IIQA_15 ----
-    tem_ponderacoes_conf = (
-        isinstance(QUADRO_POND_NCONF, pd.DataFrame)
-        and not QUADRO_POND_NCONF.empty
-    )
+    def _sem_ponderacoes_conf(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
+                 
     tem_expurgos_conf = _num(NCONF_EXPURGOS) != 0
     tem_conversao_conf_nao_conf = _num(total_conf_vi_naoconf_arsal) != 0
     tem_conversao_nao_conf_conf = _num(total_naoconf_vi_conf_arsal) != 0
@@ -8447,19 +8637,25 @@ def rel_iqa_iqe():
 
     sem_exp_rea_iqe = _sem_exp(QUADRO_POND_REALIZ_IQE)
 
-    # ---- Nam Realiz IQE: IIQE1 a IIQE6 ----
-    IIQE1 = "" if sem_exp_rea_iqe else (
+    tem_ponderacoes_realiz_iqe = (
+        isinstance(QUADRO_POND_REALIZ_IQE, pd.DataFrame) and not QUADRO_POND_REALIZ_IQE.empty
+    ) or (
+        isinstance(QUADRO_POND_REALIZ_IQE, str) and QUADRO_POND_REALIZ_IQE.strip() not in ["", "SEM EXPURGOS"]
+    )
+
+    # IIQE1 a IIQE3 aplicados somente quando há quadro/ponderações no Nam Realiz
+    IIQE1 = (
         "Para facilitar a compreensão das ações adotadas na análise do indicador, o quadro a seguir apresenta, "
         "de forma sequencial, as observações registradas pela prestadora, os entendimentos do Verificador "
         "Independente e o posicionamento final dos setores técnicos, incluindo os detalhamentos das tratativas "
         "realizadas e o quantitativo de expurgos considerados cabíveis."
-    )
+    ) if tem_ponderacoes_realiz_iqe else ""
 
-    IIQE2 = "" if sem_exp_rea_iqe else (
+    IIQE2 = (
         "Quadro - Ponderações elaboradas pelo Verificador Independente e posicionamento destas setoriais."
-    )
+    ) if tem_ponderacoes_realiz_iqe else ""
 
-    IIQE3 = "" if sem_exp_rea_iqe else "Fonte: Adaptado arquivo Eletrônico IQE. Elaboração: ARSAL."
+    IIQE3 = "Fonte: Adaptado arquivo Eletrônico IQE. Elaboração: ARSAL." if tem_ponderacoes_realiz_iqe else ""
 
     IIQE4 = "" if sem_exp_rea_iqe else (
         "Diante do exposto, segue o panorama ajustado para o componente “Nam Realiz”, modificado por estas "
@@ -8521,10 +8717,8 @@ def rel_iqa_iqe():
             )
 
     # ---- NAM CONF IQE: IIQE8 a IIQE_15 ----
-    tem_ponderacoes_conf_iqe = (
-        isinstance(QUADRO_POND_NCONF_IQE, pd.DataFrame)
-        and not QUADRO_POND_NCONF_IQE.empty
-    )
+    def _sem_ponderacoes_conf_iqe(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
 
     # Existem expurgos conformes?
     tem_expurgos_conf_iqe = _num(NCONF_EXPURGOS_IQE) != 0
@@ -8845,6 +9039,101 @@ def rel_iqa_iqe():
         I_10 = "Quadro - Contabilização dos componentes “Etotal água” e “Etotal esg” do IUA, ajustado por estas setoriais."
         I_11 = "Fonte: ARSAL."
 
+
+    lista_oficial = [
+        "Atalaia", "Barra de Santo Antônio", "Barra de São Miguel", "Coqueiro Seco", 
+        "Maceió", "Marechal Deodoro", "Messias", "Murici", "Paripueira", "Pilar", 
+        "Rio Largo", "Santa Luzia do Norte", "Satuba", "Água Branca", "Belo Monte", 
+        "Cacimbinhas", "Carneiros", "Delmiro Gouveia", "Dois Riachos", "Feira Grande", 
+        "Igaci", "Igreja Nova", "Inhapi", "Jaramataia", "Junqueiro", "Maravilha", 
+        "Mata Grande", "Monteirópolis", "Olho d'Água do Casado", "Olivença", "Ouro Branco", 
+        "Palestina", "Palmeira dos Índios", "Pão de Açúcar", "Pariconha", "Penedo", 
+        "Piaçabuçu", "Piranhas", "Poço das Trincheiras", "Porto Real do Colégio", 
+        "Quebrangulo", "Santana do Ipanema", "São Brás", "São José da Tapera", 
+        "São Miguel dos Campos", "Senador Rui Palmeira", "Traipu", "Anadia", "Branquinha", 
+        "Campestre", "Capela", "Chã Preta", "Colonia Leopoldina", "Feliz Deserto", 
+        "Ibateguara", "Jacuípe", "Japaratinga", "Joaquim Gomes", "Jundiá", "Mar Vermelho", 
+        "Maragogi", "Maribondo", "Matriz de Camaragibe", "Novo Lino", "Passo de Camaragibe", 
+        "Paulo Jacinto", "Pindoba", "Porto Calvo", "Porto de Pedras", "São Luis do Quitunde", 
+        "São Miguel dos Milagres", "Tanque Darca", "Taquarana", "União dos Palmares"
+    ]
+    
+    mapa_municipios = {normalizar(m): m for m in lista_oficial}
+    
+    def restaurar_nomes_municipios(df, nome_coluna):
+        """
+        Restaura os nomes originais dos municípios em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_municipios)
+            .fillna(df[nome_coluna])
+        )
+        return df
+
+    TAB_MUN_VI = restaurar_nomes_municipios(TAB_MUN_VI, 'MUNICÍPIO')
+    TAB_MUN_ARSAL = restaurar_nomes_municipios(TAB_MUN_ARSAL, 'MUNICÍPIO')
+    TAB_MUN_VI_IQE = restaurar_nomes_municipios(TAB_MUN_VI_IQE, 'MUNICÍPIO')
+    TAB_MUN_ARSAL_IQE = restaurar_nomes_municipios(TAB_MUN_ARSAL_IQE, 'MUNICÍPIO')
+
+
+
+    lista_oficial_parametros = [
+        "DBO", 
+        "DQO", 
+        "Materiais Flutuantes", 
+        "Temperatura", 
+        "pH", 
+        "Óleos e Graxas", 
+        "Demais Parâmetros", 
+        "Escherichia coli", 
+        "Coliformes Totais", 
+        "Cor Aparente", 
+        "Cloro residual livre", 
+        "Turbidez"
+    ]
+    
+    # Cria o dicionário de mapeamento: {'CHAVE_NORMALIZADA': 'Nome Original'}
+    mapa_parametros = {normalizar(p): p for p in lista_oficial_parametros}
+    
+    def restaurar_nomes_parametros(df, nome_coluna):
+        """
+        Restaura os nomes originais dos parâmetros em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_parametros)
+            .fillna(df[nome_coluna]) # Mantém o valor anterior se não encontrar correspondência
+        )
+        return df
+
+    TAB_TIPO_FINAL = restaurar_nomes_parametros(TAB_TIPO_FINAL, 'ANÁLISE')
+    TAB_TIPO_RESUMIDA_VI = restaurar_nomes_parametros(TAB_TIPO_RESUMIDA_VI, 'ANÁLISE')
+    TAB_TIPO_FINAL_IQE = restaurar_nomes_parametros(TAB_TIPO_FINAL_IQE, 'ANÁLISE')
+    TAB_TIPO_RESUMIDA_VI_IQE = restaurar_nomes_parametros(TAB_TIPO_RESUMIDA_VI_IQE, 'ANÁLISE')
+                 
+    
+
     var_dic = {
               '$MES_ANO': str(MES_ANO),
               '$ANO_CONTRAT': str(ANO_CONTRAT),
@@ -8866,8 +9155,8 @@ def rel_iqa_iqe():
               '$FONTE_NCONF': str(FONT_NCONF),
               '$ACREDITAÇÃO': str (ACREDITAÇÃO),
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
-              '$QUADRO_NREA_OBS': "" if sem_exp_rea else QUADRO_POND_REALIZ,
-              '$QUADRO_NCONF_OBS': (QUADRO_POND_NCONF if tem_ponderacoes_conf else ""),
+              '$QUADRO_NREA_OBS': QUADRO_POND_REALIZ if tem_ponderacoes_realiz_iqa else "",
+              '$QUADRO_NCONF_OBS': ("" if _sem_ponderacoes_conf(QUADRO_POND_NCONF) else QUADRO_POND_NCONF),
               '$QUADRO_NREA_VI': TAB_MUN_VI,
               '$QUADRO_NREA_ARSAL': TAB_MUN_ARSAL,
               '$QUADRO_NCONF_VI': TAB_TIPO_RESUMIDA_VI,
@@ -8915,8 +9204,8 @@ def rel_iqa_iqe():
               '$FONTE__NCONF_IQE': str(FONT_NCONF_IQE),
               '$ACREDITA_IQE': str (ACREDITA_IQE),
               # "SEM EXPURGOS" vira "" para a linha do quadro ser apagada
-              '$QUADRO__NREA_OBS_IQE': ("" if sem_exp_rea_iqe else QUADRO_POND_REALIZ_IQE),
-              '$QUADRO__NCONF_OBS_IQE': (QUADRO_POND_NCONF_IQE if tem_ponderacoes_conf_iqe else ""),
+              '$QUADRO__NREA_OBS_IQE': ("" if sem_exp_rea_iqe else QUADRO_POND_REALIZ_IQE), ########################
+              '$QUADRO__NREA_OBS_IQE': QUADRO_POND_REALIZ_IQE if tem_ponderacoes_realiz_iqe else "", #########################
               '$QUADRO__NREA_VI_IQE': TAB_MUN_VI_IQE,
               '$QUADRO__NREA_ARSAL_IQE': ("" if sem_exp_rea_iqe else TAB_MUN_ARSAL_IQE),
               '$QUADRO__NCONF_VI_IQE': TAB_TIPO_RESUMIDA_VI_IQE,
@@ -10308,6 +10597,94 @@ def rel_iqa_iqe():
 # CONSTRUÇÃO DOS GRÁFICOS
 
   def graf(TAB_MUN_FINAL, TAB_TIPO, TAB_MUN_FINAL_IQE, TAB_TIPO_IQE):
+
+    lista_oficial = [
+        "Atalaia", "Barra de Santo Antônio", "Barra de São Miguel", "Coqueiro Seco", 
+        "Maceió", "Marechal Deodoro", "Messias", "Murici", "Paripueira", "Pilar", 
+        "Rio Largo", "Santa Luzia do Norte", "Satuba", "Água Branca", "Belo Monte", 
+        "Cacimbinhas", "Carneiros", "Delmiro Gouveia", "Dois Riachos", "Feira Grande", 
+        "Igaci", "Igreja Nova", "Inhapi", "Jaramataia", "Junqueiro", "Maravilha", 
+        "Mata Grande", "Monteirópolis", "Olho d'Água do Casado", "Olivença", "Ouro Branco", 
+        "Palestina", "Palmeira dos Índios", "Pão de Açúcar", "Pariconha", "Penedo", 
+        "Piaçabuçu", "Piranhas", "Poço das Trincheiras", "Porto Real do Colégio", 
+        "Quebrangulo", "Santana do Ipanema", "São Brás", "São José da Tapera", 
+        "São Miguel dos Campos", "Senador Rui Palmeira", "Traipu", "Anadia", "Branquinha", 
+        "Campestre", "Capela", "Chã Preta", "Colonia Leopoldina", "Feliz Deserto", 
+        "Ibateguara", "Jacuípe", "Japaratinga", "Joaquim Gomes", "Jundiá", "Mar Vermelho", 
+        "Maragogi", "Maribondo", "Matriz de Camaragibe", "Novo Lino", "Passo de Camaragibe", 
+        "Paulo Jacinto", "Pindoba", "Porto Calvo", "Porto de Pedras", "São Luis do Quitunde", 
+        "São Miguel dos Milagres", "Tanque Darca", "Taquarana", "União dos Palmares"
+    ]
+    
+    mapa_municipios = {normalizar(m): m for m in lista_oficial}
+    
+    def restaurar_nomes_municipios(df, nome_coluna):
+        """
+        Restaura os nomes originais dos municípios em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_municipios)
+            .fillna(df[nome_coluna])
+        )
+        return df
+
+    TAB_MUN_FINAL = restaurar_nomes_municipios(TAB_MUN_FINAL, 'MUNICÍPIO')
+    TAB_MUN_FINAL_IQE = restaurar_nomes_municipios(TAB_MUN_FINAL_IQE, 'MUNICÍPIO')
+
+    
+    lista_oficial_parametros = [
+        "DBO", 
+        "DQO", 
+        "Materiais Flutuantes", 
+        "Temperatura", 
+        "pH", 
+        "Óleos e Graxas", 
+        "Demais Parâmetros", 
+        "Escherichia coli", 
+        "Coliformes Totais", 
+        "Cor Aparente", 
+        "Cloro residual livre", 
+        "Turbidez"
+    ]
+    
+    # Cria o dicionário de mapeamento: {'CHAVE_NORMALIZADA': 'Nome Original'}
+    mapa_parametros = {normalizar(p): p for p in lista_oficial_parametros}
+    
+    def restaurar_nomes_parametros(df, nome_coluna):
+        """
+        Restaura os nomes originais dos parâmetros em uma coluna do DataFrame.
+        Ignora a execução com segurança caso não seja um DataFrame ou a coluna não exista.
+        """
+        # Valida se é um DataFrame do pandas
+        if not isinstance(df, pd.DataFrame):
+            return df
+        
+        # Valida se a coluna informada existe no DataFrame
+        if nome_coluna not in df.columns:
+            return df
+    
+        df[nome_coluna] = (
+            df[nome_coluna]
+            .apply(normalizar)
+            .map(mapa_parametros)
+            .fillna(df[nome_coluna]) # Mantém o valor anterior se não encontrar correspondência
+        )
+        return df
+
+    TAB_TIPO = restaurar_nomes_parametros(TAB_TIPO, 'ANÁLISE')
+    TAB_TIPO_IQE = restaurar_nomes_parametros(TAB_TIPO_IQE, 'ANÁLISE')
+    
 
     # IQA
 
