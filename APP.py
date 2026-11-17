@@ -7177,8 +7177,11 @@ def rel_iqa_iqe():
     TAB_TIPO_RESUMIDA_VI = restaurar_nomes_parametros(TAB_TIPO_RESUMIDA_VI, 'ANÁLISE')
     TAB_TIPO_FINAL_IQE = restaurar_nomes_parametros(TAB_TIPO_FINAL_IQE, 'ANÁLISE')
     TAB_TIPO_RESUMIDA_VI_IQE = restaurar_nomes_parametros(TAB_TIPO_RESUMIDA_VI_IQE, 'ANÁLISE')
+
+
+    def _sem_ponderacoes_conf_iqe(q):
+        return isinstance(q, str) and q.strip() == "SEM EXPURGOS"
                  
-    
 
     var_dic = {
               '$MES_ANO': str(MES_ANO),
