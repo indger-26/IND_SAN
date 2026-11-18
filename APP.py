@@ -5549,7 +5549,7 @@ def rel_iqa():
     bars2 = ax7.barh(y - largura/2, TAB_TIPO["ANALISES REALIZADAS"] - TAB_TIPO["EXPURGOS TOTAIS"], height=largura, label="ANALISES REALIZADAS (SUBTRAINDO OS EXPURGOS TOTAIS)", color="orange")
 
     ax7.set_yticks(y)
-    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], , fontsize=13)
+    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], fontsize=13)
     ax7.set_xlabel("Amostras")
 
     for bar in bars1:
