@@ -4616,7 +4616,7 @@ def rel_iqa():
         ('$GRAF_PLANO_REALIZ_ANALISE', 'grafico_plan_realiz_tipo.png',  'width', 6.5),
         ('$GRAF_PLANO_REALIZ_MUN',     'grafico_plan_realiz_mun.png',   'height', 9.0),
         ('$GRAF_CONF_REALIZ_ANALISE',  'grafico_conf_realiz_tipo.png',  'width', 7.1),
-        ('$GRAF_CONF_REALIZ_MUN',      'grafico_conf_realiz_mun.png',   'height', 9.0),
+        ('$GRAF_CONF_REALIZ_MUN',      'grafico_conf_realiz_mun.png',   'height', 8.85),
         ('$GRAF_IQAS_MUN',             'grafico_iqa_mun.png',           'height', 9.0),
     ]
 
@@ -7442,7 +7442,7 @@ def rel_iqa_iqe():
                             "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME"):
                 larguras.append(CONVERSAO)
   
-            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
+            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"):
                 larguras.append(EX_LARGA)
 
             elif col_name in ("Municipio", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
@@ -7586,7 +7586,7 @@ def rel_iqa_iqe():
         ('$GRAF_PLANO_REALIZ_ANALISE',      'grafico_plan_realiz_tipo.png',      'width', 6.5),
         ('$GRAF_PLANO_REALIZ_MUN',          'grafico_plan_realiz_mun.png',       'height', 9.0),
         ('$GRAF_CONF_REALIZ_ANALISE',       'grafico_conf_realiz_tipo.png',      'width', 6.5),
-        ('$GRAF_CONF_REALIZ_MUN',           'grafico_conf_realiz_mun.png',       'height', 9.0),
+        ('$GRAF_CONF_REALIZ_MUN',           'grafico_conf_realiz_mun.png',       'height', 8.85),
         ('$GRAF_IQAS_MUN',                  'grafico_iqa_mun.png',               'height', 9.0),
 
         ('$GRAF_COMPARATIVO_IQES',          'IQES.png',                          'width', 7.1),
@@ -8992,19 +8992,19 @@ def rel_iqa_iqe():
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=12.5)
+                f'{val}', va='center', fontsize=12)
 
     for bar in bars2:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=12.5)
+                f'{val}', va='center', fontsize=12)
 
     for bar in bars3:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=12.5)
+                f'{val}', va='center', fontsize=12)
 
     ax3.tick_params(axis='y', labelsize=15)
     ax3.tick_params(axis='x', labelsize=14)
@@ -9044,7 +9044,7 @@ def rel_iqa_iqe():
     ax4.tick_params(axis='x', labelsize=14)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
-    ax4.legend(fontsize=14)
+    ax4.legend(fontsize=13)
 
     plt.savefig("grafico_conf_realiz_mun_IQE.png", dpi=300, bbox_inches="tight")
 
