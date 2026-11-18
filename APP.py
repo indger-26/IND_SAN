@@ -7141,6 +7141,11 @@ def rel_iqa_iqe():
     TAB_MUN_VI_IQE = restaurar_nomes_municipios(TAB_MUN_VI_IQE, 'MUNICÍPIO')
     TAB_MUN_ARSAL_IQE = restaurar_nomes_municipios(TAB_MUN_ARSAL_IQE, 'MUNICÍPIO')
 
+    if eh_agosto:
+      tabs = ["TAB_EPOT_ARSAL", "TAB_EPOT_VI", "TAB_ETOT_ARSAL", "TAB_ETOT_VI"]
+      for nome in tabs:
+          if isinstance(globals().get(nome), pd.DataFrame):
+              globals()[nome] = restaurar_nomes_municipios(globals()[nome], 'Municipio')
 
 
     lista_oficial_parametros = [
@@ -7446,14 +7451,14 @@ def rel_iqa_iqe():
                             "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME"):
                 larguras.append(CONVERSAO)
   
-            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"):
+            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
                 larguras.append(EX_LARGA)
     
             elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
                               "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
                               "ANALISES REALIZADAS", "ANALISES CONFORMES", "ANALISES NÃO CONFORMES",
                               "EXPURGOS TOTAIS", "EXPURGOS CONFORMES", "EXPURGOS NAO CONFORMES",
-                              "NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)"):
+                              "NAM REALIZ", "NAM REALIZ (VI)", "NAM CONF", "NAM CONF (VI)") :
                 larguras.append(MEDIA)
     
             else:
