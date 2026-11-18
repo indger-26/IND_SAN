@@ -2564,8 +2564,8 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
     }
 
     meses_labels = [
-        nomes_meses[m]
-        for m in df_filtrado['mes_numero']
+          f"{nomes_meses[m]}/{a}"
+          for m, a in zip(df_filtrado['mes_numero'], df_filtrado['ano'])
     ]
 
     x = np.arange(len(meses_labels))
@@ -2626,7 +2626,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
         linewidth=0.8
     )
 
-    ax.set_ylim(0, 1.05)
+    ax.set_ylim(0, 1.40)
 
     ax.set_yticks([
         0,
@@ -2642,7 +2642,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
         '50,00%',
         '75,00%',
         '100,00%'
-    ])
+    ], fontsize=13)
 
     ax.set_xticks(x)
 
@@ -2656,7 +2656,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
         bbox_to_anchor=(0, 1.12),
         ncol=3,
         frameon=False,
-        fontsize=12
+        fontsize=14
     )
 
     ax.grid(
@@ -2855,7 +2855,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
       ax.set_ylim(
           0,
-          1.05
+          1.40
       )
 
       ax.set_yticks([
@@ -2872,7 +2872,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
           '50,00%',
           '75,00%',
           '100,00%'
-      ])
+      ], fontsize=13)
 
       ax.set_xticks(x)
 
@@ -3192,56 +3192,43 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
 
       df['mes_numero'] = df['mes_numero'].astype('Int64')
 
-      ultimo_ano = df['ano'].max()
 
-      print(
-          f"Último ano encontrado: {ultimo_ano}"
-      )
 
-      df_ano = df[
-          df['ano'] == ultimo_ano
-      ].copy()
+    
 
-      if df_ano.empty:
-
-          print(
-              "❌ Nenhum dado encontrado "
-              "para o último ano!"
-          )
-
-          exit()
-
-      ultimo_mes = df_ano[
-          'mes_numero'
-      ].max()
-
-      print(
-          f"Último mês disponível: {ultimo_mes}"
-      )
-
-      df_ano['data'] = pd.to_datetime(
+      # data de todas as linhas (não filtra por ano)
+      df['data'] = pd.to_datetime(
           dict(
-              year=df_ano['ano'],
-              month=df_ano['mes_numero'],
+              year=df['ano'],
+              month=df['mes_numero'],
               day=1
           )
       )
 
-      ultima_data = df_ano['data'].max()
+      # último mês = a data mais recente da tabela
+      ultima_data = df['data'].max()
+      data_inicial = ultima_data - pd.DateOffset(months=5)
 
-      data_inicial = (
-          ultima_data -
-          pd.DateOffset(months=5)
-      )
+      print(f"Último período: {ultima_data:%m/%Y}")
 
-      df_filtrado = df_ano[
-          (df_ano['data'] >= data_inicial) &
-          (df_ano['data'] <= ultima_data)
+      df_filtrado = df[
+          (df['data'] >= data_inicial) &
+          (df['data'] <= ultima_data)
       ].copy()
 
-      df_filtrado = df_filtrado.sort_values(
-          'data'
-      )
+      df_filtrado = df_filtrado.sort_values('data')
+
+      quantidade = len(df_filtrado)
+
+      print(f"Meses encontrados: {quantidade}/6")
+      print("Detalhes:", df_filtrado['mes'].tolist())
+
+      if quantidade == 0:
+          print("❌ Nenhum mês encontrado para o período!")
+          exit()
+
+
+    
 
       quantidade = len(df_filtrado)
 
@@ -3279,8 +3266,8 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
       }
 
       meses_labels = [
-          nomes_meses[m]
-          for m in df_filtrado['mes_numero']
+          f"{nomes_meses[m]}/{a}"
+          for m, a in zip(df_filtrado['mes_numero'], df_filtrado['ano'])
       ]
 
       x = np.arange(
@@ -3348,7 +3335,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
           bbox_to_anchor=(0, 1.12),
           ncol=2,
           frameon=False,
-          fontsize=12
+          fontsize=13
       )
 
       ax.grid(
@@ -3567,7 +3554,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
             bbox_to_anchor=(0, 1.12),
             ncol=2,
             frameon=False,
-            fontsize=12
+            fontsize=13
         )
 
         ax.grid(
@@ -3593,7 +3580,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
                 f'{valor:.0f}'.replace('.', ','),
                 ha='center',
                 va='top',
-                fontsize=12
+                fontsize=13
             )
 
         for i, valor in enumerate(nam_realiz):
@@ -5396,7 +5383,7 @@ def rel_iqa():
 
     ax3.set_yticks(y)
     ax3.set_yticklabels(TAB_MUN_FINAL["MUNICÍPIO"])
-    ax3.set_xlabel("Amostras")
+    ax3.set_xlabel("Amostras", fontsize=14)
 
     for bar in bars1:
       val = int(bar.get_width())
@@ -5416,9 +5403,10 @@ def rel_iqa():
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
                 f'{val}', va='center', fontsize=13)
 
-    ax3.tick_params(axis='y', labelsize=14)
+    ax3.tick_params(axis='x', labelsize=14)
+    ax3.tick_params(axis='y', labelsize=15)
     ax3.grid(axis='x', linestyle='--', alpha=0.1)
-    ax3.legend()
+    ax3.legend(fontsize=14)
 
     plt.tight_layout()
     plt.savefig("grafico_plan_realiz_mun.png", dpi=300, bbox_inches="tight")
@@ -5438,7 +5426,7 @@ def rel_iqa():
 
     ax4.set_yticks(y)
     ax4.set_yticklabels(TAB_MUN_FINAL["MUNICÍPIO"])
-    ax4.set_xlabel("Amostras")
+    ax4.set_xlabel("Amostras", fontsize=15)
 
     for bar in bars1:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
@@ -5449,9 +5437,10 @@ def rel_iqa():
               f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax4.tick_params(axis='y', labelsize=14)
+    ax4.tick_params(axis='x', labelsize=14)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
-    ax4.legend()
+    ax4.legend(fontsize=14)
 
     plt.savefig("grafico_conf_realiz_mun.png", dpi=300, bbox_inches="tight")
 
@@ -5470,16 +5459,19 @@ def rel_iqa():
 
     ax5.set_yticks(y)
     ax5.set_yticklabels(TAB_MUN_FINAL["MUNICÍPIO"])
-    ax5.set_xlabel("IQA (%)")
+    ax5.set_xlabel("IQA (%)", fontsize=14)
 
     for bar in bars1:
       ax5.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
               f'{bar.get_width():.1f}', va='center', fontsize=13)
 
     ax5.tick_params(axis='y', labelsize=13)
+    ax5.tick_params(axis='x', labelsize=13)
 
     ax5.grid(axis='x', linestyle='--', alpha=0.1)
-    ax5.legend()
+    ax5.spines["top"].set_visible(False)
+    ax5.spines["right"].set_visible(False)
+    ax5.legend(fontsize=14)
 
     plt.savefig("grafico_iqa_mun.png", dpi=300, bbox_inches="tight")
 
@@ -5550,7 +5542,8 @@ def rel_iqa():
 
     ax7.set_yticks(y)
     ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], fontsize=13)
-    ax7.set_xlabel("Amostras")
+    ax7.set_xlabel("Amostras", fontsize=13)
+    ax7.tick_params(axis='x', labelsize=13)
 
     for bar in bars1:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
@@ -5561,7 +5554,7 @@ def rel_iqa():
               f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax7.grid(axis='x', linestyle='--', alpha=0.1)
-    ax7.legend()
+    ax7.legend(fontsize=13)
 
     plt.savefig("grafico_conf_realiz_tipo.png", dpi=300, bbox_inches="tight")
 
@@ -7452,7 +7445,7 @@ def rel_iqa_iqe():
             elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
                 larguras.append(EX_LARGA)
 
-            elif col_name in ("E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
+            elif col_name in ("Municipio", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
                 larguras.append(LARGA)
     
             elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
@@ -8799,7 +8792,7 @@ def rel_iqa_iqe():
 
     ax3.set_yticks(y)
     ax3.set_yticklabels(TAB_MUN_FINAL["MUNICÍPIO"])
-    ax3.set_xlabel("Amostras")
+    ax3.set_xlabel("Amostras", fontsize=14)
 
     for bar in bars1:
       val = int(bar.get_width())
@@ -8820,8 +8813,9 @@ def rel_iqa_iqe():
                 f'{val}', va='center', fontsize=13)
 
     ax3.tick_params(axis='y', labelsize=14)
+    ax3.tick_params(axis='x', labelsize=14)
     ax3.grid(axis='x', linestyle='--', alpha=0.1)
-    ax3.legend()
+    ax3.legend(fontsize=14)
 
     plt.tight_layout()
     plt.savefig("grafico_plan_realiz_mun.png", dpi=300, bbox_inches="tight")
@@ -8842,7 +8836,7 @@ def rel_iqa_iqe():
 
     ax4.set_yticks(y)
     ax4.set_yticklabels(TAB_MUN_FINAL["MUNICÍPIO"])
-    ax4.set_xlabel("Amostras")
+    ax4.set_xlabel("Amostras", fontsize=15)
 
     for bar in bars1:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
@@ -8853,9 +8847,10 @@ def rel_iqa_iqe():
               f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax4.tick_params(axis='y', labelsize=14)
+    ax4.tick_params(axis='x', labelsize=14)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
-    ax4.legend()
+    ax4.legend(fontsize=14)
 
     plt.savefig("grafico_conf_realiz_mun.png", dpi=300, bbox_inches="tight")
 
@@ -8875,16 +8870,19 @@ def rel_iqa_iqe():
 
     ax5.set_yticks(y)
     ax5.set_yticklabels(TAB_MUN_FINAL["MUNICÍPIO"])
-    ax5.set_xlabel("IQA (%)")
+    ax5.set_xlabel("IQA (%)", fontsize=14)
 
     for bar in bars1:
       ax5.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
               f'{bar.get_width():.1f}', va='center', fontsize=13)
 
     ax5.tick_params(axis='y', labelsize=13)
+    ax5.tick_params(axis='x', labelsize=13)
 
     ax5.grid(axis='x', linestyle='--', alpha=0.1)
-    ax5.legend()
+    ax5.spines["top"].set_visible(False)
+    ax5.spines["right"].set_visible(False)
+    ax5.legend(fontsize=14)
 
     plt.savefig("grafico_iqa_mun.png", dpi=300, bbox_inches="tight")
 
@@ -8938,8 +8936,9 @@ def rel_iqa_iqe():
     bars2 = ax7.barh(y - largura/2, TAB_TIPO["ANALISES REALIZADAS"] - TAB_TIPO["EXPURGOS TOTAIS"], height=largura, label="ANALISES REALIZADAS (SUBTRAINDO OS EXPURGOS TOTAIS)", color="orange")
 
     ax7.set_yticks(y)
-    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], fontsize=14)
-    ax7.set_xlabel("Amostras")
+    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], fontsize=13)
+    ax7.set_xlabel("Amostras", fontsize=13)
+    ax7.tick_params(axis='x', labelsize=13)
 
     for bar in bars1:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
@@ -8950,7 +8949,7 @@ def rel_iqa_iqe():
               f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax7.grid(axis='x', linestyle='--', alpha=0.1)
-    ax7.legend()
+    ax7.legend(fontsize=13)
 
     plt.savefig("grafico_conf_realiz_tipo.png", dpi=300, bbox_inches="tight")
 
@@ -8987,29 +8986,30 @@ def rel_iqa_iqe():
 
     ax3.set_yticks(y)
     ax3.set_yticklabels(TAB_MUN_FINAL_IQE["MUNICÍPIO"], fontsize=13)
-    ax3.set_xlabel("Amostras")
+    ax3.set_xlabel("Amostras", fontsize=14)
 
     for bar in bars1:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=13)
+                f'{val}', va='center', fontsize=12.5)
 
     for bar in bars2:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=13)
+                f'{val}', va='center', fontsize=12.5)
 
     for bar in bars3:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=13)
+                f'{val}', va='center', fontsize=12.5)
 
-    ax3.tick_params(axis='y', labelsize=11)
+    ax3.tick_params(axis='y', labelsize=15)
+    ax3.tick_params(axis='x', labelsize=14)
     ax3.grid(axis='x', linestyle='--', alpha=0.1)
-    ax3.legend()
+    ax3.legend(fontsize=14)
 
     plt.tight_layout()
     plt.savefig("grafico_plan_realiz_mun_IQE.png", dpi=300, bbox_inches="tight")
@@ -9030,7 +9030,7 @@ def rel_iqa_iqe():
 
     ax4.set_yticks(y)
     ax4.set_yticklabels(TAB_MUN_FINAL_IQE["MUNICÍPIO"])
-    ax4.set_xlabel("Amostras")
+    ax4.set_xlabel("Amostras", fontsize=15)
 
     for bar in bars1:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
@@ -9040,10 +9040,11 @@ def rel_iqa_iqe():
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
               f'{int(bar.get_width())}', va='center', fontsize=13)
 
-    ax4.tick_params(axis='y', labelsize=13)
+    ax4.tick_params(axis='y', labelsize=14)
+    ax4.tick_params(axis='x', labelsize=14)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
-    ax4.legend()
+    ax4.legend(fontsize=14)
 
     plt.savefig("grafico_conf_realiz_mun_IQE.png", dpi=300, bbox_inches="tight")
 
@@ -9063,16 +9064,19 @@ def rel_iqa_iqe():
 
     ax5.set_yticks(y)
     ax5.set_yticklabels(TAB_MUN_FINAL_IQE["MUNICÍPIO"])
-    ax5.set_xlabel("IQE (%)")
+    ax5.set_xlabel("IQE (%)", fontsize=14)
 
     for bar in bars1:
       ax5.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
               f'{bar.get_width():.1f}', va='center', fontsize=13)
 
     ax5.tick_params(axis='y', labelsize=13)
+    ax5.tick_params(axis='x', labelsize=13)
 
     ax5.grid(axis='x', linestyle='--', alpha=0.1)
-    ax5.legend()
+    ax5.spines["top"].set_visible(False)
+    ax5.spines["right"].set_visible(False)
+    ax5.legend(fontsize=14)
 
     plt.savefig("grafico_iqa_mun_IQE.png", dpi=300, bbox_inches="tight")
 
@@ -9127,7 +9131,9 @@ def rel_iqa_iqe():
 
     ax7.set_yticks(y)
     ax7.set_yticklabels(TAB_TIPO_IQE["ANÁLISE"], fontsize=13)
-    ax7.set_xlabel("Amostras")
+    ax7.set_xlabel("Amostras", fontsize=13)
+    ax7.tick_params(axis='x', labelsize=13)
+
 
     for bar in bars1:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
@@ -9138,7 +9144,7 @@ def rel_iqa_iqe():
               f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax7.grid(axis='x', linestyle='--', alpha=0.1)
-    ax7.legend()
+    ax7.legend(fontsize=13)
 
     plt.savefig("grafico_conf_realiz_tipo_IQE.png", dpi=300, bbox_inches="tight")
 
