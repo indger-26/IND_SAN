@@ -7442,10 +7442,10 @@ def rel_iqa_iqe():
                             "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME"):
                 larguras.append(CONVERSAO)
   
-            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"):
+            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)", "Municipio"):
                 larguras.append(EX_LARGA)
 
-            elif col_name in ("Municipio", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
+            elif col_name in ("E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
                 larguras.append(LARGA)
     
             elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
