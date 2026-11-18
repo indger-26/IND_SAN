@@ -2648,7 +2648,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
     ax.set_xticklabels(
         meses_labels,
-        fontsize=10
+        fontsize=13
     )
 
     ax.legend(
@@ -2656,7 +2656,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
         bbox_to_anchor=(0, 1.12),
         ncol=3,
         frameon=False,
-        fontsize=10
+        fontsize=12
     )
 
     ax.grid(
@@ -2675,21 +2675,18 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
     ax.set_ylabel('')
 
     def colocar_valores(barras):
-
-        for barra in barras:
-
-            altura = barra.get_height()
-
-            if altura > 0:
-
-                ax.text(
-                    barra.get_x() + barra.get_width() / 2,
-                    altura + 0.008,
-                    f'{altura * 100:.1f}%'.replace('.', ','),
-                    ha='center',
-                    va='bottom',
-                    fontsize=10.0
-                )
+      for barra in barras:
+          altura = barra.get_height()
+          if altura > 0:
+              ax.text(
+                  barra.get_x() + barra.get_width() / 2,
+                  altura + 0.008,
+                  f'{altura * 100:.1f}%'.replace('.', ','),
+                  ha='center',
+                  va='bottom',
+                  rotation=90,
+                  fontsize=13
+              )
 
     colocar_valores(barras1)
     colocar_valores(barras2)
@@ -2881,7 +2878,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
 
       ax.set_xticklabels(
           trimestres_labels,
-          fontsize=10
+          fontsize=13
       )
 
       ax.legend(
@@ -2889,7 +2886,7 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
           bbox_to_anchor=(0, 1.12),
           ncol=3,
           frameon=False,
-          fontsize=10
+          fontsize=13
       )
 
       ax.grid(
@@ -2908,25 +2905,18 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
       ax.set_ylabel('')
 
       def colocar_valores(barras):
-
-          for barra in barras:
-
-              altura = barra.get_height()
-
-              if altura > 0:
-
-                  ax.text(
-                      barra.get_x()
-                      + barra.get_width() / 2,
-                      altura + 0.008,
-                      f'{altura * 100:.1f}%'.replace(
-                          '.',
-                          ','
-                      ),
-                      ha='center',
-                      va='bottom',
-                      fontsize=10.0
-                  )
+        for barra in barras:
+            altura = barra.get_height()
+            if altura > 0:
+                ax.text(
+                    barra.get_x() + barra.get_width() / 2,
+                    altura + 0.008,
+                    f'{altura * 100:.1f}%'.replace('.', ','),
+                    ha='center',
+                    va='bottom',
+                    rotation=90,
+                    fontsize=13
+                )
 
       colocar_valores(barras1)
       colocar_valores(barras2)
@@ -3054,10 +3044,10 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
           ax.set_ylim(0, ymax * 1.15)
       
           ax.set_xticks(x)
-          ax.set_xticklabels(labels, fontsize=10)
+          ax.set_xticklabels(labels, fontsize=13)
       
           ax.legend(loc="upper left", bbox_to_anchor=(0, 1.12), ncol=4,
-                    frameon=False, fontsize=10)
+                    frameon=False, fontsize=13)
       
           ax.grid(axis="y", linestyle="-", linewidth=0.7, alpha=0.35)
           ax.set_axisbelow(True)
@@ -3068,15 +3058,18 @@ def graf_iqa_iqe (prestadora_sigla, mes, ano_contratual):
           ax.tick_params(axis="both", length=0)
       
           def colocar_valores(barras):
-              for barra in barras:
-                  altura = barra.get_height()
-                  if pd.notnull(altura) and altura > 0:
-                      ax.text(
-                          barra.get_x() + barra.get_width() / 2,
-                          altura + ymax * 0.01,
-                          f"{altura:.2f}".replace(".", ","),
-                          ha="center", va="bottom", fontsize=10.0
-                      )
+            for barra in barras:
+                altura = barra.get_height()
+                if altura > 0:
+                    ax.text(
+                        barra.get_x() + barra.get_width() / 2,
+                        altura + 0.008,
+                        f'{altura * 100:.1f}%'.replace('.', ','),
+                        ha='center',
+                        va='bottom',
+                        rotation=90,
+                        fontsize=13
+                    )
       
           colocar_valores(barras1)
           colocar_valores(barras2)
@@ -3338,7 +3331,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
 
       ax.set_ylim(
           0,
-          maior_valor * 1.15
+          maior_valor * 1.25
           if maior_valor > 0
           else 1
       )
@@ -3347,7 +3340,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
 
       ax.set_xticklabels(
           meses_labels,
-          fontsize=10
+          fontsize=13
       )
 
       ax.legend(
@@ -3355,7 +3348,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
           bbox_to_anchor=(0, 1.12),
           ncol=2,
           frameon=False,
-          fontsize=10
+          fontsize=12
       )
 
       ax.grid(
@@ -3381,7 +3374,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
               f'{valor:.0f}'.replace('.', ','),
               ha='center',
               va='top',
-              fontsize=10
+              fontsize=12
           )
 
       for i, valor in enumerate(nam_realiz):
@@ -3392,12 +3385,12 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
               f'{valor:.0f}'.replace('.', ','),
               ha='center',
               va='bottom',
-              fontsize=10
+              fontsize=12
           )
 
       ax.tick_params(
           axis='both',
-          length=0
+          length=0, labelsize=13
       )
 
       plt.tight_layout()
@@ -3557,7 +3550,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
 
         ax.set_ylim(
             0,
-            maior_valor * 1.15
+            maior_valor * 1.25
             if maior_valor > 0
             else 1
         )
@@ -3566,7 +3559,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
 
         ax.set_xticklabels(
             trimestres_labels,
-            fontsize=10
+            fontsize=13
         )
 
         ax.legend(
@@ -3574,7 +3567,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
             bbox_to_anchor=(0, 1.12),
             ncol=2,
             frameon=False,
-            fontsize=10
+            fontsize=12
         )
 
         ax.grid(
@@ -3600,7 +3593,7 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
                 f'{valor:.0f}'.replace('.', ','),
                 ha='center',
                 va='top',
-                fontsize=10
+                fontsize=12
             )
 
         for i, valor in enumerate(nam_realiz):
@@ -3611,12 +3604,12 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
                 f'{valor:.0f}'.replace('.', ','),
                 ha='center',
                 va='bottom',
-                fontsize=10
+                fontsize=12
             )
 
         ax.tick_params(
             axis='both',
-            length=0
+            length=0, labelsize=13
         )
 
         plt.tight_layout()
@@ -3716,17 +3709,17 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
           )
   
           maior_valor = max(potencial.max(), total.max())
-          ax.set_ylim(0, maior_valor * 1.15 if maior_valor > 0 else 1)
+          ax.set_ylim(0, maior_valor * 1.25 if maior_valor > 0 else 1)
   
           ax.set_xticks(x)
-          ax.set_xticklabels(labels, fontsize=10)
+          ax.set_xticklabels(labels, fontsize=13)
   
           ax.legend(
               loc='upper left',
               bbox_to_anchor=(0, 1.12),
               ncol=2,
               frameon=False,
-              fontsize=10
+              fontsize=12
           )
   
           ax.grid(axis='y', linestyle='-', linewidth=0.7, alpha=0.35)
@@ -3746,19 +3739,19 @@ def nc_nr(prestadora_sigla, mes, ano_contratual):
               if potencial.iloc[i] >= total.iloc[i]:
                   ax.text(x[i], potencial.iloc[i] + deslocamento,
                           formatar_numero(potencial.iloc[i]),
-                          ha='center', va='bottom', fontsize=10)
+                          ha='center', va='bottom', fontsize=12)
                   ax.text(x[i], total.iloc[i] - deslocamento,
                           formatar_numero(total.iloc[i]),
-                          ha='center', va='top', fontsize=10)
+                          ha='center', va='top', fontsize=12)
               else:
                   ax.text(x[i], total.iloc[i] + deslocamento,
                           formatar_numero(total.iloc[i]),
-                          ha='center', va='bottom', fontsize=10)
+                          ha='center', va='bottom', fontsize=12)
                   ax.text(x[i], potencial.iloc[i] - deslocamento,
                           formatar_numero(potencial.iloc[i]),
-                          ha='center', va='top', fontsize=10)
+                          ha='center', va='top', fontsize=12)
   
-          ax.tick_params(axis='both', length=0)
+          ax.tick_params(axis='both', length=0, labelsize=13)
   
           plt.tight_layout()
   
@@ -4634,10 +4627,10 @@ def rel_iqa():
         ('$GRAF_CONF_REALIZ_TEMPO',    'nc_nr_IQAS.png',                'width', 7.1),
         ('$GRAF_COMPARATIVO_IQAS',     'IQAS.png',                      'width', 5.5),
         ('$GRAF_PLANO_REALIZ_ANALISE', 'grafico_plan_realiz_tipo.png',  'width', 6.5),
-        ('$GRAF_PLANO_REALIZ_MUN',     'grafico_plan_realiz_mun.png',   'height', 9.06),
+        ('$GRAF_PLANO_REALIZ_MUN',     'grafico_plan_realiz_mun.png',   'height', 9.0),
         ('$GRAF_CONF_REALIZ_ANALISE',  'grafico_conf_realiz_tipo.png',  'width', 7.1),
-        ('$GRAF_CONF_REALIZ_MUN',      'grafico_conf_realiz_mun.png',   'height', 9.06),
-        ('$GRAF_IQAS_MUN',             'grafico_iqa_mun.png',           'height', 9.06),
+        ('$GRAF_CONF_REALIZ_MUN',      'grafico_conf_realiz_mun.png',   'height', 9.0),
+        ('$GRAF_IQAS_MUN',             'grafico_iqa_mun.png',           'height', 9.0),
     ]
 
     for ph, img, dim, valor in placeholders:
@@ -5409,21 +5402,21 @@ def rel_iqa():
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     for bar in bars2:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     for bar in bars3:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
-    ax3.tick_params(axis='y', labelsize=11)
+    ax3.tick_params(axis='y', labelsize=14)
     ax3.grid(axis='x', linestyle='--', alpha=0.1)
     ax3.legend()
 
@@ -5449,13 +5442,13 @@ def rel_iqa():
 
     for bar in bars1:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     for bar in bars2:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
-    ax4.tick_params(axis='y', labelsize=11)
+    ax4.tick_params(axis='y', labelsize=14)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
     ax4.legend()
@@ -5481,9 +5474,9 @@ def rel_iqa():
 
     for bar in bars1:
       ax5.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{bar.get_width():.1f}', va='center', fontsize=10)
+              f'{bar.get_width():.1f}', va='center', fontsize=13)
 
-    ax5.tick_params(axis='y', labelsize=11)
+    ax5.tick_params(axis='y', labelsize=13)
 
     ax5.grid(axis='x', linestyle='--', alpha=0.1)
     ax5.legend()
@@ -5513,10 +5506,10 @@ def rel_iqa():
 
     for barra in barras:
       altura = barra.get_height()
-      ax6.text(barra.get_x() + barra.get_width()/2, altura/2, f'{altura}', ha='center', va='center', color='black', fontsize=10)
+      ax6.text(barra.get_x() + barra.get_width()/2, altura/2, f'{altura}', ha='center', va='center', color='black', fontsize=13)
 
     for p, valor in enumerate(TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"]):
-      ax6.text(x[p] + 0.1, valor + 1.5, f'{valor}', ha='left', va='bottom', color='green', fontsize=10)
+      ax6.text(x[p] + 0.1, valor + 1.5, f'{valor}', ha='left', va='bottom', color='green', fontsize=13)
 
     ax6.grid(True, linestyle='--', alpha=0.1)
 
@@ -5556,16 +5549,16 @@ def rel_iqa():
     bars2 = ax7.barh(y - largura/2, TAB_TIPO["ANALISES REALIZADAS"] - TAB_TIPO["EXPURGOS TOTAIS"], height=largura, label="ANALISES REALIZADAS (SUBTRAINDO OS EXPURGOS TOTAIS)", color="orange")
 
     ax7.set_yticks(y)
-    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"])
+    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], , fontsize=13)
     ax7.set_xlabel("Amostras")
 
     for bar in bars1:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     for bar in bars2:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax7.grid(axis='x', linestyle='--', alpha=0.1)
     ax7.legend()
@@ -7143,10 +7136,14 @@ def rel_iqa_iqe():
     TAB_MUN_ARSAL_IQE = restaurar_nomes_municipios(TAB_MUN_ARSAL_IQE, 'MUNICÍPIO')
 
     if eh_agosto:
-      tabs = ["TAB_EPOT_ARSAL", "TAB_EPOT_VI", "TAB_ETOT_ARSAL", "TAB_ETOT_VI"]
-      for nome in tabs:
-          if isinstance(globals().get(nome), pd.DataFrame):
-              globals()[nome] = restaurar_nomes_municipios(globals()[nome], 'Municipio')
+      if isinstance(TAB_EPOT_ARSAL, pd.DataFrame):
+          TAB_EPOT_ARSAL = restaurar_nomes_municipios(TAB_EPOT_ARSAL, 'Municipio')
+      if isinstance(TAB_EPOT_VI, pd.DataFrame):
+          TAB_EPOT_VI = restaurar_nomes_municipios(TAB_EPOT_VI, 'Municipio')
+      if isinstance(TAB_ETOT_ARSAL, pd.DataFrame):
+          TAB_ETOT_ARSAL = restaurar_nomes_municipios(TAB_ETOT_ARSAL, 'Municipio')
+      if isinstance(TAB_ETOT_VI, pd.DataFrame):
+          TAB_ETOT_VI = restaurar_nomes_municipios(TAB_ETOT_VI, 'Municipio')
 
 
     lista_oficial_parametros = [
@@ -7454,6 +7451,9 @@ def rel_iqa_iqe():
   
             elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)", "E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
                 larguras.append(EX_LARGA)
+
+            elif col_name in ("E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
+                larguras.append(LARGA)
     
             elif col_name in ("PLANO DE AMOSTRAGEM", "PLANO DE AMOSTRAGEM AJUSTADO",
                               "PLANO DE AMOSTRAGEM AJUSTADO - ARSAL", "DESCONSIDERAÇÕES DO PLANO", "RECONSIDERAÇÕES DO PLANO",
@@ -7591,10 +7591,10 @@ def rel_iqa_iqe():
         ('$GRAF_COMPARATIVO_IQAS',          'IQAS.png',                          'width', 6.5),
         ('$GRAF_CONF_REALIZ_TEMPO',         'nc_nr_IQAS.png',                    'width', 6.5),
         ('$GRAF_PLANO_REALIZ_ANALISE',      'grafico_plan_realiz_tipo.png',      'width', 6.5),
-        ('$GRAF_PLANO_REALIZ_MUN',          'grafico_plan_realiz_mun.png',       'height', 9.06),
+        ('$GRAF_PLANO_REALIZ_MUN',          'grafico_plan_realiz_mun.png',       'height', 9.0),
         ('$GRAF_CONF_REALIZ_ANALISE',       'grafico_conf_realiz_tipo.png',      'width', 6.5),
-        ('$GRAF_CONF_REALIZ_MUN',           'grafico_conf_realiz_mun.png',       'height', 9.06),
-        ('$GRAF_IQAS_MUN',                  'grafico_iqa_mun.png',               'height', 9.06),
+        ('$GRAF_CONF_REALIZ_MUN',           'grafico_conf_realiz_mun.png',       'height', 9.0),
+        ('$GRAF_IQAS_MUN',                  'grafico_iqa_mun.png',               'height', 9.0),
 
         ('$GRAF_COMPARATIVO_IQES',          'IQES.png',                          'width', 7.1),
         ('$GRAF__CONF_REALIZ_TEMPO_IQE',    'nc_nr_IQES.png',                    'width', 7.1),
@@ -8805,21 +8805,21 @@ def rel_iqa_iqe():
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     for bar in bars2:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     for bar in bars3:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
-    ax3.tick_params(axis='y', labelsize=11)
+    ax3.tick_params(axis='y', labelsize=14)
     ax3.grid(axis='x', linestyle='--', alpha=0.1)
     ax3.legend()
 
@@ -8846,13 +8846,13 @@ def rel_iqa_iqe():
 
     for bar in bars1:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     for bar in bars2:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
-    ax4.tick_params(axis='y', labelsize=11)
+    ax4.tick_params(axis='y', labelsize=14)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
     ax4.legend()
@@ -8879,9 +8879,9 @@ def rel_iqa_iqe():
 
     for bar in bars1:
       ax5.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{bar.get_width():.1f}', va='center', fontsize=10)
+              f'{bar.get_width():.1f}', va='center', fontsize=13)
 
-    ax5.tick_params(axis='y', labelsize=11)
+    ax5.tick_params(axis='y', labelsize=13)
 
     ax5.grid(axis='x', linestyle='--', alpha=0.1)
     ax5.legend()
@@ -8906,10 +8906,10 @@ def rel_iqa_iqe():
 
     for barra in barras:
       altura = barra.get_height()
-      ax6.text(barra.get_x() + barra.get_width()/2, altura/2, f'{altura}', ha='center', va='center', color='black', fontsize=10)
+      ax6.text(barra.get_x() + barra.get_width()/2, altura/2, f'{altura}', ha='center', va='center', color='black', fontsize=13)
 
     for p, valor in enumerate(TAB_TIPO["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"]):
-      ax6.text(x[p] + 0.1, valor + 1.5, f'{valor}', ha='left', va='bottom', color='green', fontsize=10)
+      ax6.text(x[p] + 0.1, valor + 1.5, f'{valor}', ha='left', va='bottom', color='green', fontsize=13)
 
     ax6.grid(True, linestyle='--', alpha=0.1)
 
@@ -8938,16 +8938,16 @@ def rel_iqa_iqe():
     bars2 = ax7.barh(y - largura/2, TAB_TIPO["ANALISES REALIZADAS"] - TAB_TIPO["EXPURGOS TOTAIS"], height=largura, label="ANALISES REALIZADAS (SUBTRAINDO OS EXPURGOS TOTAIS)", color="orange")
 
     ax7.set_yticks(y)
-    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"])
+    ax7.set_yticklabels(TAB_TIPO["ANÁLISE"], fontsize=14)
     ax7.set_xlabel("Amostras")
 
     for bar in bars1:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     for bar in bars2:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax7.grid(axis='x', linestyle='--', alpha=0.1)
     ax7.legend()
@@ -8986,26 +8986,26 @@ def rel_iqa_iqe():
     bars3 = ax3.barh(y - largura,   TAB_MUN_FINAL_IQE["EXPURGOS TOTAIS"],                      height=largura, label="EXPURGOS",                              color="orange")
 
     ax3.set_yticks(y)
-    ax3.set_yticklabels(TAB_MUN_FINAL_IQE["MUNICÍPIO"])
+    ax3.set_yticklabels(TAB_MUN_FINAL_IQE["MUNICÍPIO"], fontsize=13)
     ax3.set_xlabel("Amostras")
 
     for bar in bars1:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     for bar in bars2:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     for bar in bars3:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=10)
+                f'{val}', va='center', fontsize=13)
 
     ax3.tick_params(axis='y', labelsize=11)
     ax3.grid(axis='x', linestyle='--', alpha=0.1)
@@ -9034,13 +9034,13 @@ def rel_iqa_iqe():
 
     for bar in bars1:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     for bar in bars2:
       ax4.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
-    ax4.tick_params(axis='y', labelsize=11)
+    ax4.tick_params(axis='y', labelsize=13)
 
     ax4.grid(axis='x', linestyle='--', alpha=0.1)
     ax4.legend()
@@ -9067,9 +9067,9 @@ def rel_iqa_iqe():
 
     for bar in bars1:
       ax5.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{bar.get_width():.1f}', va='center', fontsize=10)
+              f'{bar.get_width():.1f}', va='center', fontsize=13)
 
-    ax5.tick_params(axis='y', labelsize=11)
+    ax5.tick_params(axis='y', labelsize=13)
 
     ax5.grid(axis='x', linestyle='--', alpha=0.1)
     ax5.legend()
@@ -9094,10 +9094,10 @@ def rel_iqa_iqe():
 
     for barra in barras:
       altura = barra.get_height()
-      ax6.text(barra.get_x() + barra.get_width()/2, altura/2, f'{altura}', ha='center', va='center', color='black', fontsize=10)
+      ax6.text(barra.get_x() + barra.get_width()/2, altura/2, f'{altura}', ha='center', va='center', color='black', fontsize=13)
 
     for p, valor in enumerate(TAB_TIPO_IQE["PLANO DE AMOSTRAGEM AJUSTADO - ARSAL"]):
-      ax6.text(x[p] + 0.1, valor + 1.5, f'{valor}', ha='left', va='bottom', color='green', fontsize=10)
+      ax6.text(x[p] + 0.1, valor + 1.5, f'{valor}', ha='left', va='bottom', color='green', fontsize=13)
 
     ax6.grid(True, linestyle='--', alpha=0.1)
 
@@ -9126,16 +9126,16 @@ def rel_iqa_iqe():
     bars2 = ax7.barh(y - largura/2, TAB_TIPO_IQE["ANALISES REALIZADAS"] - TAB_TIPO_IQE["EXPURGOS TOTAIS"], height=largura, label="ANALISES REALIZADAS (SUBTRAINDO OS EXPURGOS TOTAIS)", color="orange")
 
     ax7.set_yticks(y)
-    ax7.set_yticklabels(TAB_TIPO_IQE["ANÁLISE"])
+    ax7.set_yticklabels(TAB_TIPO_IQE["ANÁLISE"], fontsize=13)
     ax7.set_xlabel("Amostras")
 
     for bar in bars1:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     for bar in bars2:
       ax7.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-              f'{int(bar.get_width())}', va='center', fontsize=10)
+              f'{int(bar.get_width())}', va='center', fontsize=13)
 
     ax7.grid(axis='x', linestyle='--', alpha=0.1)
     ax7.legend()
