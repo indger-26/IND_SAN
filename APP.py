@@ -4583,66 +4583,67 @@ def rel_iqa():
   # ALIMENTANDO INFORMAÇÕES AO MODELO DE RELATÓRIO
 
   def substituir_var(documento, var_dic):
-      doc = Document(documento)
+    doc = Document(documento)
 
-      def process_paragraph(paragraph):
-          full_text = "".join(run.text for run in paragraph.runs)
+    def process_paragraph(paragraph):
+        full_text = "".join(run.text for run in paragraph.runs)
 
-          if any(key in full_text for key in var_dic.keys()):
-              for key, value in var_dic.items():
-                  if key in full_text:
-                      if isinstance(value, pd.DataFrame):
-                        
-                          tbl = df_para_tabela_word(doc, value)
-                          paragraph._element.addprevious(tbl)
+        if any(key in full_text for key in var_dic.keys()):
+            for key, value in var_dic.items():
+                if key in full_text:
+                    if isinstance(value, pd.DataFrame):
+                        tbl = df_para_tabela_word(doc, value)
+                        paragraph._element.addprevious(tbl)
 
-                          for run in paragraph.runs:
-                              run.text = ""
+                        for run in paragraph.runs:
+                            run.text = ""
+                        return
+                    else:
+                        full_text = full_text.replace(key, value)
 
-                          return
-                      else:
-                          full_text = full_text.replace(key, value)
+            for run in paragraph.runs:
+                run.text = ""
+            paragraph.runs[0].text = full_text
 
-              for run in paragraph.runs:
-                  run.text = ""
-              paragraph.runs[0].text = full_text
+    for p in doc.paragraphs:
+        process_paragraph(p)
 
-      for p in doc.paragraphs:
-          process_paragraph(p)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    process_paragraph(p)
 
-      for table in doc.tables:
-          for row in table.rows:
-              for cell in row.cells:
-                  for p in cell.paragraphs:
-                      process_paragraph(p)
+    def replace_placeholder_with_image(doc, placeholder, image_path,
+                                       dimensao, valor_pol):
+        if dimensao == 'width':
+            kwargs = {'width': Inches(valor_pol)}
+        elif dimensao == 'height':
+            kwargs = {'height': Inches(valor_pol)}
+        else:
+            raise ValueError(f"dimensao inválida: {dimensao}")
 
-      def replace_placeholder_with_image(doc, placeholder, image_path, width_inches):
         for paragraph in doc.paragraphs:
             if placeholder in paragraph.text:
-
                 paragraph.clear()
-    
-                paragraph.add_run().add_picture(image_path, width=Inches(width_inches))
+                paragraph.add_run().add_picture(image_path, **kwargs)
 
-      placeholders = [
+    placeholders = [
+        # (placeholder, arquivo, dimensao, valor em polegadas)
+        ('$GRAF_COMPARATIVO_IQAS',     'IQAS.png',                      'width', 6.5),
+        ('$GRAF_CONF_REALIZ_TEMPO',    'nc_nr_IQAS.png',                'width', 7.1),
+        ('$GRAF_COMPARATIVO_IQAS',     'IQAS.png',                      'width', 5.5),
+        ('$GRAF_PLANO_REALIZ_ANALISE', 'grafico_plan_realiz_tipo.png',  'width', 6.5),
+        ('$GRAF_PLANO_REALIZ_MUN',     'grafico_plan_realiz_mun.png',   'height', 9.06),
+        ('$GRAF_CONF_REALIZ_ANALISE',  'grafico_conf_realiz_tipo.png',  'width', 7.1),
+        ('$GRAF_CONF_REALIZ_MUN',      'grafico_conf_realiz_mun.png',   'height', 9.06),
+        ('$GRAF_IQAS_MUN',             'grafico_iqa_mun.png',           'height', 9.06),
+    ]
 
-        ('$GRAF_COMPARATIVO_IQAS', 'IQAS.png', 6.5),
+    for ph, img, dim, valor in placeholders:
+        replace_placeholder_with_image(doc, ph, img, dim, valor)
 
-        ('$GRAF_CONF_REALIZ_TEMPO', 'nc_nr_IQAS.png', 6.5),
-        ('$GRAF_COMPARATIVO_IQAS', 'IQAS.png', 5.5),
-
-        ('$GRAF_PLANO_REALIZ_ANALISE', 'grafico_plan_realiz_tipo.png', 6.5),
-        ('$GRAF_PLANO_REALIZ_MUN', 'grafico_plan_realiz_mun.png', 9.0),#####
-        ('$GRAF_CONF_REALIZ_ANALISE', 'grafico_conf_realiz_tipo.png', 6.5),
-        ('$GRAF_CONF_REALIZ_MUN', 'grafico_conf_realiz_mun.png', 9.5),
-        ('$GRAF_IQAS_MUN', 'grafico_iqa_mun.png', 6.5)
-      ]
-
-      for ph, img, width in placeholders:
-        replace_placeholder_with_image(doc, ph, img, width)
-
-      return doc
-
+    return doc
 
 
 # ANÁLISE POR MUNICÍPIO
@@ -7532,13 +7533,9 @@ def rel_iqa_iqe():
   def substituir_var(documento, var_dic):
     doc = Document(documento)
 
-    # # blocos primeiro, antes de qualquer placeholder sumir
-    # for inicio, fim, novo in blocos:
-    #     replace_block(doc, inicio, fim, novo)
-
     # chaves maiores primeiro ('$I10' e '$I11' antes de '$I1')
     itens = sorted(var_dic.items(), key=lambda kv: len(kv[0]), reverse=True)
-    
+
     def process_paragraph(paragraph):
         full_text = "".join(run.text for run in paragraph.runs)
 
@@ -7546,7 +7543,6 @@ def rel_iqa_iqe():
             for key, value in itens:
                 if key in full_text:
                     if isinstance(value, pd.DataFrame):
-
                         tbl = df_para_tabela_word(doc, value)
                         paragraph._element.addprevious(tbl)
 
@@ -7576,43 +7572,48 @@ def rel_iqa_iqe():
                 for p in cell.paragraphs:
                     process_paragraph(p)
 
-    def replace_placeholder_with_image(doc, placeholder, image_path, width_inches):
-      for paragraph in doc.paragraphs:
-          if placeholder in paragraph.text:
-              
-              paragraph.clear()
-              
-              paragraph.add_run().add_picture(image_path, width=Inches(width_inches))
+    def replace_placeholder_with_image(doc, placeholder, image_path,
+                                       dimensao, valor_pol):
+        if dimensao == 'width':
+            kwargs = {'width': Inches(valor_pol)}
+        elif dimensao == 'height':
+            kwargs = {'height': Inches(valor_pol)}
+        else:
+            raise ValueError(f"dimensao inválida: {dimensao}")
+
+        for paragraph in doc.paragraphs:
+            if placeholder in paragraph.text:
+                paragraph.clear()
+                paragraph.add_run().add_picture(image_path, **kwargs)
 
     placeholders = [
+        # (placeholder, arquivo, dimensao, valor em polegadas)
+        ('$GRAF_COMPARATIVO_IQAS',          'IQAS.png',                          'width', 6.5),
+        ('$GRAF_CONF_REALIZ_TEMPO',         'nc_nr_IQAS.png',                    'width', 6.5),
+        ('$GRAF_PLANO_REALIZ_ANALISE',      'grafico_plan_realiz_tipo.png',      'width', 6.5),
+        ('$GRAF_PLANO_REALIZ_MUN',          'grafico_plan_realiz_mun.png',       'height', 9.06),
+        ('$GRAF_CONF_REALIZ_ANALISE',       'grafico_conf_realiz_tipo.png',      'width', 6.5),
+        ('$GRAF_CONF_REALIZ_MUN',           'grafico_conf_realiz_mun.png',       'height', 9.06),
+        ('$GRAF_IQAS_MUN',                  'grafico_iqa_mun.png',               'height', 9.06),
 
-      ('$GRAF_COMPARATIVO_IQAS', 'IQAS.png', 6.5),
-      ('$GRAF_CONF_REALIZ_TEMPO', 'nc_nr_IQAS.png', 6.5),
-      ('$GRAF_PLANO_REALIZ_ANALISE', 'grafico_plan_realiz_tipo.png', 6.5),
-      ('$GRAF_PLANO_REALIZ_MUN', 'grafico_plan_realiz_mun.png', 9.0),
-      ('$GRAF_CONF_REALIZ_ANALISE', 'grafico_conf_realiz_tipo.png', 6.5),
-      ('$GRAF_CONF_REALIZ_MUN', 'grafico_conf_realiz_mun.png', 9.5),
-      ('$GRAF_IQAS_MUN', 'grafico_iqa_mun.png', 6.5),
+        ('$GRAF_COMPARATIVO_IQES',          'IQES.png',                          'width', 7.1),
+        ('$GRAF__CONF_REALIZ_TEMPO_IQE',    'nc_nr_IQES.png',                    'width', 7.1),
+        ('$GRAF__PLANO_REALIZ_ANALISE_IQE', 'grafico_plan_realiz_tipo_IQE.png',  'width', 6.5),
+        ('$GRAF__PLANO_REALIZ_MUN_IQE',     'grafico_plan_realiz_mun_IQE.png',   'width', 9.0),
+        ('$GRAF__CONF_REALIZ_ANALISE_IQE',  'grafico_conf_realiz_tipo_IQE.png',  'width', 7.1),
+        ('$GRAF__CONF_REALIZ_MUN_IQE',      'grafico_conf_realiz_mun_IQE.png',   'width', 9.5),
+        ('$GRAF_IQES_MUN',                  'grafico_iqa_mun_IQE.png',           'width', 7.1),
 
-      ('$GRAF_COMPARATIVO_IQES', 'IQES.png', 6.5),
-      ('$GRAF__CONF_REALIZ_TEMPO_IQE', 'nc_nr_IQES.png', 6.5),
-      ('$GRAF__PLANO_REALIZ_ANALISE_IQE', 'grafico_plan_realiz_tipo_IQE.png', 6.5),
-      ('$GRAF__PLANO_REALIZ_MUN_IQE', 'grafico_plan_realiz_mun_IQE.png', 9.0),
-      ('$GRAF__CONF_REALIZ_ANALISE_IQE', 'grafico_conf_realiz_tipo_IQE.png', 6.5),
-      ('$GRAF__CONF_REALIZ_MUN_IQE', 'grafico_conf_realiz_mun_IQE.png', 9.5),
-      ('$GRAF_IQES_MUN', 'grafico_iqa_mun_IQE.png', 6.5),
-
-      ('$GRAF_IUAS', 'grafico_3_iua_por_municipio.png', 6.5),
-      ('$GRAF_IUES', 'grafico_4_iue_por_municipio.png', 6.5),
-      ('$GRAF_COMP_IUAS', 'grafico_1_iua_pot_total.png', 6.5),
-      ('$GRAF_COMP_IUES', 'grafico_2_iue_pot_total.png', 6.5)
+        ('$GRAF_IUAS',                      'grafico_3_iua_por_municipio.png',   'width', 6.5),
+        ('$GRAF_IUES',                      'grafico_4_iue_por_municipio.png',   'width', 6.5),
+        ('$GRAF_COMP_IUAS',                 'grafico_1_iua_pot_total.png',       'width', 6.5),
+        ('$GRAF_COMP_IUES',                 'grafico_2_iue_pot_total.png',       'width', 6.5),
     ]
 
-    for ph, img, width in placeholders:
-      replace_placeholder_with_image(doc, ph, img, width)
+    for ph, img, dim, valor in placeholders:
+        replace_placeholder_with_image(doc, ph, img, dim, valor)
 
     return doc
-
   
 
   # ANÁLISE POR MUNICÍPIO
