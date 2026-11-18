@@ -8992,19 +8992,19 @@ def rel_iqa_iqe():
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=12)
+                f'{val}', va='center', fontsize=11.5)
 
     for bar in bars2:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=12)
+                f'{val}', va='center', fontsize=11.5)
 
     for bar in bars3:
       val = int(bar.get_width())
       if val > 0:
         ax3.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
-                f'{val}', va='center', fontsize=12)
+                f'{val}', va='center', fontsize=11.5)
 
     ax3.tick_params(axis='y', labelsize=15)
     ax3.tick_params(axis='x', labelsize=14)
