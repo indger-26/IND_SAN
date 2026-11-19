@@ -7422,7 +7422,7 @@ def rel_iqa_iqe():
 
     MUNICIPIO_ANALISE = Cm(5.5)
     EX_LARGA          = Cm(7.0)
-    LARGA             = Cm(3.2)
+    LARGA             = Cm(2.2) #3.2
     MEDIA             = Cm(2.5)
     ESTREITA          = Cm(1.6)
     CONVERSAO         = Cm(3.0)
