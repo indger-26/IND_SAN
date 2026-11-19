@@ -7422,7 +7422,7 @@ def rel_iqa_iqe():
 
     MUNICIPIO_ANALISE = Cm(5.5)
     EX_LARGA          = Cm(7.0)
-    LARGA             = Cm(2.2) #3.2
+    LARGA             = Cm(3.0) #3.2
     MEDIA             = Cm(2.5)
     ESTREITA          = Cm(1.6)
     CONVERSAO         = Cm(3.0)
@@ -7432,7 +7432,7 @@ def rel_iqa_iqe():
 
         if c == 0:
 
-            if col_name in ("MUNICÍPIO", "ANÁLISE"):
+            if col_name in ("MUNICÍPIO", "ANÁLISE", "Municipio"):
                 larguras.append(MUNICIPIO_ANALISE)
             else:
                 larguras.append(ESTREITA)
@@ -7442,7 +7442,7 @@ def rel_iqa_iqe():
                             "CONVERSÃO: CONFORME → NÃO CONFORME", "CONVERSÃO: NÃO CONFORME → CONFORME"):
                 larguras.append(CONVERSAO)
   
-            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)", "Municipio"):
+            elif col_name in ("PONDERAÇÕES (PRESTADORA)", "PONDERAÇÕES (VI)", "PONDERAÇÕES (ARSAL)"):
                 larguras.append(EX_LARGA)
 
             elif col_name in ("E potencial esgoto", "E potencial agua", "E total esgoto", "E total agua"):
