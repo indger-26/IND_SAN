@@ -179,6 +179,37 @@ def ler_ajustar_arquivo ():
   #iqe_detalhado = iqe_detalhado.drop('conformidade_vi', axis=1)
 
 
+  
+
+  # RECLASSIFICAR CONFORMIDADE PARA ÁGUA BRUTA
+
+  def _norm_txt(s):
+      """Minúsculo, sem acento, sem pontuação e sem espaços duplicados."""
+      s = "".join(
+          c for c in unicodedata.normalize("NFKD", str(s))
+          if not unicodedata.combining(c)
+      )
+      s = re.sub(r"[^a-z0-9]+", " ", s.lower())
+      return s.strip()
+
+  def _eh_agua_bruta(serie):
+      """
+      True para 'Captação Superficial' / 'Captação Subterrânea' e variações:
+      maiúsculas/minúsculas, sem acento, espaços extras, hífen/underscore,
+      'Captacao Superficial', 'CAPTAÇÃO SUBTERRANEA', 'Superficial (Captação)' etc.
+      """
+      t = serie.map(_norm_txt)
+      return (
+          t.str.contains(r"\bcapt\w*.*\b(superf\w*|subter\w*)", regex=True, na=False)
+          | t.str.contains(r"\b(superf\w*|subter\w*).*\bcapt\w*", regex=True, na=False)
+      )
+
+  def _achar_coluna(df_, nome_alvo="tipoamostra"):
+      """Acha a coluna mesmo com variações: 'tipo_amostra', 'tipo _amostra', 'Tipo Amostra'..."""
+      for c in df_.columns:
+          if re.sub(r"[^a-z0-9]", "", _norm_txt(c)) == nome_alvo:
+              return c
+      return None
 
 
   
@@ -275,6 +306,16 @@ def ler_ajustar_arquivo ():
   # 3) Coliformes / E. coli (Não Conforme tem prioridade em caso de conflito)
   df.loc[coli_conferir & conforme_coli, "resultado"] = "Conforme"
   df.loc[coli_conferir & nao_conforme_coli, "resultado"] = "Não Conforme"
+
+
+  # 4) ÁGUA BRUTA (captação superficial/subterrânea) => sempre Conforme
+  col_tipo = _achar_coluna(df)
+  if col_tipo is not None:
+      agua_bruta = _eh_agua_bruta(df[col_tipo])
+      df.loc[agua_bruta, "resultado"] = "Conforme"
+  else:
+      print("Aviso: coluna 'tipo_amostra' não encontrada no IQA_DETALHADO.")
+
    
   # ---------- Flag de reclassificação ----------
   # True só onde o resultado realmente mudou
@@ -301,9 +342,6 @@ def ler_ajustar_arquivo ():
   # buffer.seek(0)
 
 
-
-  
-  
 
   prestadora_sigla = infos_gerais.iloc[0, 1]
 
@@ -5632,6 +5670,37 @@ def rel_iqa():
     PLAN_MUN_TIPO = PLAN_MUN_TIPO.drop(columns=["parametros_code", "cidade_code", "saa_code"])
 
 
+    # RECLASSIFICAR CONFORMIDADE PARA ÁGUA BRUTA
+
+    def _norm_txt(s):
+        """Minúsculo, sem acento, sem pontuação e sem espaços duplicados."""
+        s = "".join(
+            c for c in unicodedata.normalize("NFKD", str(s))
+            if not unicodedata.combining(c)
+        )
+        s = re.sub(r"[^a-z0-9]+", " ", s.lower())
+        return s.strip()
+  
+    def _eh_agua_bruta(serie):
+        """
+        True para 'Captação Superficial' / 'Captação Subterrânea' e variações:
+        maiúsculas/minúsculas, sem acento, espaços extras, hífen/underscore,
+        'Captacao Superficial', 'CAPTAÇÃO SUBTERRANEA', 'Superficial (Captação)' etc.
+        """
+        t = serie.map(_norm_txt)
+        return (
+            t.str.contains(r"\bcapt\w*.*\b(superf\w*|subter\w*)", regex=True, na=False)
+            | t.str.contains(r"\b(superf\w*|subter\w*).*\bcapt\w*", regex=True, na=False)
+        )
+  
+    def _achar_coluna(df_, nome_alvo="tipoamostra"):
+        """Acha a coluna mesmo com variações: 'tipo_amostra', 'tipo _amostra', 'Tipo Amostra'..."""
+        for c in df_.columns:
+            if re.sub(r"[^a-z0-9]", "", _norm_txt(c)) == nome_alvo:
+                return c
+        return None
+
+
     vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
 
 
@@ -5720,6 +5789,20 @@ def rel_iqa():
     # >>> ALTERADO: regras explícitas para coliformes totais / E. coli
     df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
     df.loc[eh_coli & nao_conforme_coli, "resultado"] = "Não Conforme"
+
+    # >>> NOVO: ÁGUA BRUTA (captação superficial/subterrânea) => sempre Conforme
+    col_tipo = _achar_coluna(df)
+    if col_tipo is not None:
+        agua_bruta = _eh_agua_bruta(df[col_tipo])
+        df.loc[agua_bruta, "resultado"] = "Conforme"
+    else:
+        print("Aviso: coluna 'tipo_amostra' não encontrada no IQA_DETALHADO.")
+
+    # alterado: True só onde o resultado realmente mudou
+    df["alterado"] = ~(
+        (df["resultado"] == resultado_original)
+        | (df["resultado"].isna() & resultado_original.isna())
+    )
     
     # alterado: True só onde o resultado realmente mudou
     df["alterado"] = ~(
@@ -9390,7 +9473,36 @@ def rel_iqa_iqe():
     PLAN_MUN_TIPO = PLAN_MUN_TIPO.drop(columns=["parametros_code", "cidade_code", "saa_code"])
 
 
+    # RECLASSIFICAR CONFORMIDADE PARA ÁGUA BRUTA
 
+    def _norm_txt(s):
+        """Minúsculo, sem acento, sem pontuação e sem espaços duplicados."""
+        s = "".join(
+            c for c in unicodedata.normalize("NFKD", str(s))
+            if not unicodedata.combining(c)
+        )
+        s = re.sub(r"[^a-z0-9]+", " ", s.lower())
+        return s.strip()
+  
+    def _eh_agua_bruta(serie):
+        """
+        True para 'Captação Superficial' / 'Captação Subterrânea' e variações:
+        maiúsculas/minúsculas, sem acento, espaços extras, hífen/underscore,
+        'Captacao Superficial', 'CAPTAÇÃO SUBTERRANEA', 'Superficial (Captação)' etc.
+        """
+        t = serie.map(_norm_txt)
+        return (
+            t.str.contains(r"\bcapt\w*.*\b(superf\w*|subter\w*)", regex=True, na=False)
+            | t.str.contains(r"\b(superf\w*|subter\w*).*\bcapt\w*", regex=True, na=False)
+        )
+  
+    def _achar_coluna(df_, nome_alvo="tipoamostra"):
+        """Acha a coluna mesmo com variações: 'tipo_amostra', 'tipo _amostra', 'Tipo Amostra'..."""
+        for c in df_.columns:
+            if re.sub(r"[^a-z0-9]", "", _norm_txt(c)) == nome_alvo:
+                return c
+        return None
+    
 
     
     vmps = pd.read_excel("VMPS.xlsx", sheet_name="IQA")
@@ -9479,6 +9591,23 @@ def rel_iqa_iqe():
     # >>> ALTERADO: regras explícitas para coliformes totais / E. coli
     df.loc[eh_coli & conforme_coli, "resultado"] = "Conforme"
     df.loc[eh_coli & nao_conforme_coli, "resultado"] = "Não Conforme"
+
+
+    # >>> NOVO: ÁGUA BRUTA (captação superficial/subterrânea) => sempre Conforme
+    col_tipo = _achar_coluna(df)
+    if col_tipo is not None:
+        agua_bruta = _eh_agua_bruta(df[col_tipo])
+        df.loc[agua_bruta, "resultado"] = "Conforme"
+    else:
+        print("Aviso: coluna 'tipo_amostra' não encontrada no IQA_DETALHADO.")
+
+    # alterado: True só onde o resultado realmente mudou
+    df["alterado"] = ~(
+        (df["resultado"] == resultado_original)
+        | (df["resultado"].isna() & resultado_original.isna())
+    )
+
+    
     
     # alterado: True só onde o resultado realmente mudou
     df["Reclassificado ARSAL?"] = ~(
